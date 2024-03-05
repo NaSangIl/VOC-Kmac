@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<!--라이브러리 참조 : Thymeleaf & Thymeleaf Layout -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popup}"
+      layout:fragment="Content"
+>
+
+<head>
+    <title th:text="VOC상세"></title>
+    <script th:src="@{/js/voc/voc_detail_pop.js}"></script>
+</head>
+
+<body>
+<!-- [dev]_ 상세 조회 팝업은 내용이 많으므로 "fullscreen" 클래스 추가하여 사용 -->
+    <div class="ui test modal modal-voc-detail fullscreen" style="width:1500px; height:100%">
+        <i class="close icon"></i>
+        <div class="header">
+          VOC 상세 정보
+        </div>
+        <div class="content" style="height:800px; max-height: 700px;">
+        <form name="viewForm" id="viewForm">
+            <div class="ui accordion">
+                <!-- VOC 기본 정보 영역 -->
+                <div class="title title-area active">
+                    <h3>VOC 기본 정보</h3>
+                </div>
+                <div class="content detail-table-area active">
+                    <div class="ui form">
+                        <table class="ui celled table">
+                            <colgroup>
+                                <col style="width:10%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:auto;">
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <label>VOC No</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="hidden" name="vocSeq" id="vocSeq" value="0">
+                                            <input type="text" name="vocId" id="vocId" readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>등록 일시</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="regDt" id="regDt" readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>등록자</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                      <div class="sixteen wide field">
+                                          <input type="text" name="regUserNm" id="regUserNm" readonly>
+                                      </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>상태</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                      <div class="sixteen wide field">
+                                          <input type="hidden" name="vocStatusCd" id="vocStatusCd">
+                                          <input type="text" name="vocStatusNm" id="vocStatusNm" readonly>
+                                      </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- //VOC 기본 정보 영역 -->
+                <!-- 고객 정보 영역 -->
+                <div class="title title-area active">
+                    <h3>고객 정보</h3>
+                </div>
+                <div class="content detail-table-area active">
+                    <div class="ui form">
+                        <table class="ui celled table">
+                            <colgroup>
+                                <col style="width:12%;">
+                                <col style="width:40%;">
+                                <col style="width:12%;">
+                                <col style="width:auto;">
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <label>고객명</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="four wide field">
+                                            <input type="hidden" name="companyCd" id="companyCd">
+                                            <input type="hidden" name="custSeq" id="custSeq" value="0">
+                                            <input type="text" name="custNm" id="custNm" readonly>
+                                        </div>
+                                        <div class="four wide field">
+                                            <div class="inline">
+                                                <div class="ui checkbox disabled">
+                                                    <input type="checkbox" name="anonymCustYn" id="anonymCustYn" class="hidden" disabled>
+                                                    <label id="anonymous">익명 고객</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>고객 번호</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                      <div class="eight wide field">
+                                        <input type="text" name="custNo" id="custNo" readonly>
+                                      </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>VOC 이력 및 민감도</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <div class="inline" id="vocCntDiv">
+                                                <dl>
+                                                    <dt>VOC 이력 :</dt>
+                                                    <dd><span class="txt-link-blue voc-cnt"></span></dd>
+                                                </dl>
+                                                <span class="unit">/</span>
+                                                <dl>
+                                                    <dt>민감 VOC :</dt>
+                                                    <dd><span class="txt-link-red sens-cnt"></span></dd>
+                                                </dl>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>전화번호</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <input type="hidden" name="telNo" id="telNo" />
+                                        <div class="five wide field">
+                                            <input type="number" name="telNo1" id="telNo1" readonly />
+                                        </div>
+                                        <div class="field">
+                                            <span class="unit">-</span>
+                                        </div>
+                                        <div class="five wide field">
+                                            <input type="number" name="telNo2" id="telNo2" readonly />
+                                        </div>
+                                        <div class="field">
+                                            <span class="unit">-</span>
+                                        </div>
+                                        <div class="five wide field">
+                                            <input type="number" name="telNo3" id="telNo3" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>이메일</label>
+                                </th>
+                                <td colspan="3">
+                                    <div class="fields">
+                                        <input type="hidden" name="emailAddr" id="emailAddr" class="display1 cust-data" />
+                                        <div class="two wide field">
+                                            <input type="text" name="emailAddr1" id="emailAddr1" readonly />
+                                        </div>
+                                        <div class="field">
+                                            <span class="unit">@</span>
+                                        </div>
+                                        <div class="two wide field">
+                                            <input type="text" name="emailAddr2" id="emailAddr2" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- //고객 정보 영역 -->
+                <!-- 기본 정보 영역 -->
+                <div class="title title-area active">
+                  <h3>기본 정보</h3>
+                </div>
+                <div class="content detail-table-area active">
+                    <div class="ui form">
+                        <table class="ui celled table">
+                            <colgroup>
+                                <col style="width:10%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:auto;">
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <label>VOC 구분</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="vocCaseNm" id="vocCaseNm" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>VOC 유형</label>
+                                </th>
+                                <td colspan="3">
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="vocTypeDisplay" id="vocTypeDisplay" readonly>
+                                        </div>
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="vocTypeNm1" id="vocTypeNm1" readonly>
+                                        </div>
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="vocTypeNm2" id="vocTypeNm2" readonly>
+                                        </div>
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="vocTypeNm3" id="vocTypeNm3" readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>접수 채널</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="rcptChnnNm" id="rcptChnnNm" readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                  <label>발생 장소</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="sourceNm" id="sourceNm" readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>발생 일시</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="five wide field">
+                                            <input type="hidden" name="sourceDt" id="sourceDt" />
+                                            <input type="text" name="sourceDt1" id="sourceDt1" readonly>
+                                        </div>
+                                        <div class="three wide field">
+                                            <input type="text" name="sourceDt2" id="sourceDt2" readonly>
+                                        </div>
+                                        <div class="field">
+                                            <span class="unit">시</span>
+                                        </div>
+                                        <div class="three wide field">
+                                            <input type="text" name="sourceDt3" id="sourceDt3" readonly>
+                                        </div>
+                                        <div class="field">
+                                            <span class="unit">분</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>고객 회신</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <div class="inline">
+                                                <div class="ui checkbox chk-custReplyYn disabled">
+                                                    <input type="checkbox" name="custReplyYn" id="custReplyYn" class="hidden" disabled>
+                                                    <label>회신 요망</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>회신 요청 방법</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="custReplyNm" id="custReplyNm" readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>민감/특이 여부</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <div class="inline">
+                                                <div class="ui checkbox chk-sensSpecYn disabled">
+                                                    <input type="checkbox" name="sensSpecYn" id="sensSpecYn" class="hidden" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- //기본 정보 영역 -->
+                <!-- VOC 정보 영역 -->
+                <div class="title title-area active">
+                    <h3>VOC 정보</h3>
+                </div>
+                <div class="content detail-table-area active">
+                    <div class="ui form">
+                        <table class="ui celled table">
+                            <colgroup>
+                                <col style="width:10%;">
+                                <col style="width:auto;">
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <label>VOC 제목/요약</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="vocTitle" id="vocTitle" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>VOC 내용</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <textarea rows="5" name="vocCont" id="vocCont" readonly></textarea>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>첨부 파일</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <ul id="preview" class="file-list vocFilesDiv"></ul>
+                                        </div>
+                                  </div>
+                              </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- //VOC 정보 영역 -->
+                <!-- VOC 처리 영역 -->
+                <div class="title title-area active">
+                    <h3>VOC 처리</h3>
+                </div>
+                <div class="content detail-table-area active">
+                    <div class="ui form">
+                        <table class="ui celled table">
+                            <colgroup>
+                                <col style="width:10%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:auto;">
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <label>처리 유형</label>
+                                </th>
+                                <td colspan="3">
+                                    <div class="fields">
+                                        <div class="three wide field">
+                                            <input type="text" name="vocActTypeNm1" id="vocActTypeNm1" readonly />
+                                        </div>
+                                        <div class="six wide field">
+                                            <input type="text" name="vocActTypeNm2" id="vocActTypeNm2" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                 <th scope="row">
+                                    <label>처리 일자</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <input type="text" name="vocActDt" id="vocActDt" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                                <th scope="row">
+                                    <label>처리자</label>
+                                </th>
+                                <td>
+                                    <div class="fields">
+                                        <div class="three wide field">
+                                            <input type="text" name="vocActUserNm" id="vocActUserNm" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>처리 내용</label>
+                                </th>
+                                <td colspan="3">
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <textarea rows="5" name="vocActCont" id="vocActCont" readonly></textarea>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label>첨부 파일</label>
+                                </th>
+                                <td colspan="3">
+                                    <div class="fields">
+                                        <div class="sixteen wide field">
+                                            <ul id="preview" class="file-list vocActFilesDiv"></ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- //VOC 처리 영역 -->
+            </div>
+        </form>
+        </div>
+        <div class="actions">
+            <button class="ui button btn-darkgray btn-close">닫기</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- Thymeleaf 선언 / headerFragment 임을 선언-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="HeaderFragment">
+
+    <header class="page-header">
+        <div class="header-top-area" th:if="${session.loginUserInfo}">
+            <h1 class="header-logo">
+                <a href="javascript:goMain();">
+                    <img src="../../images/common/logo.svg" alt="HI VOC">
+		            <!-- [dev] 회사 로고 적용을 위한 img 태그 추가 -->
+		            <img th:if="${session.loginUserInfo['logoImgPath'] != '/upload'}" th:src="${session.loginUserInfo['logoImgPath']}" alt="logo">
+                </a>
+            </h1>
+            <div class="header-info">
+                <div class="user">
+                    <strong class="name" th:text="${session.loginUserInfo['userNm']}"></strong>
+                    <span class="department" th:text="'['+${session.loginUserInfo.deptNm}+']'"></span>
+                    <input type="hidden" name="loginUserId" id="loginUserId" th:value="${session.loginUserInfo['userId']}" >
+                    <input type="hidden" name="loginUserSeq" id="loginUserSeq" th:value="${session.loginUserInfo['userSeq']}" >
+                    <input type="hidden" name="loginCompanyCd" id="loginCompanyCd" th:value="${session.loginUserInfo['companyCd']}" >
+                    <input type="hidden" name="loginUserAuth" id="loginUserAuth" th:value="${session.loginUserInfo['userAuthCodes']}" >
+                </div>
+                <!-- <button type="button" class="btn-login">로그인</button> -->
+                <button type="button" class="btn-logout">로그아웃</button>
+            </div>
+        </div>
+
+        <div id="headerMenu">
+            <nav class="header-menu-area" th:fragment="headerMenu">
+                <ul class="menu-depth1">
+                    <li th:each="menu : ${menuList}">
+                        <a href="javascript:;" th:text="${menu.menuNm}"></a>
+                        <div class="menu-depth2">
+                            <div th:each="subMenu : ${menu.subMenulist}"><a th:href="${subMenu.menuUrl}" th:text="${subMenu.menuNm}"></a></div>
+                        </div>
+                    </li>
+                </ul>
+                <!-- [dev]_ div.sub-depth-area는 서브뎁스 메뉴 배경으로서, 빈 태그 그대로 사용하며, nav 태그 자식요소로 들어옵니다. -->
+                <div class="sub-depth-area"></div>
+            </nav>
+        </div>
+    </header>
+</html>

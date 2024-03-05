@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" layout:fragment="Content">
+
+<head>
+<title th:text="VOC유형관리"></title>
+<!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+<script th:src="@{/js/system/voctype_list.js}"></script>
+</head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>VOC유형관리</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>시스템관리</li>
+				<li class="now">VOC유형관리</li>
+			</ul>
+		</div>
+		<div class="search-area">
+			<form id="searchForm" action="javascript:void(0)">
+				<input type="hidden" id="customType" name="customType" th:value="${customType}">
+				<div class="search-inner">
+					<div class="ui form">
+						<div class="fields">
+							<div class="three wide field">
+								<label>업종</label>
+								<div class="ui selection dropdown d-industryCd">
+									<input type="hidden" id="industryCd" name="industryCd">
+									<div class="default text">전체</div>
+									<i class="dropdown icon"></i>
+								</div>
+							</div>
+							<div class="three wide field">
+								<label>VOC 유형 그룹명</label>
+								<input type="text" id="customNm" name="customNm" placeholder="VOC 유형 그룹명">
+							</div>
+							<div class="two wide field">
+								<label>사용여부</label>
+								<div class="ui selection dropdown d-useYn">
+									<input type="hidden" id="useYn" name="useYn">
+									<div class="default text">전체</div>
+									<i class="dropdown icon"></i>
+								</div>
+							</div>
+							<!-- [dev] 검색영역 내 조회 버튼은 "two wide field btn-search" 클래스 사용 -->
+							<div class="two wide field btn-search">
+								<div class="ui button">
+									<i class="search icon"></i> 조회
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="btn-area tbl-top">
+			<div class="btn-wrap"></div>
+			<div class="btn-wrap">
+				<div class="ui button btn-darkgray btn-add">VOC 유형 그룹 등록</div>
+			</div>
+		</div>
+
+		<div class="table-area">
+			<div class="ui form">
+				<table id="listDataTableCustom" class="display stripe hover">
+					<thead>
+						<tr>
+							<th>업종</th>
+							<th>VOC 유형 그룹 코드</th>
+							<th>VOC 유형 그룹명</th>
+							<th>사용 여부</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

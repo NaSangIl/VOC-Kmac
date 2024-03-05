@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}"
+	  layout:fragment="Content"
+>
+
+    <head>
+        <title th:text="기간별VOC현황"></title>
+
+        <!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+		<script th:src="@{/js/voc/voc_common.js}"></script>
+	    <script th:src="@{/js/statistics/statistics_period.js}"></script>
+
+    </head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>기간별VOC현황</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>VOC분석/통계</li>
+				<li class="now">기간별VOC현황</li>
+			</ul>
+		</div>
+		<div class="search-area">
+		<form id="searchForm">
+			<div class="search-inner">
+				<div class="ui form">
+					<div class="fields">
+						<div class="three wide field">
+							<label>회사</label>
+							<div class="ui selection dropdown d-companyCd">
+								<input type="hidden" name="companyCd" id="companyCd">
+								<div class="default text">선택</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="three wide field">
+							<label>조회 일자 조건</label>
+							<div class="inline">
+								<div class="ui radio checkbox checked chk-year">
+									<input type="radio" name="dayOptRadio" checked="" tabindex="0" class="hidden">
+									<label>년도별</label>
+								</div>
+								<div class="ui radio checkbox chk-month">
+									<input type="radio" name="dayOptRadio" tabindex="0" class="hidden">
+									<label>월별</label>
+								</div>
+								<div class="ui radio checkbox chk-day">
+									<input type="radio" name="dayOptRadio" tabindex="0" class="hidden">
+									<label>일별</label>
+								</div>
+							</div>
+						</div>
+						<div class="two wide field yearDiv">
+							<label>등록년도</label>
+							<div class="ui selection dropdown d-year">
+								<input type="hidden" name="year" id="year">
+								<div class="default text">선택</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="two wide field monthDiv blind">
+							<label>등록월</label>
+							<div class="ui selection dropdown d-month">
+								<input type="hidden" name="month" id="month">
+								<div class="default text">선택</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="four wide field dayDiv blind">
+							<!-- [dev] 캘린더 영역 wrapper는 "calendar-area" 클래스 사용 -->
+							<div class="calendar-area">
+								<div class="field">
+									<label>등록일</label>
+									<div class="ui calendar" id="rangestart">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="regDtStart" id="regDtStart" placeholder="등록일" >
+										</div>
+									</div>
+								</div>
+								<div class="field">
+									<!-- [dev] 종료일 텍스트 없이 빈 label를 위치 -->
+									<label></label>
+									<div class="ui calendar" id="rangeend">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="regDtEnd" id="regDtEnd" placeholder="등록일" >
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- [dev] 검색영역 내 조회 버튼은 "two wide field btn-search" 클래스 사용 -->
+						<div class="two wide field btn-search">
+							<div class="ui button">
+								<i class="search icon"></i>
+								조회
+							</div>
+						</div>
+					</div>
+					<div class="fields">
+						<div class="three wide field">
+							<label>접수 채널</label>
+							<div class="ui selection dropdown d-rcptChnnCd">
+								<input type="hidden" name="rcptChnnCd" id="rcptChnnCd">
+								<div class="default text">선택</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="seven wide field">
+							<label>VOC 유형</label>
+							<div class="inline">
+								<div class="ui selection dropdown d-vocTypeCd1">
+									<input type="hidden" name="vocTypeCd1" id="vocTypeCd1">
+									<div class="default text">선택</div>
+									<i class="dropdown icon"></i>
+								</div>
+								<div class="ui selection dropdown d-vocTypeCd2">
+									<input type="hidden" name="vocTypeCd2" id="vocTypeCd2">
+									<div class="default text">선택</div>
+									<i class="dropdown icon"></i>
+								</div>
+								<div class="ui selection dropdown d-vocTypeCd3">
+									<input type="hidden" name="vocTypeCd3" id="vocTypeCd3">
+									<div class="default text">선택</div>
+									<i class="dropdown icon"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		</div>
+		<!-- // 검색 영역 -->
+
+		<div class="table-area">
+			<div class="ui form">
+				<table class="ui table tbl-statistics" id="listDataTablePeriod">
+					<colgroup>
+						<col style="width:8%">
+					</colgroup>
+					<thead>
+					<tr>
+						<th scope="col" rowspan="2">일자</th>
+						<th scope="col" colspan="2">전체</th>
+						<th scope="col" colspan="3">칭찬</th>
+						<th scope="col" colspan="3">불만</th>
+						<th scope="col" colspan="3">제안</th>
+						<th scope="col" colspan="3">문의</th>
+					</tr>
+					<tr>
+						<th scope="col">접수</th>
+						<th scope="col">전년대비</th>
+						<th scope="col">접수</th>
+						<th scope="col">비율</th>
+						<th scope="col">전년대비</th>
+						<th scope="col">접수</th>
+						<th scope="col">비율</th>
+						<th scope="col">전년대비</th>
+						<th scope="col">접수</th>
+						<th scope="col">비율</th>
+						<th scope="col">전년대비</th>
+						<th scope="col">접수</th>
+						<th scope="col">비율</th>
+						<th scope="col">전년대비</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					</tbody>
+					<tfoot>
+					<tr>
+						<th>합계</th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+					</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

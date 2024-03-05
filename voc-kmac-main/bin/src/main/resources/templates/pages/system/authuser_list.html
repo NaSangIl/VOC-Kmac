@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" layout:fragment="Content">
+
+<head>
+<title th:text="권한관리"></title>
+<!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+<script th:src="@{/js/system/authuser_list.js}"></script>
+</head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>사용자권한관리</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>시스템관리</li>
+				<li class="now">사용자권한관리</li>
+			</ul>
+		</div>
+		<div class="search-area">
+			<form id="searchForm" action="javascript:void(0)">
+				<div class="search-inner">
+					<div class="ui form">
+						<div class="fields">
+
+							<div class="four wide field" id="companyCdFild">
+								<label>회사명</label>
+								<div class="ui selection dropdown d-companyCd">
+									<input type="hidden" id="companyCd" name="companyCd">
+									<div class="default text">선택</div>
+									<i class="dropdown icon"></i>
+								</div>
+							</div>
+							<div class="four wide field">
+								<label>권한명</label>
+								<input type="text" id="authNm" name="authNm" placeholder="권한명">
+							</div>
+							<!-- [dev] 검색영역 내 조회 버튼은 "two wide field btn-search" 클래스 사용 -->
+							<div class="two wide field btn-search">
+								<div class="ui button">
+									<i class="search icon"></i> 조회
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="table-area">
+			<div class="ui form">
+				<table id="listDataTableAuth" class="display stripe hover">
+					<colgroup>
+						<col style="width: 15%">
+						<col style="width: auto">
+						<col style="width: 15%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>권한명</th>
+							<th>권한설명</th>
+							<th>권한사용자수</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

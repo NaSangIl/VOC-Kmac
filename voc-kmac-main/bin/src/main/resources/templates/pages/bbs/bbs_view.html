@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}"
+	  layout:fragment="Content"
+>
+
+    <head>
+        <title th:text="공지사항"></title>
+
+        <!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+	    <script th:src="@{/js/bbs/bbs_view.js}"></script>
+
+    </head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>공지사항</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>게시판관리</li>
+				<li class="now">공지사항</li>
+			</ul>
+		</div>
+		<!-- 기본 정보 영역 -->
+		<div class="title-area">
+			<h3>공지사항 정보</h3>
+			<div class="btn-wrap">
+				<div class="ui button btn-brown btn-go-list"> 목록</div>
+			</div>
+		</div>
+		<div class="detail-table-area">
+			<div class="ui form">
+				<table class="ui celled table dataTable">
+					<colgroup>
+						<col style="width:10%;">
+						<col style="width:23%;">
+						<col style="width:10%;">
+						<col style="width:23%;">
+						<col style="width:10%;">
+						<col style="width:auto;">
+					</colgroup>
+					<tbody>
+					<tr>
+						<th scope="row">
+							<label>회사</label>
+						</th>
+						<td colspan="5"><div class="" id="companyNm"></div></td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label>제목</label>
+						</th>
+						<td colspan="5">
+							<input type="hidden" name="bbsSeq" id="bbsSeq" value="0">
+							<input type="hidden" name="bbsTypeCd" id="bbsTypeCd">
+							<div class="" id="title"></div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label>내용</label>
+						</th>
+						<td colspan="5"><div class="" id="contents"></div></td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label>첨부파일</label>
+						</th>
+						<td colspan="5">
+							<div class="fields">
+								<ul id="preview" class="file-list bbsFilesDiv"></ul>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label>등록일시</label>
+						</th>
+						<td><div class="" id="regDt"></div></td>
+						<th scope="row">
+							<label>등록자</label>
+						</th>
+						<td><div class="" id="regUserNm"></div></td>
+						<th scope="row">
+							<label>조회수</label>
+						</th>
+						<td><div class="" id="hit"></div></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="title title-area">
+				<h3>댓글</h3>
+				<div class="btn-wrap">
+					<div class="ui button btn-darkgray btn-add-comments">댓글등록</div>
+				</div>
+			</div>
+			<div class="table-area">
+				<div class="ui form">
+					<table id="listDataTableComments" class="display stripe hover">
+						<colgroup>
+							<col style="width:10%">
+							<col style="width:auto">
+							<col style="width:10%">
+							<col style="width:13%">
+							<col style="width:13%">
+						</colgroup>
+						<thead>
+						<tr>
+							<th>No</th>
+							<th>댓글</th>
+							<th>등록자</th>
+							<th>등록일시</th>
+							<th></th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 댓글등록 모달팝업 -->
+	<div class="ui modal modal-comments" style="width:500px; height:300px;">
+		<i class="close icon"></i>
+		<div class="header">
+			댓글등록
+		</div>
+		<div class="content">
+			<div class="search-area">
+				<div class="search-inner">
+					<div class="ui form">
+						<div class="fields">
+							<div class="wide field" style="width:100%">
+								<input type="hidden" name="bbsCommentsSeq" id="bbsCommentsSeq" value="0">
+								<textarea name="comments" id="comments" rows="3"></textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="actions">
+			<button class="ui button btn-darkgray btn-save-comments">저장</button>
+			<button class="ui button btn-darkgray btn-cancle-comments" onclick="javascript:$('.modal-comments').find('.close').click();">취소</button>
+		</div>
+	</div>
+</body>
+<style>
+	.detail-table-area .ui.table tbody tr td {
+		border: 0;
+		border-bottom: 1px solid #ccc;
+		font-size: 16px;
+	}
+</style>
+</html>

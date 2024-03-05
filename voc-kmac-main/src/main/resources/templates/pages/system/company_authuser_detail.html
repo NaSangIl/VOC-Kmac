@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" layout:fragment="Content">
+
+<head>
+<title th:text="권한관리"></title>
+<!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+<script th:src="@{/js/system/company_authuser_detail.js}"></script>
+</head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>권한관리</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>회사관리</li>
+				<li class="now">권한관리</li>
+			</ul>
+		</div>
+		<form name="registForm" id="registForm" method="post">
+
+			<!-- 권한그룹 정보 영역 -->
+			<div class="title-area">
+				<h3>권한그룹 정보</h3>
+				<div class="btn-wrap">
+					<div class="ui button btn-brown btn-go-list">목록</div>
+				</div>
+			</div>
+			<div class="detail-table-area">
+				<div class="ui form">
+					<table class="ui celled table">
+						<colgroup>
+							<col style="width: 12%;">
+							<col style="width: auto;">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><label>권한명</label></th>
+								<td>
+									<div class="fields">
+										<div class="five wide field">
+											<input type="text" name="authNm" id="authNm" placeholder="권한명" readonly>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><label>권한설명</label></th>
+								<td>
+									<div class="fields">
+										<div class="thirteen wide field">
+											<textarea name="authDesc" id="authDesc" rows="3" readonly></textarea>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- //권한그룹 정보 영역 -->
+		</form>
+		<div class="title title-area">
+			<h3>권한사용자</h3>
+			<div class="btn-wrap">
+				<div class="ui button btn-darkgray btn-add-authuser">추가</div>
+			</div>
+		</div>
+		<div class="table-area">
+			<div class="ui form">
+				<table id="listDataTableAuthuser" class="display stripe hover" style="width: 100%;">
+					<colgroup>
+						<col style="width:5%">
+						<col style="width:20%">
+						<col style="width:15%">
+						<col style="width:15%">
+						<col style="width:15%">
+						<col style="width:auto">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>No.</th>
+							<th>사용자ID</th>
+							<th>이름</th>
+							<th>직급</th>
+							<th>부서</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

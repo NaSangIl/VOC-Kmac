@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.statistics.mapper.StatisticsMapper">
+
+    <!-- 기간별 VOC 현황 조회 -->
+    <select id="getVocStatusByPeriod" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
+        WITH TT AS
+            (SELECT T1.periodType, COUNT(voc_seq) AS "totalCnt",
+                    SUM(T1.complaintCnt) AS complaintCnt, SUM(T1.complimentCnt) AS complimentCnt,
+                    SUM(T1.suggestionCnt) AS suggestionCnt, SUM(T1.inquiryCnt) AS inquiryCnt
+            FROM
+                (SELECT DATE_FORMAT(A.reg_dt, '%Y') AS "periodType", A.voc_seq,
+                    CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
+                    CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
+                    CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
+                    CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
+                FROM tb_voc_mst A
+                WHERE 1=1
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -1 YEAR) </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>
+            ) T1
+            GROUP BY T1.periodType
+        )
+        SELECT *,
+            totalCnt - LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt",
+            complaintCnt - LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt",
+            complimentCnt - LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt",
+            suggestionCnt - LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt",
+            inquiryCnt - LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt",
+            round(complaintCnt/totalCnt,1)  AS "complaintRate",
+            round(complimentCnt/totalCnt,1)  AS "complimentRate",
+            round(suggestionCnt/totalCnt,1)  AS "suggestionRate",
+            round(inquiryCnt/totalCnt,1)  AS "inquiryRate"
+        FROM TT
+        WHERE TT.periodType != DATE_FORMAT(date_add(#{regDtStart}, interval -1 YEAR), '%Y')
+    </select>
+
+    <!-- 유형별 VOC 현황 조회 -->
+    <select id="getVocStatusByVoctype" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
+        WITH T AS
+            (SELECT T1.periodType,
+                    T1.voc_type_cd1, T1.voc_type_nm1,
+                    T1.voc_type_cd2, T1.voc_type_nm2,
+                    T1.voc_type_cd3, T1.voc_type_nm3,
+                    CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN 1 ELSE 0 END AS "cnt1",
+                    CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt1",
+                    CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt1",
+                    CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt1",
+                    CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt1",
+                    CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN 1 ELSE 0 END AS "cnt",
+                    CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt",
+                    CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt",
+                    CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt",
+                    CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt"
+            FROM
+            ( SELECT DATE_FORMAT(A.reg_dt, '%Y') AS "periodType",
+                     A.voc_type_cd1, fn_getCodeNm('VOC_TYPE_CD1', A.voc_type_cd1) AS voc_type_nm1,
+                     A.voc_type_cd2, fn_getCodeNm('VOC_TYPE_CD2', A.voc_type_cd2) AS voc_type_nm2,
+                     A.voc_type_cd3, fn_getCodeNm('VOC_TYPE_CD3', A.voc_type_cd3) AS voc_type_nm3,
+                     A.voc_seq,
+                     CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
+                     CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
+                     CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
+                     CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
+                FROM tb_voc_mst A
+                WHERE 1=1
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -1 YEAR) </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>
+            ) T1
+            ORDER BY voc_type_cd1, voc_type_cd2, voc_type_cd3, periodType
+        )
+        SELECT *,
+               round(TT.complaintCnt/TT.totalCnt,1)  AS "complaintRate",
+               round(TT.complimentCnt/TT.totalCnt,1)  AS "complimentRate",
+               round(TT.suggestionCnt/TT.totalCnt,1)  AS "suggestionRate",
+               round(TT.inquiryCnt/TT.totalCnt,1)  AS "inquiryRate"
+        FROM(
+            SELECT voc_type_cd1, voc_type_nm1,
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2Yn)">voc_type_cd2, voc_type_nm2, </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3Yn)">voc_type_cd3, voc_type_nm3, </if>
+                SUM(cnt) AS totalCnt, SUM(complaintCnt) AS complaintCnt, SUM(complimentCnt) AS complimentCnt,
+                SUM(suggestionCnt) AS suggestionCnt,  SUM(inquiryCnt) AS inquiryCnt,
+                SUM(cnt-cnt1) AS totalYoyCnt, SUM(complaintCnt-complaintCnt1) AS complaintYoyCnt,
+                SUM(complimentCnt-complimentCnt) AS complimentYoyCnt, SUM(suggestionCnt-suggestionCnt) AS suggestionYoyCnt,
+                SUM(inquiryCnt-inquiryCnt) AS inquiryYoyCnt
+            FROM T
+            GROUP BY voc_type_cd1, voc_type_nm1
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2Yn)">,voc_type_cd2, voc_type_nm2</if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3Yn)">,voc_type_cd3, voc_type_nm3</if>
+        ) TT
+    </select>
+
+    <!-- 접수채널별 VOC 현황 조회 -->
+    <select id="getVocStatusByChannel" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
+        WITH T AS
+        (SELECT T1.periodType,
+                T1.rcpt_chnn_cd, T1.rcpt_chnn_nm,
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN 1 ELSE 0 END AS "cnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt1",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN 1 ELSE 0 END AS "cnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt"
+        FROM
+        ( SELECT DATE_FORMAT(A.reg_dt, '%Y') AS "periodType",
+                A.rcpt_chnn_cd, fn_getCodeNm('RCPT_CHNN_CD', A.rcpt_chnn_cd) AS rcpt_chnn_nm,
+                A.voc_seq,
+                CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
+                CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
+                CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
+                CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
+        FROM tb_voc_mst A
+        WHERE 1=1
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -1 YEAR) </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>
+        ) T1
+        ORDER BY rcpt_chnn_cd, periodType
+        )
+        SELECT *,
+            round(TT.complaintCnt/TT.totalCnt,1)  AS "complaintRate",
+            round(TT.complimentCnt/TT.totalCnt,1)  AS "complimentRate",
+            round(TT.suggestionCnt/TT.totalCnt,1)  AS "suggestionRate",
+            round(TT.inquiryCnt/TT.totalCnt,1)  AS "inquiryRate"
+        FROM(
+            SELECT rcpt_chnn_cd, rcpt_chnn_nm,
+                SUM(cnt) AS totalCnt, SUM(complaintCnt) AS complaintCnt, SUM(complimentCnt) AS complimentCnt,
+                SUM(suggestionCnt) AS suggestionCnt,  SUM(inquiryCnt) AS inquiryCnt,
+                SUM(cnt-cnt1) AS totalYoyCnt, SUM(complaintCnt-complaintCnt1) AS complaintYoyCnt,
+                SUM(complimentCnt-complimentCnt) AS complimentYoyCnt, SUM(suggestionCnt-suggestionCnt) AS suggestionYoyCnt,
+                SUM(inquiryCnt-inquiryCnt) AS inquiryYoyCnt
+            FROM T
+            GROUP BY rcpt_chnn_cd, rcpt_chnn_nm
+        ) TT
+    </select>
+
+    <!-- 처리유형별 VOC 현황 조회 -->
+    <select id="getVocStatusByActtype" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
+        WITH T AS
+        (SELECT T1.periodType,
+                T1.voc_act_type_cd1, T1.voc_act_type_nm1,
+                T1.voc_act_type_cd2, T1.voc_act_type_nm2,
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN 1 ELSE 0 END AS "cnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt1",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN 1 ELSE 0 END AS "cnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt"
+        FROM
+        ( SELECT DATE_FORMAT(A.reg_dt, '%Y') AS "periodType",
+                A.voc_act_type_cd1, fn_getCodeNm('VOC_ACT_TYPE_CD1', A.voc_act_type_cd1) AS voc_act_type_nm1,
+                A.voc_act_type_cd2, fn_getCodeNm('VOC_ACT_TYPE_CD2', A.voc_act_type_cd2) AS voc_act_type_nm2,
+                A.voc_seq,
+                CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
+                CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
+                CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
+                CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
+        FROM tb_voc_mst A
+        WHERE A.voc_status_cd = 'C0'
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -1 YEAR) </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd1)">AND A.voc_act_type_cd1 = #{vocActTypeCd1} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd2)">AND A.voc_act_type_cd2 = #{vocActTypeCd2} </if>
+        ) T1
+        ORDER BY voc_act_type_cd1, voc_act_type_cd2, periodType
+        )
+        SELECT *,
+                round(TT.complaintCnt/TT.totalCnt,1)  AS "complaintRate",
+                round(TT.complimentCnt/TT.totalCnt,1)  AS "complimentRate",
+                round(TT.suggestionCnt/TT.totalCnt,1)  AS "suggestionRate",
+                round(TT.inquiryCnt/TT.totalCnt,1)  AS "inquiryRate"
+        FROM(
+        SELECT voc_act_type_cd1, voc_act_type_nm1,
+            <if test="@org.apache.commons.lang3.ObjectUtils@isEmpty(vocActTypeCd2Yn)">'' AS voc_act_type_cd2, '' AS voc_act_type_nm2, </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd2Yn)">voc_act_type_cd2, voc_act_type_nm2, </if>
+            SUM(cnt) AS totalCnt, SUM(complaintCnt) AS complaintCnt, SUM(complimentCnt) AS complimentCnt,
+            SUM(suggestionCnt) AS suggestionCnt,  SUM(inquiryCnt) AS inquiryCnt,
+            SUM(cnt-cnt1) AS totalYoyCnt, SUM(complaintCnt-complaintCnt1) AS complaintYoyCnt,
+            SUM(complimentCnt-complimentCnt) AS complimentYoyCnt, SUM(suggestionCnt-suggestionCnt) AS suggestionYoyCnt,
+            SUM(inquiryCnt-inquiryCnt) AS inquiryYoyCnt
+        FROM T
+        GROUP BY voc_act_type_cd1, voc_act_type_nm1
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd2Yn)">,voc_act_type_cd2, voc_act_type_nm2</if>
+        ) TT
+    </select>
+
+    <!-- 처리기간별 VOC 현황 조회 -->
+    <select id="getVocStatusByActperiod" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
+        WITH T AS
+        (SELECT T1.periodType,
+                CASE WHEN T1.actPeriod BETWEEN 0 AND 1 THEN '1일 이내'
+                     WHEN T1.actPeriod BETWEEN 2 AND 3 THEN '2일~3일'
+                     WHEN T1.actPeriod BETWEEN 4 AND 7 THEN '4일~7일'
+                     WHEN T1.actPeriod BETWEEN 8 AND 15 THEN '8일~15일'
+                     WHEN T1.actPeriod BETWEEN 16 AND 30 THEN '16일~30일'
+                     WHEN T1.actPeriod >=31 THEN '31일~' ELSE ''
+                END AS "actPeriod",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN 1 ELSE 0 END AS "cnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt1",
+                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt1",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN 1 ELSE 0 END AS "cnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt",
+                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt"
+           FROM
+        ( SELECT DATE_FORMAT(A.reg_dt, '%Y') AS "periodType",
+                 DATEDIFF(voc_act_dt, reg_dt) AS "actPeriod",
+                 A.voc_seq,
+                 CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
+                 CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
+                 CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
+                 CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
+           FROM tb_voc_mst A
+          WHERE A.voc_status_cd = 'C0'
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -1 YEAR) </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd1)">AND A.voc_act_type_cd1 = #{vocActTypeCd1} </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd2)">AND A.voc_act_type_cd2 = #{vocActTypeCd2} </if>
+        ) T1
+        ORDER BY actPeriod, periodType
+        )
+        SELECT *,
+            round(TT.complaintCnt/TT.totalCnt,1)  AS "complaintRate",
+            round(TT.complimentCnt/TT.totalCnt,1)  AS "complimentRate",
+            round(TT.suggestionCnt/TT.totalCnt,1)  AS "suggestionRate",
+            round(TT.inquiryCnt/TT.totalCnt,1)  AS "inquiryRate"
+        FROM(
+            SELECT MAX(actPeriod) AS "actPeriod",
+                   SUM(cnt) AS totalCnt, SUM(complaintCnt) AS complaintCnt, SUM(complimentCnt) AS complimentCnt,
+                   SUM(suggestionCnt) AS suggestionCnt,  SUM(inquiryCnt) AS inquiryCnt,
+                   SUM(cnt-cnt1) AS totalYoyCnt, SUM(complaintCnt-complaintCnt1) AS complaintYoyCnt,
+                   SUM(complimentCnt-complimentCnt) AS complimentYoyCnt, SUM(suggestionCnt-suggestionCnt) AS suggestionYoyCnt,
+                   SUM(inquiryCnt-inquiryCnt) AS inquiryYoyCnt
+            FROM T
+        ) TT
+    </select>
+
+</mapper>

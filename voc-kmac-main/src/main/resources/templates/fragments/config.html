@@ -1,0 +1,34 @@
+<!-- 페이지레이아웃 : 공통으로 쓰이는 스크립트설정 -->
+<!DOCTYPE html>
+
+<!--Thymeleaf, ConfigFragment 선언-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:fragment="ConfigFragment">
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<title layout:title-pattern="">KMAC VOC SYSTEM</title>
+
+    <script th:src="@{/js/lib/jquery-3.7.1.min.js}"></script>
+    <script th:src="@{/js/lib/semantic.min.js}"></script>
+    <script th:src="@{/js/lib/datatables.min.js}"></script>
+    <script th:src="@{/js/lib/dataTables.buttons.min.js}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    <script th:src="@{/js/lib/swiper-bundle.min.js}"></script>
+    <script th:src="@{/js/lib/serializeObject/jquery.serializeObject.js}"></script>
+    <script th:src="@{/js/common/common-util.js}"></script>
+    <script th:src="@{/js/common/grid-util.js}"></script>
+    <script th:src="@{/js/common/modal.js}"></script>
+    <script th:src="@{/js/common/common.js}"></script>
+
+
+    <link th:href="@{/css/lib/semantic.min.css}"  rel="stylesheet" type="text/css">
+    <link th:href="@{/css/lib/swiper-bundle.min.css}"  rel="stylesheet" type="text/css">
+    <link th:href="@{/css/lib/datatables.min.css}"  rel="stylesheet" type="text/css">
+    <link th:href="@{/css/style.css}"  rel="stylesheet" type="text/css">
+    <link th:href="@{/css/common.css}"  rel="stylesheet" type="text/css">
+    <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css"  rel="stylesheet" type="text/css">
+
+</head>
+</html>

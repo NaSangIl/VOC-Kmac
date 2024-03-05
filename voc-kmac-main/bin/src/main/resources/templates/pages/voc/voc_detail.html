@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" layout:fragment="Content">
+<head>
+<title th:text="VOC등록"></title>
+<!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+<script th:src="@{/js/voc/voc_common.js}"></script>
+<script th:src="@{/js/voc/voc_detail.js}"></script>
+</head>
+<body>
+	<div class="page-container">
+		<div class="ui accordion">
+			<form name="registForm" id="registForm" method="post" enctype="multipart/form-data">
+				<input type="hidden" name="vocViewType" id="vocViewType" th:value="${vocViewType}">
+				<div class="title-area">
+					<h2 class="regiMode">VOC 등록</h2>
+					<h2 class="viewMode blind">VOC 상세</h2>
+					<ul class="location-area">
+						<li class="home" onclick="goMain();"></li>
+						<li class="now regiMode">VOC 등록</li>
+						<li class="now viewMode blind">VOC 조회/처리</li>
+						<li class="now viewMode blind">VOC 상세</li>
+					</ul>
+				</div>
+				<!-- VOC 기본 정보 영역 -->
+				<div class="title title-area active blind basicDiv">
+					<h3>VOC 기본 정보</h3>
+					<div class="btn-wrap">
+						<div class="ui button btn-brown btn-go-list">목록</div>
+					</div>
+				</div>
+				<div class="content detail-table-area active blind basicDiv">
+					<div class="ui form">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 10%;">
+								<col style="width: auto;">
+								<col style="width: 10%;">
+								<col style="width: 15%;">
+								<col style="width: 10%;">
+								<col style="width: 12%;">
+								<col style="width: 10%;">
+								<col style="width: 12%;">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row">
+										<label class="required">VOC NO</label>
+									</th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="hidden" name="vocSeq" id="vocSeq" value="0">
+												<input type="text" name="vocId" id="vocId" readonly>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>등록 일시</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="regDt" id="regDt" readonly>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>등록자</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="regUserNm" id="regUserNm" readonly>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>상태</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="hidden" name="vocStatusCd" id="vocStatusCd">
+												<input type="text" name="vocStatusNm" id="vocStatusNm" readonly>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //VOC 기본 정보 영역 -->
+				<!-- 고객 정보 영역 -->
+				<div class="title title-area active">
+					<h3>고객 정보</h3>
+				</div>
+				<div class="content detail-table-area active">
+					<div class="ui form">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 12%;">
+								<col style="width: 35%;">
+								<col style="width: 12%;">
+								<col style="width: auto;">
+							</colgroup>
+							<tbody>
+								<tr th:if="${T(kr.co.kmac.common.util.LoginInfoUtil).isSystemAdmin(session?.loginUserInfo)}">
+									<th scope="row">
+										<label class="required">회사명</label>
+									</th>
+									<td colspan="3">
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="ui selection dropdown d-companyCd disabled"  >
+													<input type="hidden" name="companyCd" id="companyCd">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr style="display: none;" th:if="${!(T(kr.co.kmac.common.util.LoginInfoUtil).isSystemAdmin(session?.loginUserInfo))}">
+									<td>
+										<input type="hidden" id="companyCd" name="companyCd" th:value="${session.loginUserInfo['companyCd']}">
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label class="required">고객명</label></th>
+									<td>
+										<div class="fields">
+											<div class="four wide field">
+												<input type="hidden" name="custSeq" id="custSeq" value="0" class="cust-data">
+												<input type="text" name="custNm" id="custNm" class="cust-data">
+											</div>
+											<div class="four wide field">
+												<div class="inline">
+													<div class="ui checkbox checked chk-anonymous">
+														<input type="checkbox" name="anonymCustYn" id="anonymCustYn" class="hidden"> <label>익명 고객</label>
+													</div>
+												</div>
+											</div>
+											<div class="eight wide field">
+												<div class="btn-wrap">
+													<div class="ui button btn-black-line btn-search-cust">고객찾기</div>
+													<div class="ui button btn-black-line blind btn-reset-cust">초기화</div>
+												</div>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>고객 번호</label></th>
+									<td>
+										<div class="fields">
+											<div class="eight wide field">
+												<input type="text" name="custNo" id="custNo" class="cust-data" readonly>
+											</div>
+											<div class="sixteen wide field">
+												<div class="inline blind" id="vocCntDiv">
+													<dl>
+														<dt>VOC 이력 :</dt>
+														<dd>
+															<a href="javascript:popModalCommonVoc('N');" class="txt-link-blue voc-cnt"></a>
+														</dd>
+													</dl>
+													<span class="unit">/</span>
+													<dl>
+														<dt>민감 VOC :</dt>
+														<dd>
+															<a href="javascript:popModalCommonVoc('Y');" class="txt-link-red sens-cnt"></a>
+														</dd>
+													</dl>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr id="display1">
+									<th scope="row"><label>전화번호</label></th>
+									<td>
+										<div class="fields">
+											<input type="hidden" name="telNo" id="telNo" class="display1 cust-data" />
+											<div class="three wide field">
+												<input type="number" name="telNo1" id="telNo1" class="display1 cust-data" />
+											</div>
+											<div class="field">
+												<span class="unit">-</span>
+											</div>
+											<div class="three wide field">
+												<input type="number" name="telNo2" id="telNo2" class="display1 cust-data" />
+											</div>
+											<div class="field">
+												<span class="unit">-</span>
+											</div>
+											<div class="three wide field">
+												<input type="number" name="telNo3" id="telNo3" class="display1 cust-data" />
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>이메일</label></th>
+									<td>
+										<div class="fields">
+											<input type="hidden" name="emailAddr" id="emailAddr"
+												class="display1 cust-data" />
+											<div class="four wide field">
+												<input type="text" name="emailAddr1" id="emailAddr1" class="display1 cust-data" />
+											</div>
+											<div class="field">
+												<span class="unit">@</span>
+											</div>
+											<div class="four wide field">
+												<input type="text" name="emailAddr2" id="emailAddr2" class="display1 cust-data" />
+											</div>
+											<div class="five wide field">
+												<div class="ui selection dropdown d-emailAddr" style="width: 160px">
+													<input type="hidden" name="emailAddr3" id="emailAddr3">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //고객 정보 영역 -->
+				<!-- 기본 정보 영역 -->
+				<div class="title title-area active">
+					<h3>기본 정보</h3>
+				</div>
+				<div class="content detail-table-area active">
+					<div class="ui form">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 12%;">
+								<col style="width: 15%;">
+								<col style="width: 12%;">
+								<col style="width: 15%;">
+								<col style="width: 12%;">
+								<col style="width: auto;">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row"><label class="required">VOC 구분</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="ui selection dropdown d-vocCaseCd">
+													<input type="hidden" name="vocCaseCd" id="vocCaseCd">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label class="required">VOC 유형</label></th>
+									<td colspan="3">
+										<div class="fields">
+											<div class="seven wide field">
+												<input type="text" name="vocTypeDisplay" id="vocTypeDisplay" readonly>
+											</div>
+											<div class="three wide field">
+												<div class="ui selection dropdown d-vocTypeCd1">
+													<input type="hidden" name="vocTypeCd1" id="vocTypeCd1">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+											<div class="three wide field">
+												<div class="ui selection dropdown d-vocTypeCd2">
+													<input type="hidden" name="vocTypeCd2" id="vocTypeCd2">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+											<div class="three wide field">
+												<div class="ui selection dropdown d-vocTypeCd3">
+													<input type="hidden" name="vocTypeCd3" id="vocTypeCd3">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label class="required">접수 채널</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="ui selection dropdown d-rcptChnnCd">
+													<input type="hidden" name="rcptChnnCd" id="rcptChnnCd">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label class="required">발생 일시</label></th>
+									<td colspan="3">
+										<div class="fields">
+											<input type="hidden" name="sourceDt" id="sourceDt" />
+											<div class="three wide field">
+												<div class="calendar-area">
+													<div class="field">
+														<div class="ui calendar">
+															<div class="ui input right icon d-sourceDt1">
+																<i class="calendar icon"></i>
+																<input type="text" name="sourceDt1" id="sourceDt1" />
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="three wide field">
+												<div class="ui selection dropdown d-sourceDt2">
+													<input type="hidden" name="sourceDt2" id="sourceDt2">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+											<div class="field">
+												<span class="unit">시</span>
+											</div>
+											<div class="three wide field">
+												<div class="ui selection dropdown d-sourceDt3">
+													<input type="hidden" name="sourceDt3" id="sourceDt3">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+											<div class="field">
+												<span class="unit">분</span>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>고객 회신</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="inline">
+													<div class="ui checkbox chk-custReplyYn">
+														<input type="checkbox" name="custReplyYn" id="custReplyYn" class="hidden">
+														<label>회신 요망</label>
+													</div>
+												</div>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>회신 요청 방법</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="ui selection dropdown d-custReplyCd">
+													<input type="hidden" name="custReplyCd" id="custReplyCd">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>민감/특이 여부</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="inline">
+													<div class="ui checkbox chk-sensSpecYn">
+														<input type="checkbox" name="sensSpecYn" id="sensSpecYn" class="hidden">
+													</div>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //기본 정보 영역 -->
+				<!-- VOC 정보 영역 -->
+				<div class="title title-area active">
+					<h3>VOC 정보</h3>
+				</div>
+				<div class="content detail-table-area active">
+					<div class="ui form">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 12%;">
+								<col style="width: auto;">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row"><label class="required">VOC 제목/요약</label>
+									</th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="vocTitle" id="vocTitle" />
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label class="required">VOC 내용</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field" style="height: 300px;">
+												<textarea id="vocCont" name="vocCont" style="display: none;"></textarea>
+												<div id="editorVoc" style="width: 100%;"></div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>첨부 파일</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="file-upload-wrap">
+													<div>
+														<div class="file-btn">
+															<input type="file" name="vocFiles" id="vocFiles" multiple />
+															<label for="vocFiles">파일 찾기</label>
+														</div>
+														<ul id="preview" class="file-list vocFilesDiv"></ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<!-- [dev]_ 가이드 텍스트는 table 상/하단 어디든 div.fields.guide-txt-area>p.txt-guide 형태로 사용 -->
+						<div class="fields guide-txt-area" id="immeActLayout">
+							<div class="inline">
+								<div class="ui checkbox chk-immeAct">
+									<input type="checkbox" name="immeActYn" id="immeActYn" class="hidden">
+									<label id="asap">즉시처리 여부</label>
+								</div>
+								<p class="txt-guide">(해당 VOC를 즉시처리 하거나, 종결된 VOC를 등록할 경우)</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- //VOC 정보 영역 -->
+				<!-- VOC 처리 -->
+				<div class="title title-area vocActDiv blind active">
+					<h3>VOC 처리</h3>
+				</div>
+				<div class="content detail-table-area vocActDiv blind active">
+					<div class="ui form">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 12%;">
+								<col style="width: 35%;">
+								<col style="width: 12%;">
+								<col style="width: auto;">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row"><label class="required">처리유형</label></th>
+									<td colspan="3">
+										<div class="fields">
+											<div class="three wide field">
+												<div class="ui selection dropdown d-vocActTypeCd1">
+													<input type="hidden" name="vocActTypeCd1" id="vocActTypeCd1">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+											<div class="three wide field">
+												<div class="ui selection dropdown d-vocActTypeCd2">
+													<input type="hidden" name="vocActTypeCd2" id="vocActTypeCd2">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label class="required">처리일자</label></th>
+									<td>
+										<div class="fields">
+											<div class="five wide field">
+												<div class="calendar-area">
+													<div class="field">
+														<div class="ui calendar">
+															<div class="ui input right icon d-vocActDt">
+																<i class="calendar icon"></i>
+																<input type="text" name="vocActDt" id="vocActDt" class="voc-act-data" />
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label class="required">처리자</label></th>
+									<td>
+										<div class="fields">
+											<div class="five wide field">
+												<div class="ui selection dropdown d-vocActUserNo">
+													<input type="hidden" name="vocActUserNo" id="vocActUserNo">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label class="required">처리 내용</label></th>
+									<td colspan="3">
+										<div class="fields">
+											<div class="sixteen wide field" style="height: 300px;">
+												<textarea id="vocActCont" name="vocActCont" style="display: none;"></textarea>
+												<div id="editorAct" style="width: 100%;"></div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>첨부 파일</label></th>
+									<td colspan="3">
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="file-upload-wrap">
+													<div name="fileForm">
+														<div class="file-btn">
+															<input type="file" name="vocActFiles" id="vocActFiles" class="voc-act-data" multiple />
+															<label for="vocActFiles">파일 찾기</label>
+														</div>
+														<ul id="preview" class="file-list vocActFilesDiv voc-act-data"></ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- //VOC 처리 -->
+
+				<!-- 상세 테이블 하단 버튼 영역 -->
+				<!-- [dev]_ 버튼이 우측에만 올 경우, "justify-right" 클래스 추가 / 좌측은 클래스 없음 -->
+				<div class="btn-area tbl-bottom justify-right">
+					<div class="btn-wrap">
+						<div class="ui button btn-darkgray btn-finish-voc blind">완료</div>
+						<div class="ui button btn-darkgray btn-reject-voc blind">반려</div>
+						<div class="ui button btn-darkgray btn-appr-voc blind">완료상신</div>
+						<div class="ui button btn-darkgray btn-save-voc regiMoce">VOC등록</div>
+						<div class="ui button btn-darkgray btn-delt-voc viewMode blind">삭제</div>
+					</div>
+				</div>
+				<div class="content detail-table-area ">
+					<!-- VOC Activity -->
+					<div class="ui top attached tabular menu viewMode blind">
+						<a class="active item" data-tab="first">VOC Activity</a>
+					</div>
+					<div class="ui bottom attached active tab segment viewMode blind" data-tab="first">
+						<div class="table-area">
+							<div class="ui form">
+								<table id="listDataTableHist" class="display stripe hover">
+									<colgroup>
+										<col style="width: 10%">
+										<col style="width: auto">
+										<col style="width: 10%">
+										<col style="width: 13%">
+									</colgroup>
+									<thead>
+										<tr>
+											<th>구분</th>
+											<th>내용</th>
+											<th>등록자</th>
+											<th>등록일시</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- //VOC Activity -->
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- 고객찾기 모달팝업 -->
+	<div class="ui modal modal-cust" style="height: 700px;">
+		<i class="close icon"></i>
+		<div class="header">고객찾기</div>
+		<div class="content" style="max-height: 600px;">
+			<form id="searchCustForm" method="post">
+				<div class="search-area">
+					<div class="search-inner">
+						<div class="ui form">
+							<div class="fields">
+								<input type="hidden" name="companyCd" id="companyCd">
+								<div class="three wide field">
+									<label>고객명</label>
+									<input type="text" name="custNm" id="custNm" maxlength="100">
+								</div>
+								<div class="four wide field">
+									<label>전화번호</label>
+									<input type="text" class="numInput" name="telNo" id="telNo" placeholder="전화번호" maxlength="13">
+								</div>
+								<div class="two wide field btn-search">
+									<div class="ui button">
+										<i class="search icon"></i> 조회
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="table-area">
+					<div class="ui form">
+						<table id="listDataTableCust" class="display stripe hover" style="width: 100% !important;">
+							<colgroup>
+								<col style="width: 6%">
+								<col style="width: 12%">
+								<col style="width: 8%">
+								<col style="width: 16%">
+								<col style="width: auto">
+								<col style="width: 10%">
+								<col style="width: 10%">
+							</colgroup>
+							<thead>
+								<tr>
+									<th>선택</th>
+									<th>고객번호</th>
+									<th>고객명</th>
+									<th>전화번호</th>
+									<th>등록일</th>
+									<th>VOC건수</th>
+									<th>민감건수</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="actions">
+			<button class="ui button btn-darkgray btn-select-cust">선택</button>
+		</div>
+	</div>
+
+	<!-- 반려사유 모달팝업 -->
+	<div class="ui modal modal-reject" style="width: 500px; height: 200px;">
+		<i class="close icon"></i>
+		<div class="header">반려처리</div>
+		<div class="content">
+			<div class="search-area">
+				<div class="search-inner">
+					<div class="ui form">
+						<div class="fields">
+							<div class="wide field" style="width: 100%">
+								<label>반려사유</label>
+								<textarea name="rejectMemo" id="rejectMemo" rows="5"></textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="actions">
+			<button class="ui button btn-darkgray btn-proc-reject">반려</button>
+			<button class="ui button btn-darkgray btn-cancle-reject" onclick="javascript:$('.modal-reject').find('.close').click();">취소</button>
+		</div>
+	</div>
+</body>
+<style>
+.file-upload-wrap div {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	gap: 50px;
+}
+
+.file-list .btn-file-delt {
+	width: 20px;
+	height: 20px;
+	background-image: url(../images/common/btn_file_del.svg);
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+}
+</style>
+</html>

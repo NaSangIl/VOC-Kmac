@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" layout:fragment="Content">
+
+<head>
+<title th:text="코드관리"></title>
+
+<!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+<script th:src="@{/js/system/code.js}"></script>
+
+</head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>코드관리</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>시스템관리</li>
+				<li class="now">코드관리</li>
+			</ul>
+		</div>
+		<div class="search-area">
+			<form id="searchForm">
+				<div class="search-inner">
+					<div class="ui form">
+						<div class="fields">
+							<div class="four wide field">
+								<label>코드유형</label>
+								<input type="text" id="code" name="code" placeholder="코드유형을 입력하세요.">
+							</div>
+							<div class="four wide field">
+								<label>코드유형명</label>
+								<input type="text" id="codeNm" name="codeNm" placeholder="코드유형명을 입력하세요.">
+							</div>
+							<div class="four wide field">
+								<label>코드</label>
+								<input type="text" id="code" name="code" placeholder="코드를 입력하세요.">
+							</div>
+							<div class="four wide field">
+								<label>코드명</label>
+								<input type="text" id="codeNm" name="codeNm" placeholder="코드명을 입력하세요.">
+							</div>
+							<div class="two wide field btn-search">
+								<div class="ui button"><i class="search icon"></i> 조회 </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="btn-area tbl-top">
+			<div class="btn-wrap"></div>
+			<div class="btn-wrap">
+				<div class="ui button btn-darkgray btn-add1">추가</div>
+			</div>
+		</div>
+
+		<div class="table-area">
+			<div class="ui form">
+				<table id="listDataTableCode1" class="display stripe hover">
+					<colgroup>
+						<col style="width: 10%">
+						<col style="width: 20%">
+						<col style="width: 10%">
+						<col style="width: 13%">
+						<col style="width: 10%">
+						<col style="width: 13%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>코드유형</th>
+							<th>코드유형명</th>
+							<th>등록자</th>
+							<th>등록일시</th>
+							<th>수정자</th>
+							<th>수정일시</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="btn-area tbl-top">
+			<div class="btn-wrap"></div>
+			<div class="btn-wrap">
+				<div class="ui button btn-darkgray btn-add2">추가</div>
+			</div>
+		</div>
+		<div class="table-area">
+			<div class="ui form">
+				<table id="listDataTableCode2" class="display stripe hover">
+					<colgroup>
+						<col style="width: 8%">
+						<col style="width: auto">
+						<col style="width: 8%">
+						<col style="width: 8%">
+						<col style="width: 8%">
+						<col style="width: 7%">
+						<col style="width: 7%">
+						<col style="width: 6%">
+						<col style="width: 13%">
+						<col style="width: 6%">
+						<col style="width: 13%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>코드</th>
+							<th>코드명</th>
+							<th>참조값1</th>
+							<th>참조값2</th>
+							<th>참조값3</th>
+							<th>정렬순서</th>
+							<th>사용여부</th>
+							<th>등록자</th>
+							<th>등록일시</th>
+							<th>수정자</th>
+							<th>수정일시</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- 상세모달창[코드유형] -->
+	<div class="ui modal modal-code1">
+		<i class="close icon"></i>
+		<div class="header">코드관리</div>
+		<div class="content">
+			<div class="content detail-table-area active">
+				<div class="ui form">
+					<form id="registCodeForm1">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 10%;">
+								<col style="width: 15%;">
+								<col style="width: 10%;">
+								<col style="width: 15%;">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row"><label class="required">코드유형</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="hidden" id="codeSeq" name="codeSeq" value="0">
+												<input type="hidden" id="codeType" name="codeType" value="CODE_TYPE">
+												<input type="text" name="code" placeholder="코드유형">
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label class="required">코드유형명</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="codeNm" placeholder="코드유형명">
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>사용여부</label></th>
+									<td colspan="3">
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="ui selection dropdown d-useYn">
+													<input type="hidden" id="useYn" name="useYn">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>등록자</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="regUserNm" readonly />
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>등록일시</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="regDt" readonly />
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>수정자</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="modUserNm" readonly />
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>수정일시</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="modDt" readonly />
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="actions">
+			<button class="ui button btn-darkgray btn-save1">저장</button>
+			<button class="ui button btn-darkgray btn-delt1">삭제</button>
+		</div>
+	</div>
+
+	<!-- 상세모달창[코드] -->
+	<div class="ui modal modal-code2">
+		<i class="close icon"></i>
+		<div class="header">코드</div>
+		<div class="content">
+			<div class="content detail-table-area active">
+				<div class="ui form">
+					<form id="registCodeForm2">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 10%;">
+								<col style="width: 15%;">
+								<col style="width: 10%;">
+								<col style="width: 15%;">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row"><label>코드유형</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="hidden" id="codeSeq" name="codeSeq" value="0">
+												<input type="text" name="codeType" readonly>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>사용여부</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<div class="ui selection dropdown d-useYn">
+													<input type="hidden" id="useYn" name="useYn">
+													<div class="default text">선택</div>
+													<i class="dropdown icon"></i>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label class="required">코드</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="code" placeholder="코드">
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label class="required">코드명</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="codeNm" placeholder="코드명">
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>참조값1</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="refVal1" placeholder="참조값1">
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>참조값2</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="refVal2" placeholder="참조값2">
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>참조값3</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="refVal3" placeholder="참조값3">
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>정렬순서</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="number" name="dispOrder" placeholder="정렬순서">
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>등록자</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="regUserNm" readonly>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>등록일시</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="regDt" readonly>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row"><label>수정자</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="modUserNm" readonly>
+											</div>
+										</div>
+									</td>
+									<th scope="row"><label>수정일시</label></th>
+									<td>
+										<div class="fields">
+											<div class="sixteen wide field">
+												<input type="text" name="modDt" readonly>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="actions">
+			<button class="ui button btn-darkgray btn-save2">저장</button>
+			<button class="ui button btn-darkgray btn-delt2">삭제</button>
+		</div>
+	</div>
+</body>
+</html>

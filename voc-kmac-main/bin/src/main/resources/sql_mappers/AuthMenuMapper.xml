@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.system.mapper.AuthMenuMapper">
+
+    <!-- 권한메뉴매핑정보 목록 조회 -->
+    <select id="getAuthMenuList" resultType="kr.co.kmac.system.dto.AuthMenuDto$Info">
+        SELECT  A.menu_seq             AS "menuSeq",
+                B.auth_cd              AS "authCd",
+                A.menu_id              AS "menuId",
+                A.menu_nm              AS "menuNm",
+                A.menu_levl            AS "menuLevl",
+                A.menu_url             AS "menuUrl",
+                A.parent_menu_id       AS "parentMenuId",
+                A.menu_yn              AS "menuYn"
+        FROM tb_sys_menu A
+        LEFT OUTER JOIN tb_sys_auth_menu B
+          ON A.menu_seq = B.menu_seq
+         AND B.auth_cd = #{authCd}
+        ORDER BY A.menu_id
+    </select>
+
+	<!-- 권한메뉴매핑정보 등록 -->
+    <insert id="insertAuthMenu">
+        INSERT INTO tb_sys_auth_menu
+        (
+            auth_cd,
+            menu_seq,
+            reg_user_no,
+            mod_user_no
+        )
+        VALUES
+        (
+            #{authCd},
+            #{menuSeq},
+            #{regUserNo},
+            #{modUserNo}
+        )
+    </insert>
+
+	<!-- 권한메뉴매핑정보 삭제 -->
+    <update id="deleteAuthMenu">
+        DELETE FROM tb_sys_auth_menu
+         WHERE auth_cd=#{authCd}
+    </update>
+</mapper>

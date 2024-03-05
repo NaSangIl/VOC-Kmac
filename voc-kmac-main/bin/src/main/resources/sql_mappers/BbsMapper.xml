@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.bbs.mapper.BbsMapper">
+
+    <!-- 게시판정보 목록 조회 -->
+    <select id="getBbsList" resultType="kr.co.kmac.bbs.dto.BbsDto$Info">
+        SELECT A.bbs_seq              AS "bbsSeq",
+               A.bbs_type_cd          AS "bbsTypeCd",
+               A.company_cd           AS "companyCd",
+               (SELECT company_nm FROM tb_company WHERE company_cd=A.company_cd) AS "companyNm",
+               A.title                AS "title",
+               A.contents             AS "contents",
+               A.noti_post_yn         AS "notiPostYn",
+               A.hit                  AS "hit",
+               A.use_yn               AS "useYn",
+               A.reg_user_no          AS "regUserNo",
+               fn_getUserNm(A.reg_user_no) AS "regUserNm",
+               date_format(A.reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               A.mod_user_no          AS "modUserNo",
+               fn_getUserNm(A.mod_user_no) AS "modUserNm",
+               date_format(A.mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt",
+               (SELECT COUNT(1) FROM tb_bbs_comments WHERE bbs_seq = A.bbs_seq) AS "commentsCnt"
+        FROM tb_bbs A
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(bbsTypeCd)">AND A.bbs_type_cd = #{bbsTypeCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(title)">AND A.title LIKE CONCAT('%',#{title},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= #{regDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+        </where>
+        ORDER BY A.bbs_seq DESC
+        <if test="offset &gt; -1">
+            LIMIT #{offset}, #{length}
+        </if>
+    </select>
+    <select id="getBbsListCount" resultType="long">
+        SELECT COUNT(1)
+        FROM tb_bbs A
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(bbsTypeCd)">AND A.bbs_type_cd = #{bbsTypeCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(title)">AND A.title LIKE CONCAT('%',#{title},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= #{regDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+        </where>
+    </select>
+
+	<!-- 게시판정보 상세 조회 -->
+    <select id="getBbs" resultType="kr.co.kmac.bbs.dto.BbsDto$Info">
+        SELECT bbs_seq              AS "bbsSeq",
+               bbs_type_cd          AS "bbsTypeCd",
+               company_cd           AS "companyCd",
+               (SELECT company_nm FROM tb_company WHERE company_cd=A.company_cd) AS "companyNm",
+               title                AS "title",
+               contents             AS "contents",
+               noti_post_yn         AS "notiPostYn",
+               hit                  AS "hit",
+               use_yn               AS "useYn",
+               reg_user_no          AS "regUserNo",
+               fn_getUserNm(reg_user_no) AS "regUserNm",
+               date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               mod_user_no          AS "modUserNo",
+               fn_getUserNm(mod_user_no) AS "modUserNm",
+               date_format(mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+          FROM tb_bbs A
+         WHERE bbs_seq=#{bbsSeq}
+    </select>
+
+	<!-- 게시판정보 등록 -->
+    <insert id="insertBbs">
+        INSERT INTO tb_bbs
+        (
+            bbs_type_cd,
+            company_cd,
+            title,
+            contents,
+            noti_post_yn,
+            hit,
+            use_yn,
+            reg_user_no,
+            mod_user_no
+        )
+        VALUES
+        (
+            #{bbsTypeCd},
+            #{companyCd},
+            #{title},
+            #{contents},
+            #{notiPostYn},
+            0,
+            'Y',
+            #{regUserNo},
+            #{modUserNo}
+        )
+        <selectKey resultType="int" keyProperty="returnKey" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+	<!-- 게시판정보 수정 -->
+    <update id="updateBbs">
+        UPDATE tb_bbs SET
+               company_cd           = #{companyCd},
+               title                = #{title},
+               contents             = #{contents},
+               noti_post_yn         = #{notiPostYn},
+               mod_user_no          = #{modUserNo}
+         WHERE bbs_seq=#{bbsSeq}
+	</update>
+
+    <!-- 조회수 수정 -->
+    <update id="updateHit">
+        UPDATE tb_bbs SET
+               hit = hit+1
+        WHERE bbs_seq=#{bbsSeq}
+    </update>
+
+	<!-- 게시판정보 삭제 -->
+    <update id="deleteBbs">
+        DELETE FROM tb_bbs
+         WHERE bbs_seq=#{bbsSeq}
+    </update>
+</mapper>

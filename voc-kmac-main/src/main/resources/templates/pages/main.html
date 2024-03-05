@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/main}" layout:fragment="Content">
+
+<head>
+<title th:text="메인화면"></title>
+<script th:src="@{/js/main.js}"></script>
+</head>
+<body>
+	<div class="page-container">
+		<!-- 검색 영역 -->
+		<div class="search-area">
+			<h2 class="blind">VOC 검색</h2>
+			<div class="search-inner">
+				<div class="ui form">
+					<div class="fields">
+						<div class="four wide field">
+							<div class="ui selection dropdown d-year">
+								<input type="hidden" name="year" id="year">
+								<div class="default text">선택</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="field">
+							<span class="unit">년</span>
+						</div>
+						<div class="four wide field">
+							<div class="ui selection dropdown d-month">
+								<input type="hidden" name="month" id="month">
+								<div class="default text">전체</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="field">
+							<span class="unit">월</span>
+						</div>
+						<div class="four wide field">
+							<div class="ui selection dropdown d-day">
+								<input type="hidden" name="day" id="day">
+								<div class="default text">전체</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="field">
+							<span class="unit">일</span>
+						</div>
+						<!-- [dev] 검색영역 내 조회 버튼은 "two wide field btn-search" 클래스 사용 -->
+						<div class="two wide field btn-search">
+							<div class="ui button">
+								<i class="search icon"></i> 조회
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- // 검색 영역 -->
+
+		<!-- VOC 종류별 건수 확인 영역 -->
+		<div class="voc-check-area">
+			<h2 class="blind">VOC 종류별 건수 확인</h2>
+			<ul class="voc-check-area">
+				<li class="voc-complain"><i class="icon"></i>
+					<dl class="voc-count">
+						<dt>불만</dt>
+						<dd>
+							<strong class="num" id="complaintCnt"></strong>
+							<span class="unit">건</span>
+						</dd>
+					</dl>
+				</li>
+				<li class="voc-compliment">
+					<i class="icon"></i>
+					<dl class="voc-count">
+						<dt>칭찬</dt>
+						<dd>
+							<strong class="num" id="complimentCnt"></strong>
+							<span class="unit">건</span>
+						</dd>
+					</dl>
+				</li>
+				<li class="voc-suggestion">
+					<i class="icon"></i>
+					<dl class="voc-count">
+						<dt>제안</dt>
+						<dd>
+							<strong class="num" id="suggestionCnt"></strong>
+							<span class="unit">건</span>
+						</dd>
+					</dl>
+				</li>
+				<li class="voc-inquiry">
+					<i class="icon"></i>
+					<dl class="voc-count">
+						<dt>문의</dt>
+						<dd>
+							<strong class="num" id="inquiryCnt"></strong>
+							<span class="unit">건</span>
+						</dd>
+					</dl>
+				</li>
+			</ul>
+		</div>
+		<!-- // VOC 종류별 건 수 확인 영역 -->
+
+		<div class="flex-layout justify-sb align-top">
+			<!-- VOC 평균 처리기한 영역 -->
+			<div class="voc-period-area">
+				<h2>VOC 평균 처리기한</h2>
+				<div class="p-period">
+					<strong class="num" id="actPeriodAvg"></strong> <span class="unit">일</span>
+				</div>
+			</div>
+			<!-- // VOC 평균 처리기한 영역 -->
+
+			<!-- 공지사항 -->
+			<div class="notice-area">
+				<div class="flex-layout justify-sb">
+					<h2>공지사항</h2>
+					<a href="javascript:;" class="btn-more">MORE</a>
+				</div>
+				<ul id="noticeList"></ul>
+			</div>
+			<!-- // 공지사항 -->
+		</div>
+	</div>
+</body>
+</html>

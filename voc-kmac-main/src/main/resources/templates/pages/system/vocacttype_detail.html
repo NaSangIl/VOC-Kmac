@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" layout:fragment="Content">
+
+<head>
+<title th:text="처리유형관리"></title>
+<!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+<script th:src="@{/js/system/vocacttype_detail.js}"></script>
+</head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>처리유형관리</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>시스템관리</li>
+				<li class="now">처리유형관리</li>
+			</ul>
+		</div>
+		<form name="registForm" id="registForm" method="post">
+			<!-- 기본 정보 영역 -->
+			<div class="title-area">
+				<h3>기본 정보</h3>
+				<div class="btn-wrap">
+					<div class="ui button btn-brown btn-go-list">목록</div>
+				</div>
+			</div>
+			<div class="detail-table-area">
+				<div class="ui form">
+					<table class="ui celled table">
+						<colgroup>
+							<col style="width: 15%;">
+							<col style="width: 25%;">
+							<col style="width: 15%;">
+							<col style="width: 35%">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th><label>처리 유형 그룹 코드</label></th>
+								<td>
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="hidden" id="customType" name="customType" th:value="${customType}">
+											<input type="hidden" name="customMstSeq" id="customMstSeq" value="0">
+											<input type="text" name="customGrpCd" id="customGrpCd" readonly>
+										</div>
+										<div class="thirteen wide field">
+											* 처리 유형 그룹 코드는 자동 발급 됩니다.
+										</div>
+									</div>
+								</td>
+								<th><label class="required">처리 유형 그룹명</label></th>
+								<td>
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="text" name="customGrpNm" id="customGrpNm" maxlength="100"/>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th><label class="required">업종</label></th>
+								<td>
+									<div class="fields">
+										<div class="sixteen wide field">
+											<div class="ui selection dropdown d-industryCd">
+												<input type="hidden" id="industryCd" name="industryCd">
+												<div class="default text">선택</div>
+												<i class="dropdown icon"></i>
+											</div>
+										</div>
+									</div>
+								</td>
+								<th><label class="required">사용여부</label></th>
+								<td>
+									<div class="fields">
+										<div class="four wide field">
+											<div class="ui selection dropdown d-useYn">
+												<input type="hidden" id="useYn" name="useYn">
+												<div class="default text">선택</div>
+												<i class="dropdown icon"></i>
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th><label class="required">처리 유형 그룹 설명</label></th>
+								<td colspan="3">
+									<div class="fields">
+										<div class="sixteen wide field">
+											<textarea name="customDesc" id="customDesc" rows="3" maxlength="1000"></textarea>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- //기본 정보 영역 -->
+
+			<!-- 이력 정보 영역 -->
+			<div class="title-area histDiv blind">
+				<h3>이력 정보</h3>
+			</div>
+			<div class="detail-table-area histDiv blind">
+				<div class="ui form">
+					<table class="ui celled table">
+						<colgroup>
+							<col style="width: 12%;">
+							<col style="width: 38%;">
+							<col style="width: 12%;">
+							<col style="width: auto;">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><label>등록자/등록일시</label></th>
+								<td>
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="text" name="regUserNm" id="regUserNm" readonly>
+										</div>
+										<div class="sixteen wide field">
+											<input type="text" name="regDt" id="regDt" readonly>
+										</div>
+									</div>
+								</td>
+								<th scope="row"><label>수정자/수정일시</label></th>
+								<td colspan="2">
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="text" id="modUserNm" name="modUserNm" readonly>
+										</div>
+										<div class="sixteen wide field">
+											<input type="text" id="modDt" name="modDt" readonly>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- //이력 정보 영역 -->
+		</form>
+
+		<!-- 상세 테이블 하단 버튼 영역 -->
+		<!-- [dev]_ 버튼이 우측에만 올 경우, "justify-right" 클래스 추가 / 좌측은 클래스 없음 -->
+		<div class="content detail-table-area active">
+			<div class="btn-area tbl-bottom justify-right">
+				<div class="btn-wrap"></div>
+				<div class="btn-wrap">
+					<div class="ui button btn-darkgray btn-save-custommst">저장</div>
+					<div class="ui button btn-darkgray btn-delt-custommst blind">삭제</div>
+				</div>
+			</div>
+			<div class="ui top attached tabular menu mt_0 histDiv blind">
+				<a class="active item" data-tab="first">처리유형</a>
+			</div>
+			<div class="ui bottom attached active tab segment histDiv blind" data-tab="first">
+				<div class="btn-area tbl-top">
+					<div class="btn-wrap">
+						<div class="ui button btn-darkgray excl-download">업로드양식 다운로드</div>
+					</div>
+					<div class="btn-wrap">
+						<form id="exclUploadForm" name="exclUploadForm" method="post" class="ui form" enctype="multipart/form-data">
+							<div class="wide field">
+								<input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls, .csv">
+								<input type="text" class="blind" name="excelFilePath" id="excelFilePath" readonly>
+							</div>
+						</form>
+						<div class="ui button btn-darkgray excl-upload">엑셀 업로드</div>
+						<div class="ui button btn-darkgray btn-save-custom">처리유형 Edit</div>
+						<div class="ui button btn-darkgray btn-refresh-custom">새로고침</div>
+					</div>
+				</div>
+				<div class="table-area">
+					<div class="ui form">
+						<table id="listDataTableCustom" class="display stripe hover">
+							<colgroup>
+								<col style="width:30%">
+								<col style="width:30%">
+								<col style="width:0%">
+								<col style="width:15%">
+								<col style="width:20%">
+							</colgroup>
+							<thead>
+								<tr>
+									<th>처리유형(대)</th>
+									<th>처리유형(소)</th>
+									<th></th>
+									<th>최종수정자</th>
+									<th>최종수정일</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- [dev]_ VOC/처리 유형 모달 클래스 "modal-process" -->
+	<div class="ui modal modal-process modal-custom" id="vocActTypeEditPop">
+		<i class="close icon"></i>
+		<div class="header">처리 유형 Edit</div>
+		<div class="content">
+			<div class="ui form">
+				<div class="flex-layout align-top">
+					<div class="step-box">
+						<div class="title-area">
+							<h3>처리 유형(대)</h3>
+						</div>
+						<div class="fields">
+							<div class="sixteen wide field">
+								<!-- [dev]_ option에 selected는 보여주기 위한 용도 -->
+								<select multiple name="selectCustomCode1" id="selectCustomCode1"></select>
+							</div>
+						</div>
+						<div class="btn-area">
+							<div class="btn-wrap">
+								<div class="ui button btn-black-line btn-regi-custom1">신규등록</div>
+							</div>
+						</div>
+						<!-- [dev]_접힘펼침 기능 x -->
+						<form name="customRegistForm1" id="customRegistForm1">
+							<div class="detail-table-area">
+								<table class="ui celled table">
+									<colgroup>
+										<col style="width: 30%;">
+										<col style="width: auto;">
+									</colgroup>
+									<tbody>
+										<tr>
+											<th scope="row"><label class="required">코드</label></th>
+											<td>
+												<div class="fields">
+													<div class="sixteen wide field">
+														<input type="hidden" name="customType" id="customType" th:value="${customType}">
+														<input type="hidden" name="customMstSeq" id="customMstSeq">
+														<input type="hidden" name="customSeq" id="customSeq" value="0">
+														<input type="hidden" name="customLevel" id="customLevel" value="1">
+														<input type="hidden" name="upperCustomCd" id="upperCustomCd" value="">
+														<input type="text" name="customCd" id="customCd" readonly>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row"><label class="required">유형명</label></th>
+											<td>
+												<div class="fields">
+													<div class="sixteen wide field">
+														<input type="text" name="customNm" id="customNm" readonly>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row"><label class="required">순서</label></th>
+											<td>
+												<div class="fields">
+													<div class="sixteen wide field">
+														<input type="number" name="dispOrder" id="dispOrder" maxlength="5" oninput="Util.maxLengthCheck(this)" readonly>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</form>
+						<div class="btn-area tbl-bottom justify-right">
+							<div class="btn-wrap">
+								<div class="ui button btn-brown btn-save-custom1" >저장</div>
+								<div class="ui button btn-brown btn-delt-custom1" >삭제</div>
+							</div>
+						</div>
+					</div>
+					<div class="step-box">
+						<div class="title-area">
+							<h3>처리유형(소)</h3>
+						</div>
+						<div class="fields">
+							<div class="sixteen wide field">
+								<select multiple name="selectCustomCode2" id="selectCustomCode2">
+								</select>
+							</div>
+						</div>
+						<div class="btn-area">
+							<div class="btn-wrap">
+								<div class="ui button btn-black-line btn-regi-custom2">신규등록</div>
+							</div>
+						</div>
+						<form name="customRegistForm2" id="customRegistForm2">
+							<div class="detail-table-area">
+								<table class="ui celled table">
+									<colgroup>
+										<col style="width: 30%;">
+										<col style="width: auto;">
+									</colgroup>
+									<tbody>
+										<tr>
+											<th scope="row"><label class="required">코드</label></th>
+											<td>
+												<div class="fields">
+													<div class="sixteen wide field">
+														<input type="hidden" name="customType" id="customType" th:value="${customType}">
+														<input type="hidden" name="customMstSeq" id="customMstSeq">
+														<input type="hidden" name="customSeq" id="customSeq" value="0">
+														<input type="hidden" name="customLevel" id="customLevel" value="2">
+														<input type="hidden" name="upperCustomCd" id="upperCustomCd" value="">
+														<input type="text" name="customCd" id="customCd" readonly>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row"><label class="required">유형명</label></th>
+											<td>
+												<div class="fields">
+													<div class="sixteen wide field">
+														<input type="text" name="customNm" id="customNm" readonly>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row"><label class="required">순서</label></th>
+											<td>
+												<div class="fields">
+													<div class="sixteen wide field">
+														<input type="number" name="dispOrder" id="dispOrder" maxlength="5" oninput="Util.maxLengthCheck(this)" readonly>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</form>
+						<div class="btn-area tbl-bottom justify-right">
+							<div class="btn-wrap">
+								<div class="ui button btn-brown btn-save-custom2" >저장</div>
+								<div class="ui button btn-brown btn-delt-custom2" >삭제</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="actions">
+			<button class="ui button btn-darkgray" onclick="$('.modal-custom').find('.close').click();">닫기</button>
+		</div>
+	</div>
+</body>
+</html>

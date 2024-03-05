@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!--라이브러리 참조 : Thymeleaf & Thymeleaf Layout -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<!--공통 JS / CSS 영역을 관리하는 환경 영역-->
+<head th:replace="fragments/config :: ConfigFragment">
+</head>
+
+<body class="login-page">
+    <div class="ui form login-box">
+        <form id="loginForm" method="post">
+        <div class="logo-area">
+            <img src="../../images/common/logo_login.svg" alt="HI VOC">
+        </div>
+        <div class="login-area">
+            <div class="sixteen wide field company-field">
+                <label for="companyCd" class="blind">회사코드</label>
+                <i class="icon"></i>
+                <input type="text" name="companyCd" id="companyCd" placeholder="회사코드">
+            </div>
+            <div class="sixteen wide field id-field">
+                <label for="userId" class="blind">아이디</label>
+                <i class="icon"></i>
+                <input type="text" name="userId" id="userId" placeholder="아이디">
+            </div>
+            <div class="sixteen wide field pw-field">
+                <label for="pw" class="blind">비밀번호</label>
+                <i class="icon"></i>
+                <input type="password" name="pw" id="pw" placeholder="비밀번호">
+            </div>
+        </div>
+        <div class="btn-wrap-login">
+            <a href="javascript:;" class="ui button btn-login">로그인</a>
+            <!--a href="javascript:;" class="ui button btn-reset-pw">비밀번호 초기화</a-->
+        </div>
+        </form>
+    </div>
+    <script th:src="@{/js/login.js}"></script>
+</body>
+</html>

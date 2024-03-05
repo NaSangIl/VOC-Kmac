@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.system.mapper.CustomCodeMapper">
+
+    <!-- 회사지정코드 목록 조회 -->
+    <select id="getCustomCodeList" resultType="kr.co.kmac.system.dto.CustomCodeDto$Info">
+        SELECT TT1.custom_mst_seq  AS "customMstSeq",
+               TT1.custom_cd       AS "customCd1",
+               TT1.custom_nm       AS "customNm1",
+               TT2.custom_cd2      AS "customCd2",
+               TT2.custom_nm2      AS "customNm2",
+               TT2.custom_cd3      AS "customCd3",
+               TT2.custom_nm3      AS "customNm3",
+               TT1.reg_user_no     AS "regUserNo",
+               fn_getUserNm(TT1.reg_user_no) AS "regUserNm",
+               date_format(TT1.reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               IFNULL(TT2.mod_user_no3, IFNULL(TT2.mod_user_no2, TT1.mod_user_no)) AS "modUserNo",
+               fn_getUserNm(IFNULL(TT2.mod_user_no3, IFNULL(TT2.mod_user_no2, TT1.mod_user_no))) AS "modUserNm",
+               date_format(TT1.mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+        FROM tb_sys_custom_code TT1
+                 LEFT OUTER JOIN (SELECT T2.custom_mst_seq,
+                                         T2.upper_custom_cd,
+                                         T2.custom_cd       AS custom_cd2,
+                                         T2.custom_nm       AS custom_nm2,
+                                         T3.custom_cd       AS custom_cd3,
+                                         T3.custom_nm       AS custom_nm3,
+                                         T2.mod_user_no		 AS mod_user_no2,
+                                         T2.mod_dt			 AS mod_dt2,
+                                         T3.mod_user_no		 AS mod_user_no3,
+                                         T3.mod_dt			 AS mod_dt3
+                                  FROM tb_sys_custom_code T2 LEFT OUTER JOIN tb_sys_custom_code T3 ON T2.custom_mst_seq = T3.custom_mst_seq AND T2.custom_cd = T3.upper_custom_cd
+                                  WHERE  T2.custom_level='2'
+        ) TT2 ON TT1.custom_mst_seq = TT2.custom_mst_seq AND TT1.custom_cd = TT2.upper_custom_cd
+        WHERE TT1.custom_type = #{customType}
+          AND TT1.custom_level='1'
+          AND TT1.custom_mst_seq = #{customMstSeq}
+        ORDER BY TT1.custom_cd, TT2.custom_cd2, TT2.custom_cd3
+        <if test="offset &gt; -1">
+            LIMIT #{offset}, #{length}
+        </if>
+    </select>
+    <select id="getCustomCodeListCount" resultType="long">
+        SELECT COUNT(1)
+        FROM tb_sys_custom_code TT1
+                 LEFT OUTER JOIN (SELECT T2.custom_mst_seq,
+                                         T2.upper_custom_cd,
+                                         T2.custom_cd       AS custom_cd2,
+                                         T2.custom_nm       AS custom_nm2,
+                                         T3.custom_cd       AS custom_cd3,
+                                         T3.custom_nm       AS custom_nm3,
+                                         T2.mod_user_no		 AS mod_user_no2,
+                                         T2.mod_dt			 AS mod_dt2,
+                                         T3.mod_user_no		 AS mod_user_no3,
+                                         T3.mod_dt			 AS mod_dt3
+                                  FROM tb_sys_custom_code T2 LEFT OUTER JOIN tb_sys_custom_code T3 ON T2.custom_mst_seq = T3.custom_mst_seq AND T2.custom_cd = T3.upper_custom_cd
+                                  WHERE  T2.custom_level='2'
+        ) TT2 ON TT1.custom_mst_seq = TT2.custom_mst_seq AND TT1.custom_cd = TT2.upper_custom_cd
+        WHERE TT1.custom_type = #{customType}
+          AND TT1.custom_level='1'
+          AND TT1.custom_mst_seq = #{customMstSeq}
+        ORDER BY TT1.custom_cd, TT2.custom_cd2, TT2.custom_cd3
+    </select>
+
+    <!-- 회사지정코드 목록 dropbox용 조회 -->
+    <select id="getCustomCodeCodeList" resultType="kr.co.kmac.system.dto.CustomCodeDto$Info">
+        SELECT  A.custom_seq      AS "customSeq",
+                A.custom_mst_seq  AS "customMstSeq",
+                A.custom_cd       AS "customCd",
+                A.custom_nm       AS "customNm",
+                A.custom_level    AS "customLevel",
+                A.upper_custom_cd AS "upperCustomCd",
+                A.disp_order      AS "dispOrder",
+                A.use_yn          AS "useYn"
+        FROM tb_sys_custom_code A
+        WHERE A.custom_type = #{customType}
+          AND A.custom_mst_seq = #{customMstSeq}
+          AND A.custom_level = #{customLevel}
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(upperCustomCd)">AND A.upper_custom_cd = #{upperCustomCd} </if>
+        ORDER BY A.disp_order
+    </select>
+
+	<!-- 회사지정코드 상세 조회 -->
+    <select id="getCustomCode" resultType="kr.co.kmac.system.dto.CustomCodeDto$Info">
+        SELECT custom_seq         AS "customSeq",
+               custom_mst_seq     AS "customMstSeq",
+               custom_cd          AS "customCd",
+               custom_nm          AS "customNm",
+               custom_level       AS "customLevel",
+               upper_custom_cd    AS "upperCustomCd",
+               disp_order         AS "dispOrder",
+               use_yn             AS "useYn",
+               reg_user_no        AS "regUserNo",
+               fn_getUserNm(reg_user_no) AS "regUserNm",
+               date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               mod_user_no        AS "modUserNo",
+               fn_getUserNm(mod_user_no) AS "modUserNm",
+               date_format(mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+          FROM tb_sys_custom_code A
+         WHERE custom_seq=#{customSeq}
+    </select>
+
+	<!-- 회사지정코드 등록 -->
+    <insert id="insertCustomCode">
+        INSERT INTO tb_sys_custom_code
+        (
+            custom_type,
+            custom_mst_seq,
+            custom_cd,
+            custom_nm,
+            custom_level,
+            upper_custom_cd,
+            disp_order,
+            use_yn,
+            reg_user_no,
+            mod_user_no
+        )
+        VALUES
+        (
+            #{customType},
+            #{customMstSeq},
+            #{customCd},
+            #{customNm},
+            #{customLevel},
+            #{upperCustomCd},
+            #{dispOrder},
+            'Y',
+            #{regUserNo},
+            #{modUserNo}
+        )
+        <selectKey resultType="int" keyProperty="returnKey" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+	<!-- 회사지정코드 수정 -->
+    <update id="updateCustomCode">
+        UPDATE tb_sys_custom_code SET
+               custom_cd       = #{customCd},
+               custom_nm       = #{customNm},
+               custom_level    = #{customLevel},
+               upper_custom_cd = #{upperCustomCd},
+               disp_order       = #{dispOrder},
+               use_yn           = #{useYn},
+               mod_user_no      = #{modUserNo}
+        WHERE custom_seq=#{customSeq}
+	</update>
+
+
+
+	<!-- 회사지정코드 연결된 3레벨 삭제 -->
+    <delete id="deleteCustomCodeLv3">
+        DELETE FROM tb_sys_custom_code
+        WHERE (custom_type, custom_mst_seq, upper_custom_cd) IN (
+            SELECT sub.custom_type, sub.custom_mst_seq, sub.custom_cd
+              from ( SELECT custom_type, custom_mst_seq, custom_cd
+		              FROM tb_sys_custom_code
+		             WHERE custom_level = 2
+		               AND (custom_type, custom_mst_seq, upper_custom_cd) IN
+		                (SELECT custom_type, custom_mst_seq, custom_cd
+		                   FROM tb_sys_custom_code WHERE custom_seq = #{customSeq} AND custom_level=1)
+		           ) AS sub
+        )
+    </delete>
+
+    <!-- 회사지정코드 연결된 2레벨 삭제 -->
+    <delete id="deleteCustomCodeLv2">
+        DELETE FROM tb_sys_custom_code
+        WHERE (custom_type, custom_mst_seq, upper_custom_cd) IN
+              (SELECT sub.custom_type, sub.custom_mst_seq, sub.custom_cd
+                FROM  (SELECT custom_type, custom_mst_seq, custom_cd
+              	   		 FROM tb_sys_custom_code
+              	  		WHERE custom_seq=#{customSeq}
+              		) AS sub
+              )
+    </delete>
+
+    <!-- 회사지정코드 삭제 -->
+    <update id="deleteCustomCode">
+        DELETE FROM tb_sys_custom_code
+         WHERE custom_seq = #{customSeq}
+    </update>
+
+    <!-- 회사지정코드 중복체크 -->
+	<delete id="deleteCustomCodeAll">
+	   DELETE FROM tb_sys_custom_code
+        WHERE custom_type=#{customType}
+          AND custom_mst_seq=#{customMstSeq}
+	</delete>
+
+    <!-- 회사지정코드 중복삭제 -->
+    <update id="deleteCustomCodeDup">
+        DELETE FROM tb_sys_custom_code
+        WHERE custom_type=#{customType}
+          AND custom_mst_seq=#{customMstSeq}
+          AND custom_cd=#{customCd}
+    </update>
+
+    <!-- 회사지정코드 중복체크 -->
+    <select id="getCustomCodeDup" resultType="int">
+        SELECT COUNT(1)
+        FROM tb_sys_custom_code
+        WHERE custom_type=#{customType}
+          AND custom_mst_seq=#{customMstSeq}
+          AND custom_cd=#{customCd}
+    </select>
+</mapper>

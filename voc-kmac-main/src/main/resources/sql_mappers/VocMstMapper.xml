@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.voc.mapper.VocMstMapper">
+
+
+    <!-- VOC마스터 목록 조회 -->
+    <select id="getVocMstList" resultType="kr.co.kmac.voc.dto.VocMstDto$Info">
+        SELECT  A.voc_seq              AS "vocSeq",
+                A.company_cd           AS "companyCd",
+                A.voc_id               AS "vocId",
+                A.cust_seq             AS "custSeq",
+                A.voc_case_cd          AS "vocCaseCd",
+                fn_getCodeNm('VOC_CASE_CD', A.voc_case_cd) AS "vocCaseNm",
+
+                A.voc_type_cd1         AS "vocTypeCd1",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_TYPE', A.voc_type_cd1) AS "vocTypeNm1",
+                A.voc_type_cd2         AS "vocTypeCd2",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_TYPE', A.voc_type_cd2) AS "vocTypeNm2",
+                A.voc_type_cd3         AS "vocTypeCd3",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_TYPE', A.voc_type_cd3) AS "vocTypeNm3",
+
+                A.rcpt_chnn_cd         AS "rcptChnnCd",
+                fn_getCodeNm('RCPT_CHNN_CD', A.rcpt_chnn_cd) AS "rcptChnnNm",
+                A.source_cd            AS "sourceCd",
+                fn_getCodeNm('SOURCE_CD', A.source_cd) AS "sourceNm",
+                date_format(A.source_dt, '%Y-%m-%d %H:%i') AS "sourceDt",
+                A.cust_reply_yn        AS "custReplyYn",
+                A.cust_reply_cd        AS "custReplyCd",
+                fn_getCodeNm('CUST_REPLY_CD', A.cust_reply_cd) AS "custReplyNm",
+                A.voc_title            AS "vocTitle",
+                A.voc_cont             AS "vocCont",
+                A.imme_act_yn          AS "immeActYn",
+                A.voc_act_type_cd1     AS "vocActTypeCd1",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_ACT_TYPE', A.voc_act_type_cd1) AS "vocActTypeNm1",
+
+                A.voc_act_type_cd2     AS "vocActTypeCd2",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_ACT_TYPE', A.voc_act_type_cd2) AS "vocActTypeNm2",
+
+                date_format(A.voc_act_dt, '%Y-%m-%d %H:%i:%s') AS "vocActDt",
+                A.voc_act_user_no      AS "vocActUserNo",
+                fn_getUserNm(A.voc_act_user_no) AS "vocActUserNm",
+                A.voc_act_cont         AS "vocActCont",
+                A.voc_status_cd        AS "vocStatusCd",
+                fn_getCodeNm('VOC_STATUS_CD', A.voc_status_cd) AS "vocStatusNm",
+                A.anonym_cust_yn       AS "anonymCustYn",
+                A.sens_spec_yn         AS "sensSpecYn",
+                A.del_yn               AS "delYn",
+                A.reg_user_no          AS "regUserNo",
+                fn_getUserNm(A.reg_user_no) AS "regUserNm",
+                date_format(A.reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+                A.mod_user_no          AS "modUserNo",
+                fn_getUserNm(A.mod_user_no) AS "modUserNm",
+                date_format(A.mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt",
+                B.cust_nm              AS "custNm"
+           FROM TB_VOC_MST A
+           LEFT OUTER JOIN TB_VOC_CUST B
+             ON A.CUST_SEQ = B.CUST_SEQ
+          	<choose>
+          		<when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(custSeq) and custSeq!=0">
+          			WHERE A.cust_seq = #{custSeq}
+          		</when>
+          		<otherwise>
+					WHERE A.company_cd = #{companyCd}
+          		</otherwise>
+          	</choose>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isEmpty(delYn)">AND A.del_yn = 'N' </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocId)">AND A.voc_id = #{vocId} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(custNm)">AND B.cust_nm LIKE CONCAT('%',#{custNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocCaseCd)">AND A.voc_case_cd = #{vocCaseCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(sourceCd)">AND A.source_cd = #{sourceCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regUserNm)">AND fn_getUserNm(A.reg_user_no) LIKE CONCAT('%',#{regUserNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTitle)">AND A.voc_title LIKE CONCAT('%',#{vocTitle},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd1)">AND A.voc_act_type_cd1 = #{vocActTypeCd1} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd2)">AND A.voc_act_type_cd2 = #{vocActTypeCd2} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActUserNm)">AND fn_getUserNm(A.voc_act_user_no) LIKE CONCAT('%',#{vocActUserNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocStatusCd)">AND A.voc_status_cd = #{vocStatusCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= #{regDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActDtStart)">AND A.voc_act_dt &gt;= #{vocActDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActDtEnd)">AND A.voc_act_dt &lt; ADDDATE(#{vocActDtEnd},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(sensSpecYn)">AND A.sens_spec_yn = #{sensSpecYn} </if>
+
+        ORDER BY A.voc_seq DESC
+         <if test="offset &gt; -1">
+         LIMIT #{offset}, #{length}
+         </if>
+    </select>
+    <select id="getVocMstListCount" resultType="long">
+        SELECT COUNT(1)
+          FROM tb_voc_mst A left outer join tb_voc_cust B on A.cust_seq = B.cust_seq
+         	<choose>
+          		<when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(custSeq) and custSeq!=0">
+          			WHERE A.cust_seq = #{custSeq}
+          		</when>
+          		<otherwise>
+					WHERE A.company_cd = #{companyCd}
+          		</otherwise>
+          	</choose>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isEmpty(delYn)">AND A.del_yn = 'N' </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocId)">AND A.voc_id = #{vocId} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(custNm)">AND B.cust_nm LIKE CONCAT('%',#{custNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocCaseCd)">AND A.voc_case_cd = #{vocCaseCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(sourceCd)">AND A.source_cd = #{sourceCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regUserNm)">AND fn_getUserNm(A.reg_user_no) LIKE CONCAT('%',#{regUserNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTitle)">AND A.voc_title LIKE CONCAT('%',#{vocTitle},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd1)">AND A.voc_act_type_cd1 = #{vocActTypeCd1} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActTypeCd2)">AND A.voc_act_type_cd2 = #{vocActTypeCd2} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActUserNm)">AND fn_getUserNm(A.voc_act_user_no) LIKE CONCAT('%',#{vocActUserNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocStatusCd)">AND A.voc_status_cd = #{vocStatusCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= #{regDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActDtStart)">AND A.voc_act_dt &gt;= #{vocActDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocActDtEnd)">AND A.voc_act_dt &lt; ADDDATE(#{vocActDtEnd},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(sensSpecYn)">AND A.sens_spec_yn = #{sensSpecYn} </if>
+    </select>
+
+	<!-- VOC마스터 상세 조회 -->
+    <select id="getVocMst" resultType="kr.co.kmac.voc.dto.VocMstDto$Info">
+        SELECT  A.voc_seq              AS "vocSeq",
+                A.company_cd           AS "companyCd",
+                A.voc_id               AS "vocId",
+                A.cust_seq             AS "custSeq",
+                A.voc_case_cd          AS "vocCaseCd",
+                fn_getCodeNm('VOC_CASE_CD', A.voc_case_cd) AS "vocCaseNm",
+                A.voc_type_cd1         AS "vocTypeCd1",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_TYPE', A.voc_type_cd1) AS "vocTypeNm1",
+                A.voc_type_cd2         AS "vocTypeCd2",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_TYPE', A.voc_type_cd2) AS "vocTypeNm2",
+                A.voc_type_cd3         AS "vocTypeCd3",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_TYPE', A.voc_type_cd3) AS "vocTypeNm3",
+                A.rcpt_chnn_cd         AS "rcptChnnCd",
+                fn_getCodeNm('RCPT_CHNN_CD', A.rcpt_chnn_cd) AS "rcptChnnNm",
+                A.source_cd            AS "sourceCd",
+                fn_getCodeNm('SOURCE_CD', A.source_cd) AS "sourceNm",
+                date_format(A.source_dt, '%Y-%m-%d %H:%i') AS "sourceDt",
+                A.cust_reply_yn        AS "custReplyYn",
+                A.cust_reply_cd        AS "custReplyCd",
+                fn_getCodeNm('CUST_REPLY_CD', A.cust_reply_cd) AS "custReplyNm",
+                A.voc_title            AS "vocTitle",
+                A.voc_cont             AS "vocCont",
+                A.imme_act_yn          AS "immeActYn",
+                A.voc_act_type_cd1     AS "vocActTypeCd1",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_ACT_TYPE', A.voc_act_type_cd1) AS "vocActTypeNm1",
+                A.voc_act_type_cd2     AS "vocActTypeCd2",
+                fn_getCustomCodeNm(A.company_cd, 'VOC_ACT_TYPE', A.voc_act_type_cd2) AS "vocActTypeNm2",
+                date_format(A.voc_act_dt, '%Y-%m-%d %H:%i:%s') AS "vocActDt",
+                A.voc_act_user_no      AS "vocActUserNo",
+                fn_getUserNm(A.voc_act_user_no) AS "vocActUserNm",
+                A.voc_act_cont         AS "vocActCont",
+                A.voc_status_cd        AS "vocStatusCd",
+                fn_getCodeNm('VOC_STATUS_CD', A.voc_status_cd) AS "vocStatusNm",
+                A.anonym_cust_yn       AS "anonymCustYn",
+                A.sens_spec_yn         AS "sensSpecYn",
+                A.del_yn               AS "delYn",
+                A.reg_user_no          AS "regUserNo",
+                fn_getUserNm(A.reg_user_no) AS "regUserNm",
+                date_format(A.reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+                A.mod_user_no          AS "modUserNo",
+                fn_getUserNm(A.mod_user_no) AS "modUserNm",
+                date_format(A.mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+          FROM tb_voc_mst A
+         WHERE A.voc_seq = #{vocSeq}
+           AND A.del_yn = 'N'
+    </select>
+
+    <!-- VOC마스터 상세 조회 -->
+    <select id="getVocStates" resultType="kr.co.kmac.voc.dto.VocMstDto$StatusInfo">
+        SELECT IFNULL(SUM(complaintCnt),0) AS "complaintCnt",
+               IFNULL(SUM(complimentCnt),0) AS "complimentCnt",
+               IFNULL(SUM(suggestionCnt),0) AS "suggestionCnt",
+               IFNULL(SUM(inquiryCnt),0) AS "inquiryCnt",
+               IFNULL(round(AVG(actPeriod),1),0) AS "actPeriodAvg"
+        FROM (
+            SELECT CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
+                   CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
+                   CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
+                   CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt",
+                   CASE WHEN A.VOC_STATUS_CD = 'C0' THEN DATEDIFF(A.VOC_ACT_DT, A.REG_DT) ELSE NULL END AS "actPeriod"
+            FROM tb_voc_mst A
+            WHERE A.del_yn = 'N'
+              AND A.company_cd = #{companyCd}
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= #{regDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+        ) T
+    </select>
+
+	<!-- VOC마스터 등록 -->
+    <insert id="insertVocMst">
+        INSERT INTO tb_voc_mst
+        (
+            company_cd,
+            voc_id,
+            cust_seq,
+            voc_case_cd,
+            voc_type_cd1,
+            voc_type_cd2,
+            voc_type_cd3,
+            rcpt_chnn_cd,
+            source_cd,
+            source_dt,
+            cust_reply_yn,
+            cust_reply_cd,
+            voc_title,
+            voc_cont,
+            imme_act_yn,
+            voc_act_type_cd1,
+            voc_act_type_cd2,
+            voc_act_dt,
+            voc_act_user_no,
+            voc_act_cont,
+            voc_status_cd,
+            anonym_cust_yn,
+            sens_spec_yn,
+            reg_user_no,
+            mod_user_no
+        )
+        VALUES
+        (
+            #{companyCd},
+            ( SELECT * FROM (
+                SELECT CONCAT(CONCAT(#{companyCd},'_',DATE_FORMAT(NOW(),'%Y%m%d')), '_', LPAD(IFNULL(COUNT(1), 0) + 1, 4, '0'))
+                FROM tb_voc_mst
+                WHERE company_cd=#{companyCd}
+                AND reg_dt &gt;= CURDATE() AND reg_dt &lt; ADDDATE(CURDATE(), 1)
+                ) AS voc_id
+            ),
+            #{custSeq},
+            #{vocCaseCd},
+            #{vocTypeCd1},
+            #{vocTypeCd2},
+            #{vocTypeCd3},
+            #{rcptChnnCd},
+            #{sourceCd},
+            #{sourceDt},
+            #{custReplyYn},
+            #{custReplyCd},
+            #{vocTitle},
+            #{vocCont},
+            #{immeActYn},
+            #{vocActTypeCd1},
+            #{vocActTypeCd2},
+            case #{vocActDt} when '' then null else #{vocActDt} end,
+            #{vocActUserNo},
+            #{vocActCont},
+            #{vocStatusCd},
+            #{anonymCustYn},
+            #{sensSpecYn},
+            #{regUserNo},
+            #{modUserNo}
+        )
+        <selectKey resultType="int" keyProperty="returnKey" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- VOC마스터 수정 -->
+    <update id="updateVocMst">
+        UPDATE tb_voc_mst SET
+            cust_seq             = #{custSeq},
+            voc_case_cd          = #{vocCaseCd},
+            voc_type_cd1         = #{vocTypeCd1},
+            voc_type_cd2         = #{vocTypeCd2},
+            voc_type_cd3         = #{vocTypeCd3},
+            rcpt_chnn_cd         = #{rcptChnnCd},
+            source_cd            = #{sourceCd},
+            source_dt            = #{sourceDt},
+            cust_reply_yn        = #{custReplyYn},
+            cust_reply_cd        = #{custReplyCd},
+            voc_title            = #{vocTitle},
+            voc_cont             = #{vocCont},
+            imme_act_yn          = #{immeActYn},
+            voc_act_type_cd1     = #{vocActTypeCd1},
+            voc_act_type_cd2     = #{vocActTypeCd2},
+            voc_act_dt           = case #{vocActDt} when '' then null else #{vocActDt} end,
+            voc_act_user_no      = #{vocActUserNo},
+            voc_act_cont         = #{vocActCont},
+            voc_status_cd        = #{vocStatusCd},
+            anonym_cust_yn       = #{anonymCustYn},
+            sens_spec_yn         = #{sensSpecYn},
+            mod_user_no          = #{modUserNo}
+        WHERE voc_seq = #{vocSeq}
+    </update>
+
+    <!-- VOC마스터 상태 수정 -->
+    <update id="updateVocMstStatus">
+        UPDATE tb_voc_mst
+        SET voc_status_cd        = #{vocStatusCd},
+            mod_user_no          = #{modUserNo}
+        WHERE voc_seq = #{vocSeq}
+    </update>
+
+    <!-- VOC마스터 삭제 처리 -->
+    <update id="deleteVocMst">
+        UPDATE tb_voc_mst
+        SET del_yn = 'Y',
+            mod_user_no          = #{modUserNo}
+        WHERE voc_seq = #{vocSeq}
+    </update>
+
+</mapper>

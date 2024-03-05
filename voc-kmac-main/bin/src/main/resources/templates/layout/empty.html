@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--/*
+=========================================================================
+ ThymeLeaf Layout 라이브러리를 활용한 공통 레이아웃
+ - EasyUI 를 사용하여 전체화면프레임을 구성
+ - headFragment  : meta, 공통스타일시트 등을 포함
+ - scriptFragment: 공통사용 스크립트 포함 
+ - headerFragment: 페이지 최상단 공통 레이아웃
+ - leftFragment  : 페이지 좌측 사이드바 공통 레이아웃 
+ - footerFragment: 페이지 최하단 공통 레이아웃
+ - content       : 업무용 메인 레이아웃
+ - contentScript : 업무용 자바스크립트
+==========================================================================
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" 
+    xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- STYLESHEET -------------------------------------------------->
+        <th:block th:replace="fragments/style :: styleFragment"></th:block>
+
+        <!-- JAVASCRIPT -------------------------------------------------->
+        <th:block th:replace="fragments/config :: scriptFragment"></th:block>
+        
+    </head>
+
+    <body id="page-body">
+        
+        <!-- CENTER (CONTENT) -------------------------------------------------->
+        <div id="page-center" data-options="region:'center',split:true,border:false" style="padding-left:10px;padding-right:10px;">
+            <th:block layout:fragment="content"></th:block>
+        </div>
+        
+    </body>
+</html>

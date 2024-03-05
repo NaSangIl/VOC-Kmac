@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.voc.mapper.VocHistMapper">
+
+    <!-- VOC이력 목록 조회 -->
+    <select id="getVocHistList" resultType="kr.co.kmac.voc.dto.VocHistDto$Info">
+        SELECT A.hist_seq             AS "histSeq",
+               A.voc_seq              AS "vocSeq",
+               A.hist_type_cd         AS "histTypeCd",
+               fn_getCodeNm('HIST_TYPE_CD', A.hist_type_cd) AS "histTypeNm",
+               A.hist_cont            AS "histCont",
+               A.reg_user_no          AS "regUserNo",
+               fn_getUserNm(A.reg_user_no) AS "regUserNm",
+               date_format(A.reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt"
+          FROM tb_voc_hist A inner join tb_voc_mst B on A.voc_seq = B.voc_seq
+         WHERE A.voc_seq = #{vocSeq}
+         ORDER BY A.hist_seq DESC
+    </select>
+
+	<!-- VOC이력 상세 조회 -->
+    <select id="getVocHist" resultType="kr.co.kmac.voc.dto.VocHistDto$Info">
+        SELECT A.hist_seq             AS "histSeq",
+               A.voc_seq              AS "vocSeq",
+               A.hist_type_cd         AS "histTypeCd",
+               fn_getCodeNm('HIST_TYPE_CD', A.hist_type_cd) AS "histTypeNm",
+               A.hist_cont            AS "histCont",
+               A.reg_user_no          AS "regUserNo",
+               fn_getUserNm(A.reg_user_no) AS "regUserNm",
+               date_format(A.reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt"
+          FROM tb_voc_hist A inner join tb_voc_mst B on A.voc_seq = B.voc_seq
+         WHERE A.hist_seq = #{histSeq}
+    </select>
+
+	<!-- VOC이력 등록 -->
+    <insert id="insertVocHist">
+        INSERT INTO tb_voc_hist
+        (
+            voc_seq,
+            hist_type_cd,
+            hist_cont,
+            reg_user_no
+        )
+        VALUES
+        (
+            #{vocSeq},
+            #{histTypeCd},
+            #{histCont},
+            #{regUserNo}
+        )
+    </insert>
+
+</mapper>

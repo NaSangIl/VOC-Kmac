@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.system.mapper.MenuMapper">
+
+    <!-- 메뉴정보 목록 조회 -->
+    <select id="getMenuList" resultType="kr.co.kmac.system.dto.MenuDto$Info">
+        SELECT menu_seq             AS "menuSeq",
+               menu_id              AS "menuId",
+               menu_nm              AS "menuNm",
+               menu_levl            AS "menuLevl",
+               menu_url             AS "menuUrl",
+               menu_desc            AS "menuDesc",
+               parent_menu_id       AS "parentMenuId",
+               (select menu_nm from tb_sys_menu where menu_id = A.parent_menu_id)       AS "parentMenuNm",
+               menu_ordr            AS "menuOrdr",
+               use_yn               AS "useYn",
+               menu_yn              AS "menuYn",
+               reg_user_no          AS "regUserNo",
+               fn_getUserNm(reg_user_no) AS "regUserNm",
+               date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               mod_user_no          AS "modUserNo",
+               fn_getUserNm(mod_user_no) AS "modUserNm",
+               date_format(mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+        FROM tb_sys_menu A
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuId)">AND menu_id = #{menuId} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuNm)">AND menu_nm LIKE CONCAT('%',#{menuNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuUrl)">AND menu_url = #{menuUrl} </if>
+        </where>
+        ORDER BY menu_ordr
+        <if test="offset &gt; -1">
+            LIMIT #{offset}, #{length}
+        </if>
+    </select>
+    <select id="getMenuListCount" resultType="long">
+        SELECT COUNT(1)
+        FROM tb_sys_menu
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuId)">AND menu_id = #{menuId} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuNm)">AND menu_nm LIKE CONCAT('%',#{menuNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuUrl)">AND menu_url = #{menuUrl} </if>
+        </where>
+    </select>
+
+    <!-- 헤더 메뉴 목록 조회 -->
+    <select id="getHeaderMenuList" resultType="kr.co.kmac.system.dto.MenuDto$Info">
+        SELECT DISTINCT
+               A.menu_seq             AS "menuSeq",
+               A.menu_id              AS "menuId",
+               A.menu_nm              AS "menuNm",
+               A.menu_levl            AS "menuLevl",
+               A.menu_url             AS "menuUrl",
+               A.parent_menu_id       AS "parentMenuId",
+               A.menu_ordr            AS "menuOrdr"
+        FROM tb_sys_menu A
+       INNER JOIN tb_sys_auth_menu B
+          ON A.menu_seq = B.menu_seq
+        WHERE A.use_yn = 'Y'
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuYn)">AND A.menu_yn = #{menuYn} </if>
+        <choose>
+            <when test="userAuthCodeList != 0">
+                and B.auth_cd IN
+                <foreach collection="userAuthCodeList" item="item" index="index" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </when>
+        </choose>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(menuUrl)">AND A.menu_url = #{menuUrl} </if>
+        ORDER BY A.menu_ordr
+    </select>
+
+	<!-- 메뉴정보 상세 조회 -->
+    <select id="getMenu" resultType="kr.co.kmac.system.dto.MenuDto$Info">
+        SELECT menu_seq             AS "menuSeq",
+               menu_id              AS "menuId",
+               menu_nm              AS "menuNm",
+               menu_levl            AS "menuLevl",
+               menu_url             AS "menuUrl",
+               menu_desc            AS "menuDesc",
+               parent_menu_id       AS "parentMenuId",
+               menu_ordr            AS "menuOrdr",
+               use_yn               AS "useYn",
+               menu_yn              AS "menuYn",
+               reg_user_no          AS "regUserNo",
+               fn_getUserNm(reg_user_no) AS "regUserNm",
+               date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               mod_user_no          AS "modUserNo",
+               fn_getUserNm(mod_user_no) AS "modUserNm",
+               date_format(mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+        FROM tb_sys_menu A
+         WHERE menu_seq=#{menuSeq}
+    </select>
+
+	<!-- 메뉴정보 등록 -->
+    <insert id="insertMenu">
+        INSERT INTO tb_sys_menu
+        (
+            menu_id,
+            menu_nm,
+            menu_levl,
+            menu_url,
+            menu_desc,
+            parent_menu_id,
+            menu_ordr,
+            use_yn,
+            menu_yn,
+            reg_user_no,
+            mod_user_no
+        )
+        VALUES
+        (
+            #{menuId},
+            #{menuNm},
+            #{menuLevl},
+            #{menuUrl},
+            #{menuDesc},
+            #{parentMenuId},
+            #{menuOrdr},
+            'Y',
+            #{menuYn},
+            #{regUserNo},
+            #{modUserNo}
+        )
+        <selectKey resultType="int" keyProperty="returnKey" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+	<!-- 메뉴정보 수정 -->
+    <update id="updateMenu">
+        UPDATE tb_sys_menu SET
+               menu_id              = #{menuId},
+               menu_nm              = #{menuNm},
+               menu_levl            = #{menuLevl},
+               menu_url             = #{menuUrl},
+               menu_desc            = #{menuDesc},
+               parent_menu_id       = #{parentMenuId},
+               menu_yn              = #{menuYn},
+               menu_ordr            = #{menuOrdr},
+               mod_user_no          = #{modUserNo}
+        WHERE menu_seq=#{menuSeq}
+	</update>
+
+	<!-- 메뉴정보 삭제 -->
+    <update id="deleteMenu">
+        DELETE FROM tb_sys_menu
+         WHERE menu_seq=#{menuSeq}
+    </update>
+</mapper>

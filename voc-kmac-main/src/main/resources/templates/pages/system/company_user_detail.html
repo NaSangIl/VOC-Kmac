@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" layout:fragment="Content">
+
+<head>
+<title th:text="사용자관리"></title>
+<!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+<script th:src="@{/js/system/company_user_detail.js}"></script>
+</head>
+<body>
+	<div class="page-container">
+		<form name="registForm" id="registForm" method="post"
+			enctype="multipart/form-data">
+			<div class="title-area">
+				<h2>사용자관리</h2>
+				<ul class="location-area">
+					<li class="home" onclick="goMain();"></li>
+					<li>회사관리</li>
+					<li class="now">사용자관리</li>
+				</ul>
+			</div>
+
+			<!-- 기본 정보 영역 -->
+			<div class="title-area">
+				<h3>기본 정보</h3>
+				<div class="btn-wrap">
+					<div class="ui button btn-brown btn-go-list">목록</div>
+				</div>
+			</div>
+			<div class="detail-table-area">
+				<div class="ui form">
+					<table class="ui celled table">
+						<colgroup>
+							<col style="width: 12%;">
+							<col style="width: 32%;">
+							<col style="width: 12%;">
+							<col style="width: auto;">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><label class="required">사용자 ID</label></th>
+								<td>
+									<div class="fields">
+										<div class="seven wide field">
+											<input type="hidden" name="userSeq" id="userSeq" value="0" >
+											<input type="text" name="userId" id="userId" maxlength="20">
+												* 영어 소문자와 숫자만 입력할 수 있습니다.
+										</div>
+										<div class="six wide field" >
+											<div class="btn-wrap">
+												<input type="hidden" name="dupChkYn" id="dupChkYn">
+												<div class="ui button btn-black-line btn-check-user">중복확인</div>
+											</div>
+										</div>
+									</div>
+								</td>
+								<th scope="row"><label class="required">사용자명</label></th>
+								<td>
+									<div class="fields">
+										<div class="five wide field">
+											<input type="text" name="userNm" id="userNm" maxlength="50"/>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><label class="required">비밀번호</label></th>
+								<td>
+									<div class="fields">
+										<div class="seven wide field">
+											<input type="password" name="pw" id="pw" class="pwGrp" maxlength="30" />
+										</div>
+										<div class="six wide field">
+											<div class="btn-wrap">
+												<div class="ui button btn-black-line btn-open-pw blind">비밀번호변경</div>
+											</div>
+										</div>
+									</div>
+								</td>
+								<th scope="row"><label class="required">비밀번호확인</label></th>
+								<td>
+									<div class="fields">
+										<div class="five wide field">
+											<input type="password" name="pwChk" id="pwChk" class="pwGrp" maxlength="30" />
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- //기본 정보 영역 -->
+			<!-- 사용자 정보 영역 -->
+			<div class="title-area">
+				<h3>사용자 정보</h3>
+			</div>
+			<div class="detail-table-area">
+				<div class="ui form">
+					<table class="ui celled table">
+						<colgroup>
+							<col style="width: 12%;">
+							<col style="width: 32%;">
+							<col style="width: 12%;">
+							<col style="width: auto;">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><label>전화번호</label></th>
+								<td>
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="hidden" name="telNo" id="telNo">
+											<input type="text" class="numInput" name="telNo1" id="telNo1" style="width: 60px" placeholder="" maxlength="3">
+											<h1 style="display: inline">-</h1>
+											<input type="text" class="numInput" name="telNo2" id="telNo2" style="width: 80px" placeholder="" maxlength="4">
+											<h1 style="display: inline">-</h1>
+											<input type="text" class="numInput" name="telNo3" id="telNo3" style="width: 80px" placeholder="" maxlength="4">
+										</div>
+									</div>
+								</td>
+								<th scope="row"><label>이메일</label></th>
+								<td>
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="hidden" name="emailAddr" id="emailAddr" placeholder="이메일">
+											<input type="text" name="emailAddr1" id="emailAddr1" style="width: 200px" placeholder="" maxlength="50">
+											<h1 style="display: inline">@</h1>
+											<input type="text" name="emailAddr2" id="emailAddr2" style="width: 160px" placeholder="" maxlength="50">
+											<div class="ui selection dropdown d-emailAddr" style="width: 160px">
+												<input type="hidden" name="emailAddr3" id="emailAddr3">
+												<div class="default text">선택</div>
+												<i class="dropdown icon"></i>
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><label>부서명</label></th>
+								<td>
+									<div class="fields">
+										<div class="seven wide field">
+											<input type="text" name="deptNm" id="deptNm" maxlength="100" />
+										</div>
+									</div>
+								</td>
+								<th scope="row"><label>직급명</label></th>
+								<td>
+									<div class="fields">
+										<div class="five wide field">
+											<input type="text" name="titleNm" id="titleNm" maxlength="100" />
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><label>입사일</label></th>
+								<td>
+									<div class="fields">
+										<div class="seven wide field">
+											<div class="calendar-area">
+												<div class="field">
+													<div class="ui calendar">
+														<div class="ui input right icon">
+															<i class="calendar icon"></i>
+															<input type="text" name="joinDt" id="joinDt" placeholder="YYYY-MM-DD" />
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</td>
+								<th scope="row"><label class="required">재직여부</label></th>
+								<td>
+									<div class="fields">
+										<div class="five wide field">
+											<div class="ui selection dropdown d-employmentYn">
+												<input type="hidden" name="employmentYn" id="employmentYn">
+												<div class="default text">선택</div>
+												<i class="dropdown icon"></i>
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><label>권한</label></th>
+								<td colspan="3">
+									<div class="fields">
+										<div class="thirteen wide field">
+											<div class="ui multiple selection dropdown d-userAuthCodes" style="font-size: 1.5em">
+												<input type="hidden" name="userAuthCodes" id="userAuthCodes">
+												<div class="default text">선택</div>
+												<i class="dropdown icon"></i>
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- //사용자 정보 영역 -->
+			<!-- 이력 정보 영역 -->
+			<div class="title title-area active">
+				<h3>이력 정보</h3>
+			</div>
+			<div class="content  detail-table-area active">
+				<div class="ui form">
+					<table class="ui celled table">
+						<colgroup>
+							<col style="width: 12%;">
+							<col style="width: 38%;">
+							<col style="width: 12%;">
+							<col style="width: auto;">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><label>등록자/등록일시</label></th>
+								<td>
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="text" name="regUserNm" id="regUserNm" readonly>
+										</div>
+										<div class="sixteen wide field">
+											<input type="text" name="regDt" id="regDt" readonly>
+										</div>
+									</div>
+								</td>
+								<th scope="row"><label>수정자/수정일시</label></th>
+								<td colspan="2">
+									<div class="fields">
+										<div class="sixteen wide field">
+											<input type="text" id="modUserNm" name="modUserNm" readonly>
+										</div>
+										<div class="sixteen wide field">
+											<input type="text" id="modDt" name="modDt" readonly>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- //이력 정보 영역 -->
+
+			<!-- 상세 테이블 하단 버튼 영역 -->
+			<!-- [dev]_ 버튼이 우측에만 올 경우, "justify-right" 클래스 추가 / 좌측은 클래스 없음 -->
+			<div class="btn-area tbl-bottom justify-right">
+				<div class="btn-wrap"></div>
+				<div class="btn-wrap">
+					<div class="ui button btn-darkgray btn-save-user">저장</div>
+					<div class="ui button btn-darkgray btn-delt-user blind">삭제</div>
+				</div>
+			</div>
+			<!-- //상세 테이블 하단 버튼 영역 -->
+		</form>
+	</div>
+
+	<!-- 비밀번호변경 모달창 -->
+	<div class="ui modal modal-pw" style="width: 900px; height: 100px;">
+		<i class="close icon"></i>
+		<div class="header">비밀번호변경</div>
+		<div class="content">
+			<div class="detail-table-area">
+				<div class="ui form">
+					<form id="pwUpdateForm">
+						<table class="ui celled table">
+							<colgroup>
+								<col style="width: 20%;">
+								<col style="width: 30%;">
+								<col style="width: 20%;">
+								<col style="width: auto;">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row"><label class="required">비밀번호</label></th>
+									<td>
+										<div class="thirteen wide field">
+											<input type="password" name="pwChg" id="pwChg" maxlength="30" />
+										</div>
+									</td>
+									<th scope="row"><label class="required">비밀번호확인</label></th>
+									<td>
+										<div class="fields">
+											<div class="thirteen wide field">
+												<input type="password" name="pwChgChk" id="pwChgChk" maxlength="30"/>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="actions">
+			<button class="ui button btn-darkgray btn-update-pw">변경</button>
+		</div>
+	</div>
+</body>
+</html>

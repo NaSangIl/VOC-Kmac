@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.common.mapper.AttachFileMapper">
+
+    <!-- 공통첨부파일 목록 조회 -->
+    <select id="getAttachFileList" resultType="kr.co.kmac.common.dto.AttachFileDto$Info">
+        SELECT file_seq             AS "fileSeq",
+               file_ref_key         AS "fileRefKey",
+               file_ref_div         AS "fileRefDiv",
+               file_nm              AS "fileNm",
+               file_path            AS "filePath",
+               file_extn            AS "fileExtn",
+               file_size            AS "fileSize",
+               reg_user_no          AS "regUserNo",
+               date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt"
+          FROM tb_attach_file
+         WHERE file_ref_key = #{fileRefKey}
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(fileRefDiv)">AND file_ref_div = #{fileRefDiv} </if>
+        ORDER BY file_seq
+    </select>
+
+	<!-- 공통첨부파일 상세 조회 -->
+    <select id="getAttachFile" resultType="kr.co.kmac.common.dto.AttachFileDto$Info">
+        SELECT file_seq             AS "fileSeq",
+               file_ref_key         AS "fileRefKey",
+               file_ref_div         AS "fileRefDiv",
+               file_nm              AS "fileNm",
+               file_path            AS "filePath",
+               file_extn            AS "fileExtn",
+               file_size            AS "fileSize",
+               reg_user_no          AS "regUserNo",
+               date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt"
+          FROM tb_attach_file A
+         WHERE file_seq = #{fileSeq}
+    </select>
+
+	<!-- 공통첨부파일 등록 -->
+    <insert id="insertAttachFile">
+        INSERT INTO tb_attach_file
+		(
+		   file_ref_key,
+           file_ref_div,
+           file_nm,
+           file_path,
+           file_extn,
+           file_size,
+           reg_user_no
+		)
+		VALUES
+		(
+            #{fileRefKey},
+            #{fileRefDiv},
+            #{fileNm},
+            #{filePath},
+            #{fileExtn},
+            #{fileSize},
+            #{regUserNo}
+		)
+    </insert>
+
+	<!-- 공통첨부파일 삭제 -->
+    <update id="deleteAttachFile">
+        DELETE FROM tb_attach_file
+        WHERE file_seq = #{fileSeq}
+    </update>
+</mapper>

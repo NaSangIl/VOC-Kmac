@@ -1,0 +1,199 @@
+spring:
+  application:
+    name: KmacVocSystem
+  devtools:
+    livereload:
+      enabled: false
+  profiles:
+    default: prod
+    group:
+      default: devdb
+      dev: devdb
+      prod: proddb
+  messages:
+    basename: classpath:messages/valid, classpath:messages/error
+    encoding: UTF-8
+  thymeleaf:
+    cache: false
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .html
+    enabled: true
+#  mvc:
+#    throw-exception-if-no-handler-found: true
+#    dispatch-options-request: false
+#  web:
+#    resources:
+#      add-mappings: false
+#  output:
+#    ansi:
+#      enabled: always
+
+server:
+  error:
+    include-exception: false
+    include-stacktrace: never
+    whitelabel:
+      enabled: true
+  servlet:
+    session:
+      timeout: 3h
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: kr.co.kmac.**.dto
+  mapper-locations:
+    - sql_mappers/*.xml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+---
+# [dev] Dev System Config
+spring:
+  config:
+    activate:
+      on-profile: dev
+  servlet:
+    multipart:
+      file-size-threshold: 1MB
+      location: C:/kmacVoc/upload/
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+system:
+  mode: DEV
+
+server:
+  port: 7001
+  domain: http://localhost:7001
+
+logging:
+  file:
+    name: C:/kmacVoc/logs/kmacVoc.log
+  level:
+    org.springframework: INFO
+    org.springframework.web: INFO
+    jdbc.sqlonly: DEBUG
+    jdbc.resultset: WARN
+    jdbc.resultsettable: WARN
+    kr.co.kmac: DEBUG
+    jdbc.sqltiming: DEBUG
+    jdbc.audit: WARN
+    jdbc.connection: WARN
+
+excel:
+  template:
+    voctype-path: D:/10.work/voc-kmac/voc_type_template.xlsx
+    acttype-path: D:/10.work/voc-kmac/act_type_template.xlsx
+
+---
+# [prod] Stg System Config
+spring:
+  config:
+    activate:
+      on-profile: prod
+  servlet:
+    multipart:
+      file-size-threshold: 1MB
+      location: /home/kmac/upload/
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+system:
+  mode: PROD
+
+server:
+  port: 8090
+  #domain: http://api.vocservice.co.kr
+  domain: http://hvoc.co.kr:8090
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{transactionId}] %-5level %-36logger{36} - %msg%n"
+  level:
+    org.springframework: INFO
+    org.springframework.web: INFO
+    jdbc.sqlonly: DEBUG
+    jdbc.resultset: WARN
+    jdbc.resultsettable: WARN
+    kr.co.kmac: DEBUG
+    jdbc.sqltiming: DEBUG
+    jdbc.audit: WARN
+    jdbc.connection: WARN
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    com.zaxxer.hikari: TRACE
+    
+
+excel:
+  template:
+    voctype-path: /home/kmac/excel/voc_type_template.xlsx
+    acttype-path: /home/kmac/excel/act_type_template.xlsx
+
+---
+# [devdb] Dev Db Config
+spring:
+  config:
+    activate:
+      on-profile: devdb
+  datasource:
+    hikari:
+      driver-class-name: org.mariadb.jdbc.Driver
+      jdbc-url: jdbc:mariadb://localhost:3307/kmacdb?charSet=UTF-8
+      username: kmac
+      password: voc1234!@#$
+      minimum-idle: 10
+      maximum-pool-size: 50
+      idle-timeout: 10000
+      connection-timeout: 10000
+      validation-timeout: 10000
+      max-lifetime: 580000
+      connection-test-query: SELECT 1
+      pool-name: kmac-voc-pool
+
+
+---
+# [proddb] Proc Db Config
+spring:
+  config:
+    activate:
+      on-profile: proddb
+  datasource:
+    hikari:
+      driver-class-name: org.mariadb.jdbc.Driver
+      jdbc-url: jdbc:mariadb://localhost:3306/kmacdb?charSet=UTF-8
+      username: kmac
+      password: voc1234!@#$
+      pool-name: kmac-voc-pool
+      minimum-idle: 10
+      maximum-pool-size: 20
+      idle-timeout: 5000 
+      connection-timeout: 30000
+      validation-timeout: 30000
+      max-lifetime: 200000
+      connection-test-query: SELECT 1
+#  datasource:
+#    hikari:
+#      driver-class-name: org.mariadb.jdbc.Driver
+#      jdbc-url: jdbc:mariadb://210.114.17.212:3306/kmacdb?charSet=UTF-8
+#      username: kmac
+#      password: voc1234!@#$
+#      minimum-idle: 10
+#      maximum-pool-size: 50
+#      idle-timeout: 10000
+#      connection-timeout: 10000
+#      validation-timeout: 10000 
+#      max-lifetime: 580000
+#      connection-test-query=: SELECT 1
+#      pool-name: voc-pool

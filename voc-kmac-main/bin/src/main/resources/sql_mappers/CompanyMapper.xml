@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.system.mapper.CompanyMapper">
+
+    <!-- 회사정보 목록 조회 -->
+    <select id="getCompanyList" resultType="kr.co.kmac.system.dto.CompanyDto$Info">
+        SELECT company_seq          AS "companySeq",
+               company_cd           AS "companyCd",
+               company_nm           AS "companyNm",
+               company_nm_en        AS "companyNmEn",
+               use_start_dt         AS "useStartDt",
+               use_end_dt           AS "useEndDt",
+               company_logo_path    AS "companyLogoPath",
+               company_logo_file_nm AS "companyLogoFileNm",
+               use_yn               AS "useYn",
+               reg_user_no          AS "regUserNo",
+               fn_getUserNm(reg_user_no) AS "regUserNm",
+               reg_dt               AS "regDt",
+               mod_user_no          AS "modUserNo",
+               fn_getUserNm(mod_user_no) AS "modUserNm",
+               date_format(mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+        FROM tb_company
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND company_cd LIKE CONCAT('%',#{companyCd},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyNm)">AND company_nm LIKE CONCAT('%',#{companyNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyNmEn)">AND company_nm_en LIKE CONCAT('%',#{companyNmEn},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useStartDtFr)">AND use_start_dt &gt;= #{useStartDtFr} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useStartDtTo)">AND use_start_dt &lt; ADDDATE(#{useStartDtTo},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useEndDtFr)">AND use_start_dt &gt;= #{useEndDtFr} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useEndDtTo)">AND use_end_dt &lt; ADDDATE(#{useEndDtTo},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useYn)">AND use_yn = #{useYn} </if>
+        </where>
+        ORDER BY reg_dt DESC
+        <if test="offset &gt; -1">
+            LIMIT #{offset}, #{length}
+        </if>
+    </select>
+    <select id="getCompanyListCount" resultType="long">
+        SELECT COUNT(1)
+        FROM tb_company
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND company_cd LIKE CONCAT('%',#{companyCd},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyNm)">AND company_nm LIKE CONCAT('%',#{companyNm},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyNmEn)">AND company_nm_en LIKE CONCAT('%',#{companyNmEn},'%') </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useStartDtFr)">AND use_start_dt &gt;= #{useStartDtFr} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useStartDtTo)">AND use_start_dt &lt; ADDDATE(#{useStartDtTo},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useEndDtFr)">AND use_start_dt &gt;= #{useEndDtFr} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useEndDtTo)">AND use_end_dt &lt; ADDDATE(#{useEndDtTo},1) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(useYn)">AND use_yn = #{useYn} </if>
+        </where>
+    </select>
+
+	<!-- 회사정보 상세 조회 -->
+    <select id="getCompany" resultType="kr.co.kmac.system.dto.CompanyDto$Info">
+        SELECT A.company_seq            AS "companySeq",
+               A.company_cd             AS "companyCd",
+               A.company_nm             AS "companyNm",
+               A.company_nm_en          AS "companyNmEn",
+               A.use_start_dt           AS "useStartDt",
+               A.use_end_dt             AS "useEndDt",
+               A.company_logo_path      AS "companyLogoPath",
+               A.company_logo_file_nm   AS "companyLogoFileNm",
+               A.use_yn                 AS "useYn",
+               A.reg_user_no            AS "regUserNo",
+               fn_getUserNm(A.reg_user_no) AS "regUserNm",
+               date_format(A.reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               A.mod_user_no            AS "modUserNo",
+               fn_getUserNm(A.mod_user_no) AS "modUserNm",
+               date_format(A.mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+        FROM tb_company A
+        WHERE A.company_seq = #{companySeq}
+    </select>
+
+	<!-- 회사정보 등록 -->
+    <insert id="insertCompany" >
+
+        INSERT INTO tb_company
+        (
+        	company_seq,
+            company_cd,
+            company_nm,
+            company_nm_en,
+            use_start_dt,
+            use_end_dt,
+            company_logo_path,
+            company_logo_file_nm,
+            use_yn,
+            reg_user_no,
+            mod_user_no
+        ) VALUES (
+			null,
+		    company_seq,
+		    #{companyNm},
+		    #{companyNmEn},
+		    REPLACE(#{useStartDt},'-',''),
+		    REPLACE(#{useEndDt},'-',''),
+		    #{companyLogoPath},
+		    #{companyLogoFileNm},
+		    'Y',
+		    #{regUserNo},
+		    #{modUserNo}
+		)
+        <selectKey resultType="int" keyProperty="returnKey" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+
+    </insert>
+
+	<update id="updateCompanyCode">
+        UPDATE tb_company
+           SET company_cd      	= CONCAT('COM', LPAD(#{companySeq}, 3, '0'))
+         WHERE company_seq 		= #{companySeq}
+    </update>
+
+	<!-- 회사정보 수정 -->
+    <update id="updateCompany">
+        UPDATE tb_company
+        SET
+            company_nm              = #{companyNm},
+            company_nm_en           = #{companyNmEn},
+            use_start_dt            = REPLACE(#{useStartDt},'-',''),
+            use_end_dt              = REPLACE(#{useEndDt},'-',''),
+            company_logo_path       = #{companyLogoPath},
+            company_logo_file_nm    = #{companyLogoFileNm},
+            use_yn                  = #{useYn},
+            mod_user_no             = #{modUserNo}
+          WHERE company_seq = #{companySeq}
+    </update>
+
+	<!-- 회사정보 삭제 -->
+    <update id="deleteCompany">
+        DELETE FROM tb_company
+         WHERE company_seq = #{companySeq}
+    </update>
+</mapper>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.system.mapper.CodeMapper">
+
+    <!-- 코드정보 목록 조회 -->
+    <select id="getCodeList" resultType="kr.co.kmac.system.dto.CodeDto$Info">
+        SELECT  code_seq             AS "codeSeq",
+                code_type            AS "codeType",
+                code                 AS "code",
+                code_nm              AS "codeNm",
+                ref_val1             AS "refVal1",
+                ref_val2             AS "refVal2",
+                ref_val3             AS "refVal3",
+                disp_order           AS "dispOrder",
+                use_yn               AS "useYn",
+                reg_user_no          AS "regUserNo",
+                fn_getUserNm(reg_user_no) AS "regUserNm",
+                date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+                mod_user_no          AS "modUserNo",
+                fn_getUserNm(mod_user_no) AS "modUserNm",
+                date_format(mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+        FROM tb_sys_code A
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(codeType)">AND code_type = #{codeType} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(code)">AND code in (SELECT code_type FROM tb_sys_code WHERE code = #{code}) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(codeNm)">AND code in (SELECT code_type FROM tb_sys_code WHERE code_nm LIKE CONCAT('%',#{codeNm},'%')) </if>
+        </where>
+        <choose>
+            <when test="codeType == 'CODE_TYPE' "> ORDER BY code_seq desc, code_type, disp_order </when>
+            <otherwise> ORDER BY code_type, disp_order </otherwise>
+        </choose>
+
+        <if test="offset &gt; -1">
+            LIMIT #{offset}, #{length}
+        </if>
+    </select>
+    <select id="getCodeListCount" resultType="long">
+        SELECT COUNT(1)
+        FROM tb_sys_code
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(codeType)">AND code_type = #{codeType} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(code)">AND code in (SELECT code_type FROM tb_sys_code WHERE code = #{code}) </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(codeNm)">AND code_nm in (SELECT code_type FROM tb_sys_code WHERE code_nm LIKE CONCAT('%',#{codeNm},'%')) </if>
+        </where>
+    </select>
+
+    <!-- 코드 목록[dropdown용] 조회 -->
+    <select id="getCommonCodeList" resultType="kr.co.kmac.system.dto.CodeDto$CommonCode">
+        SELECT
+            code_nm           AS "name",
+            code              AS "value",
+            ref_val1          AS "refVal1",
+            ref_val2          AS "refVal2",
+            ref_val3          AS "refVal3"
+        FROM tb_sys_code
+        WHERE code_type = #{codeType}
+        ORDER BY disp_order
+    </select>
+
+	<!-- 코드정보 상세 조회 -->
+    <select id="getCode" resultType="kr.co.kmac.system.dto.CodeDto$Info">
+        SELECT code_seq             AS "codeSeq",
+               code_type            AS "codeType",
+               code                 AS "code",
+               code_nm              AS "codeNm",
+               ref_val1             AS "refVal1",
+               ref_val2             AS "refVal2",
+               ref_val3             AS "refVal3",
+               disp_order           AS "dispOrder",
+               use_yn               AS "useYn",
+               reg_user_no          AS "regUserNo",
+               fn_getUserNm(reg_user_no) AS "regUserNm",
+               date_format(reg_dt, '%Y-%m-%d %H:%i:%s') AS "regDt",
+               mod_user_no          AS "modUserNo",
+               fn_getUserNm(mod_user_no) AS "modUserNm",
+               date_format(mod_dt, '%Y-%m-%d %H:%i:%s') AS "modDt"
+          FROM tb_sys_code A
+         WHERE code_seq = #{codeSeq}
+    </select>
+
+	<!-- 코드정보 등록 -->
+    <insert id="insertCode">
+        INSERT INTO tb_sys_code
+        (
+            code_type,
+            code,
+            code_nm,
+            ref_val1,
+            ref_val2,
+            ref_val3,
+            disp_order,
+            use_yn,
+            reg_user_no,
+            mod_user_no
+        )
+        VALUES
+        (
+            #{codeType},
+            #{code},
+            #{codeNm},
+            #{refVal1},
+            #{refVal2},
+            #{refVal3},
+            #{dispOrder},
+            'Y',
+            #{regUserNo},
+            #{modUserNo}
+        )
+        <selectKey resultType="int" keyProperty="returnKey" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- 코드정보 수정 -->
+    <update id="updateCode">
+        UPDATE tb_sys_code SET
+               code                 = #{code},
+               code_nm              = #{codeNm},
+               ref_val1             = #{refVal1},
+               ref_val2             = #{refVal2},
+               ref_val3             = #{refVal3},
+               disp_order           = #{dispOrder},
+               use_yn               = #{useYn},
+               mod_user_no          = #{modUserNo}
+         WHERE code_seq = #{codeSeq}
+    </update>
+
+	<!-- 코드정보 삭제 -->
+    <update id="deleteCode">
+        DELETE FROM tb_sys_code
+         WHERE code_seq = #{codeSeq}
+    </update>
+
+</mapper>

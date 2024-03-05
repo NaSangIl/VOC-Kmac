@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}"
+	  layout:fragment="Content"
+>
+
+    <head>
+        <title th:text="회사관리"></title>
+
+        <!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+	    <script th:src="@{/js/system/company_list.js}"></script>
+
+    </head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>회사관리</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>시스템관리</li>
+				<li class="now">회사관리</li>
+			</ul>
+		</div>
+		<div class="search-area">
+		<form id="searchForm">
+			<div class="search-inner">
+				<div class="ui form">
+					<div class="fields">
+						<div class="three wide field">
+							<label>회사코드</label>
+							<input type="text" id="companyCd" name="companyCd" placeholder="회사코드" >
+						</div>
+						<div class="three wide field">
+							<label>회사명(국문)</label>
+							<input type="text" id="companyNm" name="companyNm" placeholder="회사명" >
+						</div>
+						<div class="six wide field">
+							<!-- [dev] 캘린더 영역 wrapper는 "calendar-area" 클래스 사용 -->
+							<div class="calendar-area">
+								<div class="field">
+									<label>사용시작일</label>
+									<div class="ui calendar" id="rangestart">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="useStartDtFr" id="useStartDtFr" placeholder="사용시작일" >
+										</div>
+									</div>
+								</div>
+								<div class="field">
+									<!-- [dev] 종료일 텍스트 없이 빈 label를 위치 -->
+									<label></label>
+									<div class="ui calendar" id="rangeend">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="useStartDtTo" id="useStartDtTo" placeholder="사용시작일" >
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- [dev] 검색영역 내 조회 버튼은 "two wide field btn-search" 클래스 사용 -->
+						<div class="two wide field btn-search">
+							<div class="ui button">
+								<i class="search icon"></i>
+								조회
+							</div>
+						</div>
+					</div>
+					<div class="fields">
+						<div class="three wide field">
+							<label>사용여부</label>
+							<div class="ui selection dropdown d-useYn">
+								<input type="hidden" id="useYn" name="useYn">
+								<div class="default text">선택</div>
+								<i class="dropdown icon"></i>
+							</div>
+						</div>
+						<div class="three wide field">
+							<label>회사명(영문)</label>
+							<input type="text" id="companyNmEn" name="companyNmEn" placeholder="회사명(영문)" >
+						</div>
+						<div class="six wide field">
+							<!-- [dev] 캘린더 영역 wrapper는 "calendar-area" 클래스 사용 -->
+							<div class="calendar-area">
+								<div class="field">
+									<label>사용종료일</label>
+									<div class="ui calendar" id="rangestart">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="useEndDtFr" id="useEndDtFr" placeholder="사용종료일" >
+										</div>
+									</div>
+								</div>
+								<div class="field">
+									<!-- [dev] 종료일 텍스트 없이 빈 label를 위치 -->
+									<label></label>
+									<div class="ui calendar" id="rangeend">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="useEndDtTo" id="useEndDtTo" placeholder="사용종료일" >
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+		</div>
+		<div class="btn-area tbl-top">
+			<div class="btn-wrap"></div>
+
+			<div class="btn-wrap">
+				<div class="ui button btn-darkgray btn-add">회사등록</div>
+			</div>
+		</div>
+
+		<div class="table-area">
+			<div class="ui form">
+				<table id="listDataTableCompany" class="display stripe hover">
+					<colgroup>
+						<col style="width:10%">
+						<col style="width:20%">
+						<col style="width:25%">
+						<col style="width:10%">
+						<col style="width:10%">
+						<col style="width:10%">
+					</colgroup>
+					<thead>
+					<tr>
+						<th>회사코드</th>
+						<th>회사명(국문)</th>
+						<th>회사명(영문)</th>
+						<th>사용여부</th>
+						<th>사용시작일</th>
+						<th>사용종료일</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

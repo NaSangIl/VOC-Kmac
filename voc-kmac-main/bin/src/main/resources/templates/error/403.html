@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout/layout">
+
+    <head th:replace="fragments/config :: ConfigFragment">
+        <title>500 error page</title>
+    </head>
+
+    <body>
+        <div class="wrap error-page">
+            <header class="page-header"></header>
+            <div class="page-container">
+                <div class="error-area">
+                    <i class="error icon"></i>
+                    <p class="error-title">권한이 없습니다.</p>
+                    <p class="error-msg">해당 페이지에 대한 접근 권한이 없습니다. </br>관리자에게 문의하세요.</p>
+                </div>
+                <div style="text-align: center;margin-top: 20px;">
+                    <div class="btn-wrap">
+                        <button class="ui button btn-brown" onclick="goMain();">확인</button>
+                    </div>
+                </div>
+            </div>
+            <footer th:replace="fragments/footer :: FooterFragment"></footer>
+        </div>
+    </body>
+</html>

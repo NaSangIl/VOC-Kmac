@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<!--/*
+========================================================================= 
+ ThymeLeaf Layout 라이브러리를 활용한 레이어 팝업 레이아웃
+=========================================================================
+*/-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" 
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <!--공통 JS / CSS 영역을 관리하는 환경 영역-->
+    <head th:replace="fragments/config :: ConfigFragment">
+        <title layout:title-pattern="">KMAC VOC SYSTEM</title>
+    </head>
+
+    <body>
+    	<th:block layout:fragment="Content"></th:block>
+	</body>
+</html>

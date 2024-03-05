@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kmac.system.mapper.LoginLogMapper">
+
+    <!-- 로그인로그정보 목록 조회 -->
+    <select id="getLoginLogList" resultType="kr.co.kmac.system.dto.LoginLogDto$Info">
+        SELECT
+            login_log_seq        AS "loginLogSeq",
+            company_cd           AS "companyCd",
+            user_id              AS "userId",
+            login_dt             AS "loginDt",
+            logout_dt            AS "logoutDt",
+            ip_addr              AS "ipAddr",
+            device               AS "device",
+            success_yn           AS "successYn",
+            err_msg              AS "errMsg"
+        FROM tb_sys_login_log
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND company_cd = #{companyCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(userId)">AND user_id = #{userId} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(loginDtStart)">AND A.login_dt &gt;= #{loginDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(loginDtEnd)">AND A.login_dt &lt; ADDDATE(#{loginDtEnd},1) </if>
+        </where>
+        ORDER BY login_log_seq DESC
+        <if test="offset &gt; -1">
+            LIMIT #{offset}, #{length}
+        </if>
+    </select>
+    <select id="getLoginLogListCount" resultType="long">
+        SELECT COUNT(1)
+        FROM tb_sys_login_log
+        <where>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND company_cd = #{companyCd} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(userId)">AND user_id = #{userId} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(loginDtStart)">AND login_dt &gt;= #{loginDtStart} </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(loginDtEnd)">AND login_dt &lt; ADDDATE(#{loginDtEnd},1) </if>
+        </where>
+    </select>
+
+	<!-- 로그인로그정보 상세 조회 -->
+    <select id="getLoginLog" resultType="kr.co.kmac.system.dto.LoginLogDto$Info">
+        SELECT login_log_seq        AS "loginLogSeq",
+               company_cd             AS "companyCd",
+               user_id              AS "userId",
+               login_dt             AS "loginDt",
+               logout_dt            AS "logoutDt",
+               ip_addr              AS "ipAddr",
+               device               AS "device",
+               success_yn           AS "successYn",
+               err_msg              AS "errMsg"
+          FROM tb_sys_login_log A
+         WHERE login_log_seq = #{loginLogSeq}
+    </select>
+
+	<!-- 로그인로그정보 등록 -->
+    <insert id="insertLoginLog">
+        INSERT INTO tb_sys_login_log
+        (
+            company_cd,
+            user_id,
+            ip_addr,
+            device,
+            success_yn,
+            err_msg
+        )
+        VALUES
+        (
+            #{companyCd},
+            #{userId},
+            #{ipAddr},
+            #{device},
+            #{successYn},
+            #{errMsg}
+        )
+        <selectKey resultType="int" keyProperty="returnKey" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+    <!-- 시스템로그인로그 수정 -->
+    <update id="updateLoginLog">
+        UPDATE tb_sys_login_log
+        SET logout_dt = SYSDATE()
+        WHERE login_log_seq =
+              (SELECT *
+               FROM (SELECT MAX(t.login_log_seq)
+                     FROM tb_sys_login_log t
+                     WHERE t.company_cd = #{companyCd}
+                       AND t.user_id = #{userId}) TT)
+        AND company_cd = #{companyCd}
+        AND user_id = #{userId}
+    </update>
+</mapper>

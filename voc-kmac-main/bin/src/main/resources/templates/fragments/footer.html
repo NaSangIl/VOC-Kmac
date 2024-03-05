@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!-- Thymeleaf 선언 / FooterFragment 임을 선언-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="FooterFragment">
+
+    <footer class="page-footer">
+        <div class="footer-inner">
+            <!-- <p>서울시 중구 소공로 106   T. 02-771-0500</p>
+            <p class="copyright">© 2020 JOSUN HOTELS & RESORTS Co. All rights reserved.</p> -->
+        </div>
+    </footer>
+	<!-- [dev] 로딩바
+		- 필요한 시점에 body태그 하위,
+		div.wrap과 동일 레벨에
+		동적으로 아래 마크업 append
+		로딩바 색상 클래스 -> div.ui.loader에 아래 클래스 추가 하여 사용
+		- 흰색 :기본(추가 클래스 필요 없음)
+		- 파란색 : "primary"
+		- 연두색 : "green"
+	-->
+	<div class="ui active dimmer" id="loadingBar" style="display: none;">
+		<div class="ui massive text loader">Loading...</div>
+	</div>
+</html>

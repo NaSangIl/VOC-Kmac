@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}"
+	  layout:fragment="Content"
+>
+
+    <head>
+        <title th:text="공지사항"></title>
+
+        <!-- 업무용 자바스크립트 (HEAD) 안에 위치 -->
+	    <script th:src="@{/js/bbs/bbs_detail.js}"></script>
+
+    </head>
+<body>
+	<div class="page-container">
+		<div class="title-area">
+			<h2>공지사항</h2>
+			<ul class="location-area">
+				<li class="home" onclick="goMain();"></li>
+				<li>게시판관리</li>
+				<li class="now">공지사항</li>
+			</ul>
+		</div>
+		<!-- 기본 정보 영역 -->
+		<div class="title-area">
+			<h3>공지사항 정보</h3>
+			<div class="btn-wrap">
+				<div class="ui button btn-brown btn-go-list"> 목록</div>
+			</div>
+		</div>
+		<div class="detail-table-area">
+			<div class="ui form">
+				<form name="registForm" id="registForm" method="post" enctype="multipart/form-data">
+				<table class="ui celled table">
+					<colgroup>
+						<col style="width:10%;">
+						<col style="width:23%;">
+						<col style="width:10%;">
+						<col style="width:23%;">
+						<col style="width:10%;">
+						<col style="width:auto;">
+					</colgroup>
+					<tbody>
+					<tr>
+						<th scope="row">
+							<label class="required">회사</label>
+						</th>
+						<td colspan="5">
+							<div class="fields">
+								<div class="four wide field">
+									<div class="ui selection dropdown d-companyCd">
+										<input type="hidden" name="companyCd" id="companyCd">
+										<div class="default text">선택</div>
+										<i class="dropdown icon"></i>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label class="required">제목</label>
+						</th>
+						<td colspan="5">
+							<div class="fields">
+								<div class="sixteen wide field">
+									<input type="hidden" name="bbsSeq" id="bbsSeq" value="0">
+									<input type="hidden" name="bbsTypeCd" id="bbsTypeCd">
+									<input type="text" name="title" id="title" />
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label class="required">내용</label>
+						</th>
+						<td colspan="5">
+							<div class="fields">
+								<div class="sixteen wide field">
+									<div title="Editor" style="padding:10px; height: 500px;">
+										<textarea  id="contents" name="contents" style="display:none;"></textarea>
+										<div id="editor" style="width: 100%;" ></div>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label>첨부파일</label>
+						</th>
+						<td colspan="5">
+							<div class="fields">
+								<div class="sixteen wide field">
+									<div class="file-upload-wrap">
+										<div>
+											<div class="file-btn">
+												<input type="file" name="files" id="files" multiple />
+												<label for="files">파일 찾기</label>
+											</div>
+											<ul id="preview" class="file-list bbsFilesDiv"></ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr class="viewDiv blind">
+						<th scope="row">
+							<label>등록일시</label>
+						</th>
+						<td>
+							<div class="fields">
+								<div class="sixteen wide field">
+									<input type="text" name="regDt" id="regDt" placeholder="등록일시" readonly>
+								</div>
+							</div>
+						</td>
+						<th scope="row">
+							<label>등록자</label>
+						</th>
+						<td>
+							<div class="fields">
+								<div class="sixteen wide field">
+									<input type="text" name="regUserNm" id="regUserNm" placeholder="등록자" readonly>
+								</div>
+							</div>
+						</td>
+						<th scope="row">
+							<label>조회수</label>
+						</th>
+						<td>
+							<div class="fields">
+								<div class="sixteen wide field">
+									<input type="text" name="hit" id="hit" placeholder="조회수" readonly>
+								</div>
+							</div>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+				</form>
+			</div>
+		</div>
+		<!-- //기본 정보 영역 -->
+
+		<!-- 상세 테이블 하단 버튼 영역 -->
+		<!-- [dev]_ 버튼이 우측에만 올 경우, "justify-right" 클래스 추가 / 좌측은 클래스 없음 -->
+		<div class="content detail-table-area active">
+			<div class="btn-area tbl-bottom justify-right">
+				<div class="btn-wrap"></div>
+				<div class="btn-wrap">
+					<div class="ui button btn-darkgray btn-save-bbs">저장</div>
+					<div class="ui button btn-darkgray btn-delt-bbs blind">삭제</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="title title-area viewDiv blind">
+			<h3>댓글</h3>
+		</div>
+		<div class="table-area viewDiv blind">
+			<div class="ui form">
+				<table id="listDataTableComments" class="display stripe hover" style="width:100%;">
+					<colgroup>
+						<col style="width:10%">
+						<col style="width:auto">
+						<col style="width:10%">
+						<col style="width:13%">
+					</colgroup>
+					<thead>
+					<tr>
+						<th>No</th>
+						<th>댓글</th>
+						<th>등록자</th>
+						<th>등록일시</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+<style>
+	.toastui-editor-tooltip {
+		color: #fff !important;
+	}
+	.file-upload-wrap div {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex;
+		gap: 50px;
+	}
+	.file-list .btn-file-delt {
+		width: 20px;
+		height: 20px;
+		background-image: url(../images/common/btn_file_del.svg);
+		background-position: 50% 50%;
+		background-repeat: no-repeat;
+	}
+</style>
+</html>
