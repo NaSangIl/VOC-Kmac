@@ -83,6 +83,15 @@ let init = function() {
 	makeCodeVocType($('#registForm'), $companyCd);      //VOC유형코드
 	makeCodeVocActType($('#registForm'), $companyCd);   //처리유형코드
 
+	//일반사용자의 권한만 가진 경우, 즉시처리 여부 체크박스 숨김.
+    if($SessionInfo.getUserAuth().indexOf('900') > -1 && $SessionInfo.getUserAuth().length == 3){
+		$('#immeActLayout', $('#registForm')).addClass('blind');
+	}else{
+		$('#immeActLayout', $('#registForm')).removeClass('blind');
+	}
+    
+    
+    
 	setTimeout(function() {
 		$('#registForm').find('.d-companyCd').dropdown('set selected', $companyCd);
 		if (vocSeq > 0){
@@ -296,6 +305,12 @@ let selectCust = function() {
 		alert('고객을 선택해 주세요.');
 		return;
 	}
+	
+	//익명체크 해제
+	$('#anonymCustYn', $frm).val('');
+	$('#anonymCustYn', $frm).prop('checked',false);
+	setAnonymous();
+	
 
 	$frm.find('#custSeq').val($selectedRowData.custSeq);
 	$frm.find('#custNm').val($selectedRowData.custNm);
@@ -333,6 +348,10 @@ let resetCust = function() {
 	$('#registForm').find('.btn-reset-cust').addClass('blind');
 	$('#registForm').find('#vocCntDiv').addClass('blind');
 	$('#registForm').find('.d-emailAddr').dropdown('restore defaults');
+	$('#anonymCustYn', $('#registForm')).val('');
+	$('#anonymCustYn', $('#registForm')).prop('checked', false);
+	setAnonymous();
+	
 }
 
 /**
@@ -342,12 +361,18 @@ let setAnonymous = function() {
 	let $frm = $('#registForm');
 	if ($frm.find('#anonymCustYn').val() == 'Y') {  //익명인 경우
 		$frm.find('#custNm').val('익명고객');
+		$frm.find('#custNm').attr("readonly", true);
+		
 		$frm.find('#custNo').val($frm.find('#companyCd').val() + '_99999');
 		$frm.find('.display1').val('');
 		$frm.find('#display1').addClass('blind');
+		$frm.find('#vocCntDiv').addClass('blind');
 		$frm.find('.btn-reset-cust').removeClass('blind');
 	} else {
+		
 		$frm.find('#custNm').val('');
+		$frm.find('#custNm').attr("readonly", false);
+		
 		$frm.find('#custNo').val('');
 		$frm.find('#display1').removeClass('blind');
 		$frm.find('.btn-reset-cust').addClass('blind');
@@ -361,6 +386,8 @@ let setImmeAct = function() {
 	let $frm = $('#registForm');
 	if ($frm.find('#immeActYn').val() == 'Y') {  //즉시처리인 경우
 		$frm.find('.vocActDiv').removeClass('blind');
+		$frm.find('.btn-save-voc').text('VOC즉시처리');
+		
 	} else {
 		$frm.find('.vocActDiv').addClass('blind');
 		$frm.find('.voc-act-data').val('');
@@ -368,6 +395,7 @@ let setImmeAct = function() {
 		$frm.find('.d-vocActTypeCd1').dropdown('restore defaults');
 		$frm.find('.d-vocActTypeCd2').dropdown('restore defaults');
 		$frm.find('.d-vocActUserNo').dropdown('restore defaults');
+		$frm.find('.btn-save-voc').text('VOC등록');
 	}
 }
 
