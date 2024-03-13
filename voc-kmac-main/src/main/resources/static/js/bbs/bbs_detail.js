@@ -1,3 +1,4 @@
+let $bbsSeq;    //bbs key
 let editor;
 $(function () {
     // 초기 설정 및 수행
@@ -8,6 +9,7 @@ $(function () {
  * 초기 설정 및 수행 내용
  */
 let init = function(){
+	$bbsSeq = localStorage.getItem("bbsSeq");
     let bbsSeq = localStorage.getItem("bbsSeq");
 
     editor = new toastui.Editor({
@@ -28,10 +30,18 @@ let init = function(){
     $('.btn-wrap .btn-go-list').on('click', function(){ goList(); });              //목록
     $('.btn-wrap .btn-save-bbs').on('click', function(){ saveData(); });           //저장
     $('.btn-wrap .btn-delt-bbs').on('click', function(){ deleteData(); });         //삭제
-
+	$('.btn-wrap .btn-add-comments').on('click', function(){ popAddComments(); });  //댓글저장용 팝업오픈
+    $('.actions .btn-save-comments').on('click', function(){ saveComments(); });    //댓글저장
+    
     // dropbox data setting ----------------
     DropdownUtil.makeCompList($('#registForm').find('.d-companyCd'));
 
+	if($SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('000') < 0) {
+		//권한이 없는 경우 회사숨김 
+		$('tr[id=companyRow]').attr('style', "display:none;");
+	}
+	
+	
     setTimeout(function() {
         if(bbsSeq > 0) searchData(bbsSeq);
         localStorage.removeItem('bbsSeq');
@@ -50,9 +60,38 @@ let GRID_OPTIONS = {
                 return  meta.row+1;
             }
         },
-        { data: 'comments',         className: "text-center"   },
+        { data: 'comments',         className: "text-center pre-wrap"},
         { data: 'regUserNm',        className: "text-center"   },
         { data: 'regDt',            className: "text-center"   },
+        { data: 'bbsCommentsSeq',
+            'render': function (data, type, full, meta) {
+				
+					var btnStr = "";
+					//시스템관리자, 시스템운영자인 경우 모든 댓글 수정,삭제 가능
+     				if($SessionInfo.getUserAuth().indexOf('100') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
+						btnStr = "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>";
+                    	btnStr += "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+					}
+					
+					//관리자인 경우 자신의 소속회사의 모든 댓글 수정, 삭제 가능
+					if($SessionInfo.getUserAuth().indexOf('200') > -1 && $SessionInfo.getCompanyCd() == $('#companyCd').val()){
+						btnStr = "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>";
+                    	btnStr += "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+					}
+					
+					
+					//시스템관리자, 시스템운영자, 관리자 모두 아닌 경우
+			     	if($SessionInfo.getUserAuth().indexOf('000') < 0 && $SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('200') < 0) {
+						//자신의 댓글만 수정/삭제 가능
+						if(full.regUserNo == $SessionInfo.getUserSeq()){
+							btnStr = "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>";
+                    		btnStr += "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+						}
+					}
+					
+                return  btnStr;
+            }
+        }
     ],
 };
 
@@ -198,6 +237,79 @@ let deleteFile = function(fileSeq){
         function(result){
             if(result && result.messageCode == '0000'){
                 $('.file-list').find('#'+fileSeq).remove();
+            }
+        }
+    );
+}
+
+
+/**
+ * 댓글창 오픈
+ */
+let popAddComments = function(){
+    $('.modal-comments').find('#comments').val('');
+    $('.modal-comments').find('#bbsCommentsSeq').val(0);
+    $('.ui.modal-comments').modal('show');
+}
+
+
+/**
+ * 댓글상세 오픈
+ */
+let popDtlComments = function(bbsCommentsSeq){
+    AjaxUtil.get(
+        '/kmacvoc/v1/bbs/comments/'+bbsCommentsSeq,
+        {},
+        function(result){
+            if(result && result.data){
+                let d = result.data;
+                $('.modal-comments').find('#bbsCommentsSeq').val(d.bbsCommentsSeq);
+                $('.modal-comments').find('#comments').val(d.comments);
+            }
+        }
+    );
+
+    $('.ui.modal-comments').modal('show');
+}
+
+/**
+ * 댓글 저장
+ */
+let saveComments = function(){
+    let comments = $('.modal-comments').find('#comments').val();
+    let bbsCommentsSeq = $('.modal-comments').find('#bbsCommentsSeq').val();
+    let param = {"bbsSeq":$bbsSeq, "bbsCommentsSeq":bbsCommentsSeq, "comments":comments};
+    let url = bbsCommentsSeq > 0 ? '/kmacvoc/v1/bbs/comments/modify' : '/kmacvoc/v1/bbs/comments/add';
+
+    AjaxUtil.post(
+        url,
+        JSON.stringify(param),
+        function(result){
+            if(result && result.messageCode == '0000'){
+                alert(result.data.rtnMessage);
+                loadGrid($bbsSeq);
+                $('.ui.modal-comments').modal('hide');
+            }
+        }
+    );
+}
+
+
+/**
+ * 댓글 삭제
+ */
+let deleteComments = function(bbsCommentsSeq){
+
+    if(!confirm('댓글을 삭제 하시겠습니까?')) return;
+
+    let url = '/kmacvoc/v1/bbs/comments/remove/'+bbsCommentsSeq;
+
+    AjaxUtil.post(
+        url,
+        {},
+        function(result){
+            if(result && result.messageCode == '0000'){
+                loadGrid($bbsSeq);
             }
         }
     );

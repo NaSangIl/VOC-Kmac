@@ -21,6 +21,13 @@ let init = function(){
     $('.btn-wrap .btn-add-comments').on('click', function(){ popAddComments(); });  //댓글저장용 팝업오픈
     $('.actions .btn-save-comments').on('click', function(){ saveComments(); });    //댓글저장
 
+	if($SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('000') < 0) {
+		
+		//권한이 없는 경우 회사숨김 
+		$('tr[id=companyRow]').attr('style', "display:none;");
+	}
+	
+	
     setTimeout(function() {
         if($bbsSeq > 0) searchData($bbsSeq);
         localStorage.removeItem('bbsSeq');
@@ -39,16 +46,43 @@ let GRID_OPTIONS = {
                 return  meta.row+1;
             }
         },
-        { data: 'comments',         className: "text-center"   },
+        { data: 'comments',         className: "text-center pre-wrap"   },
         { data: 'regUserNm',        className: "text-center"   },
         { data: 'regDt',            className: "text-center"   },
         { data: 'bbsCommentsSeq',
             'render': function (data, type, full, meta) {
-                return  "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>" +
-                    "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+				
+					var btnStr = "";
+					//시스템관리자, 시스템운영자인 경우 모든 댓글 수정,삭제 가능
+     				if($SessionInfo.getUserAuth().indexOf('100') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
+						btnStr = "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>";
+                    	btnStr += "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+					}
+					
+					//관리자인 경우 자신의 소속회사의 모든 댓글 수정, 삭제 가능
+					if($SessionInfo.getUserAuth().indexOf('200') > -1 && $SessionInfo.getCompanyCd() == $('#companyCd').val()){
+						btnStr = "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>";
+                    	btnStr += "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+					}
+					
+					
+					//시스템관리자, 시스템운영자, 관리자 모두 아닌 경우
+			     	if($SessionInfo.getUserAuth().indexOf('000') < 0 && $SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('200') < 0) {
+						//자신의 댓글만 수정/삭제 가능
+						if(full.regUserNo == $SessionInfo.getUserSeq()){
+							btnStr = "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>";
+                    		btnStr += "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+						}
+					}
+					
+                return  btnStr;
             }
         },
-    ],
+    ]
+    ,drawCallback: function() {
+		
+    }
+
 };
 
 /**
@@ -61,6 +95,7 @@ let loadGrid = function(){
 
     gridUtil.loadGrid("listDataTableComments", gridOptions, url, param);
 };
+
 
 /**
  * 목록화면 이동
@@ -81,11 +116,13 @@ let searchData =  function(key){
                 let d = result.data;
 
                 $('#companyNm').html(d.companyNm);
+                $('#companyCd').val(d.companyCd);
                 $('#bbsSeq').html(d.bbsSeq);
                 $('#bbsTypeCd').html(d.bbsTypeCd);
                 $('#title').html(d.title);
                 $('#contents').html(d.contents);
                 $('#regDt').html(d.regDt);
+                $('#regUserNo').val(d.regUserNo);
                 $('#regUserNm').html(d.regUserNm);
                 $('#hit').html(d.hit);
 
@@ -108,7 +145,8 @@ let searchData =  function(key){
  * 댓글창 오픈
  */
 let popAddComments = function(){
-    $('.modal-comments').find('#comments').html('');
+    $('.modal-comments').find('#comments').val('');
+    $('.modal-comments').find('#bbsCommentsSeq').val(0);
     $('.ui.modal-comments').modal('show');
 }
 

@@ -14,7 +14,6 @@ let init = function(){
     // event 연결 ----------------
     $('.btn-search').on('click', function(){ loadGrid(); });
     $('.btn-wrap .btn-add').on('click', function(){ goAddBbs(); });
-    $('.btn-wrap .btn-dtl').on('click', function(){ goDtlBbs(); });
 
     //더블클릭시 상세화면 이동
     $('#listDataTableBbs tbody').on('dblclick', 'tr', function (e) {
@@ -24,6 +23,14 @@ let init = function(){
     // dropbox data setting ----------------
     DropdownUtil.makeCompList($('#searchForm').find('.d-companyCd'));
 
+	//관리자 권한이 없으면
+	if($SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('000') < 0) {
+		//권한이 없는 경우, 숨김처리
+		$('#searchForm').find('#companyArea').addClass('blind');
+		$('.btn-add').hide();
+	}
+	
+	
     setTimeout(function() {
         loadGrid();
     }, 200);
@@ -43,7 +50,6 @@ let GRID_OPTIONS = {
         { data: 'title',        className: "text-center"   },
         { data: 'regUserNm',    className: "text-center"   },
         { data: 'regDt',        className: "text-center"   },
-        { data: 'hit',          className: "text-center"   },
         { data: 'commentsCnt',  className: "text-center"   },
     ],
 };

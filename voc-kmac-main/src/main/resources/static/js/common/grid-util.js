@@ -187,10 +187,6 @@ let gridUtil = {
         }
         // [End] 옵션 구성 ---------------------
 
-        //------
-        gridOptions.drawCallback = function(){
-
-        }
 
         //---- ** grid 실제 생성
         $gridObj = $gridTableObj.DataTable(gridOptions);
