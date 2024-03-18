@@ -30,23 +30,88 @@ let init = function() {
 	}
 	//localStorage.removeItem('vocSeq');
 
+    
 	// webeditor setting ----------------
-	$editor_voc = new toastui.Editor({
+	$editor_voc = new toastui.Editor.factory({
 		el: document.querySelector('#editorVoc'),
 		toolbarItems: $toolbarItems,
 		initialEditType: 'wysiwyg',
 		previewStyle: 'vertical',
 		autofocus: false,
-		height: '100%'
+		hideModeSwitch:true,
+		height: '100%',
+		 // 이미지가 Base64 형식으로 입력되는 것 가로채주는 옵션
+		    hooks: {
+		    	addImageBlobHook: (blob, callback) => {
+		    		// blob : Java Script 파일 객체
+		    		//console.log(blob);
+		    		
+		    		const formData = new FormData();
+		        	formData.append('vocContentsImage', blob);
+		        	
+		        	let url = '/kmacvoc/v1/voc/fileUpload';
+		   			$.ajax({
+		           		type: 'POST',
+		           		enctype: 'multipart/form-data',
+		           		url: url,
+		           		data: formData,
+		           		dataType: 'json',
+		           		processData: false,
+		           		contentType: false,
+		           		cache: false,
+		           		timeout: 600000,
+		           		success: function(data) {
+		           			
+		           			callback("/upload/"+data.data.fileList1[0].fileNm, data.data.fileList1[0].fileNm);
+		           		},
+		           		error: function(e) {
+		           			
+		           			callback('image_load_fail', '사진업로드실패');
+		           		}
+		           	});
+		    	}
+		    }
 	});
 
-	$editor_act = new toastui.Editor({
+	$editor_act = new toastui.Editor.factory({
 		el: document.querySelector('#editorAct'),
 		toolbarItems: $toolbarItems,
 		initialEditType: 'wysiwyg',
 		previewStyle: 'vertical',
 		autofocus: false,
-		height: '100%'
+		hideModeSwitch:true,
+		height: '100%',
+		 // 이미지가 Base64 형식으로 입력되는 것 가로채주는 옵션
+		    hooks: {
+		    	addImageBlobHook: (blob, callback) => {
+		    		// blob : Java Script 파일 객체
+		    		//console.log(blob);
+		    		
+		    		const formData = new FormData();
+		        	formData.append('vocActContentsImage', blob);
+		        	
+		        	let url = '/kmacvoc/v1/voc/fileUpload';
+		   			$.ajax({
+		           		type: 'POST',
+		           		enctype: 'multipart/form-data',
+		           		url: url,
+		           		data: formData,
+		           		dataType: 'json',
+		           		processData: false,
+		           		contentType: false,
+		           		cache: false,
+		           		timeout: 600000,
+		           		success: function(data) {
+		           			
+		           			callback("/upload/"+data.data.fileList1[0].fileNm, data.data.fileList1[0].fileNm);
+		           		},
+		           		error: function(e) {
+		           			
+		           			callback('image_load_fail', '사진업로드실패');
+		           		}
+		           	});
+		    	}
+		    }
 	});
 
 	// event 연결 ----------------
@@ -189,10 +254,10 @@ let searchData = function(key) {
 				$('#registForm').form('set.values', d);
 
 				//editor
-				$editor_voc.setHTML(d.vocCont, false);
-				$editor_act.setHTML(d.vocActCont, false);
-
-
+				$editor_voc.setHTML(d.vocCont, true);
+				$editor_act.setHTML(d.vocActCont, true);
+				
+				
 				//checkbox
 				if (d.anonymCustYn == 'Y') $('#registForm').find('.chk-anonymous').click();
 				if (d.custReplyYn == 'Y') $('#registForm').find('.chk-custReplyYn').click();
@@ -223,25 +288,30 @@ let searchData = function(key) {
 						$('.btn-save-voc').removeClass('blind');
 						$('.btn-delt-voc').removeClass('blind');
 					} else {
-						$('.btn-appr-voc').addClass('blind');
-						$('.btn-save-voc').addClass('blind');
-						$('.btn-delt-voc').addClass('blind');
+						$("#registForm :input").attr("readonly", true);
+						$('.ui.dropdown').addClass("disabled");
+						$('.ui.checkbox').addClass("disabled");
+						$('.ui.button, .file-btn').addClass("blind");
+						$('.btn-go-list').removeClass("blind");
 					}
 				}
 
 				if (d.vocStatusCd == 'A0') {  // 완료상신상태
+				
+					$("#registForm :input").attr("readonly", true);
+					$('.ui.dropdown').addClass("disabled");
+					$('.ui.checkbox').addClass("disabled");
+					$('.ui.button, .file-btn').addClass("blind");
+					$('.btn-go-list').removeClass("blind");
+						
 					if ($SessionInfo.getUserAuth().indexOf('200') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
+						
 						$('.btn-finish-voc').removeClass('blind');
 						$('.btn-reject-voc').removeClass('blind');
 						$('.btn-appr-voc').addClass('blind');
-					} else {
-						$('.btn-finish-voc').addClass('blind');
-						$('.btn-reject-voc').addClass('blind');
-						$('.btn-appr-voc').removeClass('blind');
-						$('.btn-appr-voc').addClass('blind');
-						$('.btn-save-voc').addClass('blind');
-						$('.btn-delt-voc').addClass('blind');
-					}
+						
+						
+					} 
 				}
 
 				if (d.vocStatusCd == 'C0') {  //완료상태
@@ -250,6 +320,8 @@ let searchData = function(key) {
 					$('.ui.checkbox').addClass("disabled");
 					$('.ui.button, .file-btn').addClass("blind");
 					$('.btn-go-list').removeClass("blind");
+					
+					
 				}
 
 				// 고객 VOC 건수 표시
@@ -259,20 +331,92 @@ let searchData = function(key) {
 
 				// VOC등록 첨부파일표시
 				d.fileList1.forEach(file => {
-					$('.vocFilesDiv').append(`
-                    <li id="${file.fileSeq}">
-                        <a href='/kmacvoc/v1/file/download/${file.fileSeq}' title='${file.fileNm}' class='file-name' download>${file.fileNm}</a>
-                        <button data-index='${file.fileSeq}' onclick='javascript:deleteFile(${file.fileSeq});' class='btn-file-delt'></button>
-                    </li>`);
+					
+					var pageType = "readOnly";
+					
+					if (d.vocStatusCd == 'P0') {  // 진행중상태
+
+						// 등록자,처리자권한이 있는경우만 아래 버튼 노출
+						if ($SessionInfo.getUserSeq() == d.regUserNo || $SessionInfo.getUserAuth().indexOf('500') > -1) {
+							pageType = "write";
+						}else{
+							pageType = "readOnly";
+						}
+					}
+					
+					//권한체크
+					if (d.vocStatusCd == 'A0') {  // 완료상신상태
+						pageType = "readOnly";
+					}
+					
+					if (d.vocStatusCd == 'C0') {  //완료상태
+						pageType = "readOnly";
+					}
+					
+					//삭제가능
+					if(pageType == "write"){
+						$('.vocFilesDiv').append(`
+	                    <li id="${file.fileSeq}">
+	                        <a href='/kmacvoc/v1/file/download/${file.fileSeq}' title='${file.fileNm}' class='file-name' download>${file.fileNm}</a>
+	                        <button data-index='${file.fileSeq}' onclick='javascript:deleteFile(${file.fileSeq});' class='btn-file-delt'></button>
+	                    </li>`);
+	                
+	                //읽기전용    
+					}else{
+						
+						$('.vocFilesDiv').append(`
+	                    <li id="${file.fileSeq}">
+	                        <a href='/kmacvoc/v1/file/download/${file.fileSeq}' title='${file.fileNm}' class='file-name' download>${file.fileNm}</a>
+	                    </li>`);
+					}
+					
 				});
 
 				// VOC처리 첨부파일표시
 				d.fileList2.forEach(file => {
-					$('.vocActFilesDiv').append(`
-                    <li id="${file.fileSeq}">
-                        <a href='/kmacvoc/v1/file/download/${file.fileSeq}' title='${file.fileNm}' class='file-name' download>${file.fileNm}</a>
-                        <button data-index='${file.fileSeq}' onclick='javascript:deleteFile(${file.fileSeq});' class='btn-file-delt'></button>
-                    </li>`);
+					var pageType = "readOnly";
+					
+					if (d.vocStatusCd == 'P0') {  // 진행중상태
+
+						// 등록자,처리자권한이 있는경우만 아래 버튼 노출
+						if ($SessionInfo.getUserSeq() == d.regUserNo || $SessionInfo.getUserAuth().indexOf('500') > -1) {
+							pageType = "write";
+						}else{
+							pageType = "readOnly";
+						}
+					}
+					
+					//권한체크
+					if (d.vocStatusCd == 'A0') {  // 완료상신상태
+						if ($SessionInfo.getUserAuth().indexOf('200') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
+							pageType = "write";
+						}else{
+							pageType = "readOnly";
+						}
+					}
+					
+					if (d.vocStatusCd == 'C0') {  //완료상태
+						pageType = "readOnly";
+					}
+					
+					//삭제가능
+					if(pageType == "write"){
+						$('.vocActFilesDiv').append(`
+		                    <li id="${file.fileSeq}">
+		                        <a href='/kmacvoc/v1/file/download/${file.fileSeq}' title='${file.fileNm}' class='file-name' download>${file.fileNm}</a>
+		                        <button data-index='${file.fileSeq}' onclick='javascript:deleteFile(${file.fileSeq});' class='btn-file-delt'></button>
+		                    </li>`);
+	                
+	                //읽기전용    
+					}else{
+						
+						$('.vocActFilesDiv').append(`
+		                    <li id="${file.fileSeq}">
+		                        <a href='/kmacvoc/v1/file/download/${file.fileSeq}' title='${file.fileNm}' class='file-name' download>${file.fileNm}</a>
+		                    </li>`);
+					}
+					
+					
 				});
 
 				$('.btn-file-delt').on('click', function(e) {

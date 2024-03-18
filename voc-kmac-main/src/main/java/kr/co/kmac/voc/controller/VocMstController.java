@@ -193,6 +193,41 @@ public class VocMstController extends BaseController
     }
 
     /**
+     * VOC 완료상신
+     *
+     * @param param 완료상신처리할 VOC마스터 객체
+     * @return VOC완료상신결과 객체
+     */
+    @Operation(summary = "VOC내용이미지", description = "VOC내용이미지를 저장한다")
+    @PostMapping("/fileUpload")
+    public ResponseObject fileUpload(MultipartHttpServletRequest req, @Validated(PostMethod.class) VocMstDto.Info param) throws Exception
+    {
+    	UserDto.LoginInfo loginInfo = LoginInfoUtil.getLoginUserInfo(req);
+    	if (!LoginInfoUtil.isSystemAdmin(loginInfo) || ObjectUtils.isEmpty(param.getCompanyCd())) {
+			param.setCompanyCd(loginInfo.getCompanyCd());
+		}
+        
+        List<AttachFileDto.Info> fileList = null;
+
+        //VOC내용 이미지
+        List<MultipartFile> files = req.getFiles("vocContentsImage");
+        if(files.size() > 0 && StringUtils.isNotEmpty(files.get(0).getOriginalFilename())) {
+            fileList = FileUtil.uploadImages(files);
+            param.setFileList1(fileList);
+        }
+        
+        //VOC처리내용 이미지
+        List<MultipartFile> files2 = req.getFiles("vocActContentsImage");
+        if(files2.size() > 0 && StringUtils.isNotEmpty(files2.get(0).getOriginalFilename())) {
+            fileList = FileUtil.uploadImages(files2);
+            param.setFileList1(fileList);
+        }
+        
+        return ResponseUtil.getResponse(req, param);
+    }
+
+    
+    /**
      * VOC 파일첨부 공통처리
      *
      * @param param 파일업로드 후 셋팅할 파일정보 객체
