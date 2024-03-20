@@ -1,5 +1,21 @@
 package kr.co.kmac.bbs.controller;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -7,19 +23,13 @@ import kr.co.kmac.bbs.dto.BbsDto;
 import kr.co.kmac.bbs.service.BbsService;
 import kr.co.kmac.common.dto.AttachFileDto;
 import kr.co.kmac.common.util.FileUtil;
+import kr.co.kmac.common.util.LoginInfoUtil;
 import kr.co.kmac.common.util.ResponseUtil;
 import kr.co.kmac.common.util.validation.PostMethod;
 import kr.co.kmac.coreframework.common.response.ResponseObject;
 import kr.co.kmac.coreframework.controller.BaseController;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import kr.co.kmac.system.dto.UserDto;
+import kr.co.kmac.voc.dto.VocMstDto;
 
 /**
  * 게시판 관리/작업 Controller
@@ -105,6 +115,32 @@ public class BbsController extends BaseController
         return ResponseUtil.getResponse(req, service.deleteBbs(bbsSeq));
     }
 
+    /**
+     * 공지사항 에디터 이미지 업로드
+     *
+     * @param param 완료상신처리할 VOC마스터 객체
+     * @return VOC완료상신결과 객체
+     */
+    @Operation(summary = "공지사항 내용이미지", description = "공지사항 내용이미지를 저장한다")
+    @PostMapping("/imgupload")
+    public ResponseObject imgupload(MultipartHttpServletRequest req, @Validated(PostMethod.class) VocMstDto.Info param) throws Exception
+    {
+    	UserDto.LoginInfo loginInfo = LoginInfoUtil.getLoginUserInfo(req);
+    	if (!LoginInfoUtil.isSystemAdmin(loginInfo) || ObjectUtils.isEmpty(param.getCompanyCd())) {
+			param.setCompanyCd(loginInfo.getCompanyCd());
+		}
+        
+        List<AttachFileDto.Info> fileList = null;
+
+        //VOC내용 이미지
+        List<MultipartFile> files = req.getFiles("noticeContentsImage");
+        if(files.size() > 0 && StringUtils.isNotEmpty(files.get(0).getOriginalFilename())) {
+            fileList = FileUtil.uploadImages(files);
+            param.setFileList1(fileList);
+        }
+        
+        return ResponseUtil.getResponse(req, param);
+    }
     /**
      * 게시판 파일첨부 공통처리
      *

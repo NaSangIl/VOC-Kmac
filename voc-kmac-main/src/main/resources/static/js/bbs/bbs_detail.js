@@ -9,7 +9,7 @@ $(function () {
  */
 let init = function(){
     let bbsSeq = localStorage.getItem("bbsSeq");
-
+	
     editor = new toastui.Editor({
         el: document.querySelector('#editor'),
         toolbarItems: [
@@ -21,7 +21,38 @@ let init = function(){
         ],
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical',
-        height: '100%'
+        height: '100%',
+        // 이미지가 Base64 형식으로 입력되는 것 가로채주는 옵션
+	    hooks: {
+	    	addImageBlobHook: (blob, callback) => {
+	    		// blob : Java Script 파일 객체
+	    		//console.log(blob);
+	    		
+	    		const formData = new FormData();
+	        	formData.append('noticeContentsImage', blob);
+	        	
+	        	let url = '/kmacvoc/v1/bbs/imgupload';
+	   			$.ajax({
+	           		type: 'POST',
+	           		enctype: 'multipart/form-data',
+	           		url: url,
+	           		data: formData,
+	           		dataType: 'json',
+	           		processData: false,
+	           		contentType: false,
+	           		cache: false,
+	           		timeout: 600000,
+	           		success: function(data) {
+	           			
+	           			callback("/upload/"+data.data.fileList1[0].fileNm, data.data.fileList1[0].fileNm);
+	           		},
+	           		error: function(e) {
+	           			
+	           			callback('image_load_fail', '사진업로드실패');
+	           		}
+	           	});
+	    	}
+	    }
     });
 
     // event 연결 ----------------

@@ -142,4 +142,38 @@ public class FileUtil {
 
 		return true;	
 	}
+	
+	/**
+	 * 이미지를 업로드한다.
+	 * @param files
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<AttachFileDto.Info> uploadImages(List<MultipartFile> files) throws Exception {
+		AttachFileDto.Info commonFile = null;
+		List<AttachFileDto.Info> commonFileList = null;
+		
+		File destdir = new File(tempPath);
+        if(!destdir.exists()){
+            destdir.mkdirs();
+        }
+        
+		commonFileList = new ArrayList<AttachFileDto.Info>();
+
+		for (MultipartFile file : files) {
+			String fileNm = file.getOriginalFilename();
+			
+			File tmp = new File(tempPath + UUID.randomUUID().toString() + "." + fileNm.substring(fileNm.lastIndexOf(".") + 1));
+			file.transferTo(tmp);			
+			
+			commonFile = AttachFileDto.Info.builder().build();
+			commonFile.setFileNm(tmp.getName());
+			commonFile.setFileExtn(fileNm.substring(fileNm.lastIndexOf(".") + 1));
+			commonFile.setFileSize(new Long(file.getSize()).intValue());
+			commonFile.setFilePath(tmp.getPath());
+			commonFileList.add(commonFile);
+		}
+		
+		return commonFileList;
+	}
 }

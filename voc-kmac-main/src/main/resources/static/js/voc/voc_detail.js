@@ -40,37 +40,37 @@ let init = function() {
 		autofocus: false,
 		hideModeSwitch:true,
 		height: '100%',
-		 // 이미지가 Base64 형식으로 입력되는 것 가로채주는 옵션
-		    hooks: {
-		    	addImageBlobHook: (blob, callback) => {
-		    		// blob : Java Script 파일 객체
-		    		//console.log(blob);
-		    		
-		    		const formData = new FormData();
-		        	formData.append('vocContentsImage', blob);
-		        	
-		        	let url = '/kmacvoc/v1/voc/fileUpload';
-		   			$.ajax({
-		           		type: 'POST',
-		           		enctype: 'multipart/form-data',
-		           		url: url,
-		           		data: formData,
-		           		dataType: 'json',
-		           		processData: false,
-		           		contentType: false,
-		           		cache: false,
-		           		timeout: 600000,
-		           		success: function(data) {
-		           			
-		           			callback("/upload/"+data.data.fileList1[0].fileNm, data.data.fileList1[0].fileNm);
-		           		},
-		           		error: function(e) {
-		           			
-		           			callback('image_load_fail', '사진업로드실패');
-		           		}
-		           	});
-		    	}
-		    }
+		// 이미지가 Base64 형식으로 입력되는 것 가로채주는 옵션
+	    hooks: {
+	    	addImageBlobHook: (blob, callback) => {
+	    		// blob : Java Script 파일 객체
+	    		//console.log(blob);
+	    		
+	    		const formData = new FormData();
+	        	formData.append('vocContentsImage', blob);
+	        	
+	        	let url = '/kmacvoc/v1/voc/imgupload';
+	   			$.ajax({
+	           		type: 'POST',
+	           		enctype: 'multipart/form-data',
+	           		url: url,
+	           		data: formData,
+	           		dataType: 'json',
+	           		processData: false,
+	           		contentType: false,
+	           		cache: false,
+	           		timeout: 600000,
+	           		success: function(data) {
+	           			
+	           			callback("/upload/"+data.data.fileList1[0].fileNm, data.data.fileList1[0].fileNm);
+	           		},
+	           		error: function(e) {
+	           			
+	           			callback('image_load_fail', '사진업로드실패');
+	           		}
+	           	});
+	    	}
+	    }
 	});
 
 	$editor_act = new toastui.Editor.factory({
@@ -81,37 +81,37 @@ let init = function() {
 		autofocus: false,
 		hideModeSwitch:true,
 		height: '100%',
-		 // 이미지가 Base64 형식으로 입력되는 것 가로채주는 옵션
-		    hooks: {
-		    	addImageBlobHook: (blob, callback) => {
-		    		// blob : Java Script 파일 객체
-		    		//console.log(blob);
-		    		
-		    		const formData = new FormData();
-		        	formData.append('vocActContentsImage', blob);
-		        	
-		        	let url = '/kmacvoc/v1/voc/fileUpload';
-		   			$.ajax({
-		           		type: 'POST',
-		           		enctype: 'multipart/form-data',
-		           		url: url,
-		           		data: formData,
-		           		dataType: 'json',
-		           		processData: false,
-		           		contentType: false,
-		           		cache: false,
-		           		timeout: 600000,
-		           		success: function(data) {
-		           			
-		           			callback("/upload/"+data.data.fileList1[0].fileNm, data.data.fileList1[0].fileNm);
-		           		},
-		           		error: function(e) {
-		           			
-		           			callback('image_load_fail', '사진업로드실패');
-		           		}
-		           	});
-		    	}
-		    }
+		// 이미지가 Base64 형식으로 입력되는 것 가로채주는 옵션
+		hooks: {
+	    	addImageBlobHook: (blob, callback) => {
+	    		// blob : Java Script 파일 객체
+	    		//console.log(blob);
+	    		
+	    		const formData = new FormData();
+	        	formData.append('vocActContentsImage', blob);
+	        	
+	        	let url = '/kmacvoc/v1/voc/imgupload';
+	   			$.ajax({
+	           		type: 'POST',
+	           		enctype: 'multipart/form-data',
+	           		url: url,
+	           		data: formData,
+	           		dataType: 'json',
+	           		processData: false,
+	           		contentType: false,
+	           		cache: false,
+	           		timeout: 600000,
+	           		success: function(data) {
+	           			
+	           			callback("/upload/"+data.data.fileList1[0].fileNm, data.data.fileList1[0].fileNm);
+	           		},
+	           		error: function(e) {
+	           			
+	           			callback('image_load_fail', '사진업로드실패');
+	           		}
+	           	});
+	    	}
+	    }
 	});
 
 	// event 연결 ----------------
@@ -256,7 +256,15 @@ let searchData = function(key) {
 				//editor
 				$editor_voc.setHTML(d.vocCont, true);
 				$editor_act.setHTML(d.vocActCont, true);
-				
+				$('#editorVoc').hide();
+				$('#editorAct').hide();
+								
+						
+				//view			
+				$('#viewerVoc').html(d.vocCont);
+				$('#viewAct').html(d.vocActCont);
+				$('#viewerVoc').hide();
+				$('#viewAct').hide();
 				
 				//checkbox
 				if (d.anonymCustYn == 'Y') $('#registForm').find('.chk-anonymous').click();
@@ -287,12 +295,23 @@ let searchData = function(key) {
 						$('.btn-appr-voc').removeClass('blind');
 						$('.btn-save-voc').removeClass('blind');
 						$('.btn-delt-voc').removeClass('blind');
+						
+						$('#editorVoc').show();
+						$('#editorAct').show();
+						$('#viewerVoc').hide();
+						$('#viewAct').hide();
+						
 					} else {
 						$("#registForm :input").attr("readonly", true);
 						$('.ui.dropdown').addClass("disabled");
 						$('.ui.checkbox').addClass("disabled");
 						$('.ui.button, .file-btn').addClass("blind");
 						$('.btn-go-list').removeClass("blind");
+						
+						$('#editorVoc').hide();
+						$('#editorAct').hide();
+						$('#viewerVoc').show();
+						$('#viewAct').show();
 					}
 				}
 
@@ -303,14 +322,16 @@ let searchData = function(key) {
 					$('.ui.checkbox').addClass("disabled");
 					$('.ui.button, .file-btn').addClass("blind");
 					$('.btn-go-list').removeClass("blind");
-						
+					
+					$('#editorVoc').hide();
+					$('#editorAct').hide();
+					$('#viewerVoc').show();
+					$('#viewAct').show();
+
 					if ($SessionInfo.getUserAuth().indexOf('200') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
-						
 						$('.btn-finish-voc').removeClass('blind');
 						$('.btn-reject-voc').removeClass('blind');
 						$('.btn-appr-voc').addClass('blind');
-						
-						
 					} 
 				}
 
@@ -321,6 +342,10 @@ let searchData = function(key) {
 					$('.ui.button, .file-btn').addClass("blind");
 					$('.btn-go-list').removeClass("blind");
 					
+					$('#editorVoc').hide();
+					$('#editorAct').hide();
+					$('#viewerVoc').show();
+					$('#viewAct').show();
 					
 				}
 
