@@ -23,7 +23,26 @@ let init = function(){
 
     // dropbox data setting ----------------
     DropdownUtil.makeCompList($('#searchForm').find('.d-companyCd'));
-
+	
+	//시스템운영자, 시스템관리자인 경우
+    if ($SessionInfo.getUserAuth().indexOf('100') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
+		$('#companyArea', $('#searchForm')).removeClass('blind');
+		$('.btn-add').removeClass('blind');
+	
+	
+	//관리자인 경우
+	}else if($SessionInfo.getUserAuth().indexOf('200') > -1 ){
+		
+		$('#companyArea', $('#searchForm')).addClass('blind');
+			
+	//그외
+	}else{
+		$('#companyArea', $('#searchForm')).addClass('blind');
+		$('.btn-add').addClass('blind');
+	}
+    
+    
+    
     setTimeout(function() {
         loadGrid();
     }, 200);

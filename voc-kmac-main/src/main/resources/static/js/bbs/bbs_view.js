@@ -21,6 +21,18 @@ let init = function(){
     $('.btn-wrap .btn-add-comments').on('click', function(){ popAddComments(); });  //댓글저장용 팝업오픈
     $('.actions .btn-save-comments').on('click', function(){ saveComments(); });    //댓글저장
 
+
+	//시스템운영자, 시스템관리자인 경우
+    if ($SessionInfo.getUserAuth().indexOf('100') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
+		$('#companyArea').removeClass('blind');
+		$('.btn-add').removeClass('blind');
+		
+	//그외
+	}else{
+		$('#companyArea').addClass('blind');
+		$('.btn-add').addClass('blind');
+	}
+	
     setTimeout(function() {
         if($bbsSeq > 0) searchData($bbsSeq);
         localStorage.removeItem('bbsSeq');
@@ -39,13 +51,19 @@ let GRID_OPTIONS = {
                 return  meta.row+1;
             }
         },
-        { data: 'comments',         className: "text-center"   },
+        { data: 'comments',         className: "text-center ui-comment-list"   },
         { data: 'regUserNm',        className: "text-center"   },
         { data: 'regDt',            className: "text-center"   },
         { data: 'bbsCommentsSeq',
             'render': function (data, type, full, meta) {
-                return  "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>" +
-                    "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";
+				
+				var sbtnHtml = "";
+				
+				if($SessionInfo.getUserSeq() == full.regUserNo || $SessionInfo.getUserAuth().indexOf('200') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1){
+					sbtnHtml += "<div class='btn-wrap'><button class='ui button btn-black-line btn-updt-comments' onclick='popDtlComments("+data+")'>수정</button></div>";
+                	sbtnHtml += "<div class='btn-wrap'><button class='ui button btn-black-line btn-delt-comments ml_5' onclick='deleteComments("+data+")'>삭제</button></div>";	
+				}
+                return sbtnHtml;
             }
         },
     ],

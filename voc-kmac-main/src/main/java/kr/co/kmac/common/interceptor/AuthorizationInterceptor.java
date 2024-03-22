@@ -69,6 +69,12 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
             return true;
         }
 
+        // 팝업일때 권한체크 안함.
+        if(requestUri.indexOf("pop") > -1) {
+        	return true;
+        }
+        
+        	
         return false;
     }
 }
