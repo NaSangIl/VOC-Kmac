@@ -11,8 +11,6 @@ $(function () {
  * 초기 설정 및 수행 내용
  */
 let init = function(){
-    let bbsSeq = localStorage.getItem("bbsSeq");
-    
     $bbsSeq = localStorage.getItem("bbsSeq");
 	$backPage = localStorage.getItem("backPage");
 	
@@ -81,8 +79,9 @@ let init = function(){
 	}
 	
     setTimeout(function() {
-        //if(bbsSeq > 0) searchData(bbsSeq);
-        if($bbsSeq > 0) searchData($bbsSeq);
+        if($bbsSeq > 0){
+			searchData($bbsSeq);
+		}
         localStorage.removeItem('bbsSeq');
         localStorage.removeItem('backPage');
         
@@ -134,6 +133,7 @@ let loadGrid = function(){
  * 목록화면 이동
  */
 let goList = function(){
+	localStorage.setItem("companyCd", $('#registForm').find('#companyCd').val());
     goPage('/bbs/bbslist');
 }
 
@@ -178,6 +178,8 @@ let saveData = function(){
     let $frm = $('#registForm');
     let contents = editor.getHTML();
 
+	if(!confirm('공지사항 정보를 저장하시겠습니까?')) return;
+
     if($frm.find('#companyCd').val() == '') {
         alert('회사코드는 필수항목입니다.');
         $frm.find('#companyCd').focus();
@@ -193,6 +195,7 @@ let saveData = function(){
         $frm.find('#contents').focus();
         return;
     }
+
 
     $frm.find('#bbsTypeCd').val('NOTICE');
     $frm.find('#contents').val(contents);
@@ -217,7 +220,15 @@ let saveData = function(){
 		Util.hideLoading();
         if(result && result.messageCode == '0000'){
             alert(result.data.rtnMessage);
-            goList();
+
+			localStorage.removeItem('bbsSeq');            
+            localStorage.removeItem("companyCd");
+            localStorage.removeItem('title');
+            localStorage.removeItem('regDtStart');
+            localStorage.removeItem('regDtEnd');
+	
+			localStorage.setItem("bbsSeq", result.data.rtnKey);
+            searchData(result.data.rtnKey);
         }
     }).fail(function(xhr, status, error) {
 		Util.hideLoading();

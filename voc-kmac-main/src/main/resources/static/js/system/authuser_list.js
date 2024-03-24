@@ -24,6 +24,14 @@ let init = function() {
 	});
 
 	setTimeout(function() {
+		if(!ObjectUtil.isEmpty(localStorage.getItem("companyCd"))){
+			$('#searchForm').find('.d-companyCd').dropdown('set selected', localStorage.getItem("companyCd"));
+		}	
+		
+		if(!ObjectUtil.isEmpty(localStorage.getItem("authNm"))){
+			$('#searchForm').find('#authNm').val(localStorage.getItem("authNm"));
+		}	
+
 		loadGrid();
 	}, 300);
 }
@@ -53,6 +61,9 @@ let loadGrid = function() {
 	let url = '/kmacvoc/v1/auth/list';
 	let param = $('#searchForm').form('get.values');
 
+	localStorage.setItem("companyCd", $('#searchForm').find('#companyCd').val());
+	localStorage.setItem("authNm", $('#searchForm').find('#authNm').val());
+
 	gridUtil.loadGrid("listDataTableAuth", gridOptions, url, param);
 };
 
@@ -62,5 +73,6 @@ let loadGrid = function() {
 let goAddAuthuser = function() {
 	localStorage.setItem("authSeq", $selectedRowData.authSeq);
 	localStorage.setItem("companyCd", $('#searchForm').find('#companyCd').val());
+	localStorage.setItem("authNm", $('#searchForm').find('#authNm').val());
 	goPage('/system/authuserdetail');
 }

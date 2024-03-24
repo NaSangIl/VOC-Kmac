@@ -64,7 +64,10 @@ let GRID_OPTIONS = {
 let loadGrid = function() {
 	let gridOptions = $.extend(true, {}, GRID_OPTIONS);
 	let url = '/kmacvoc/v1/authuser/list';
-	let param = { 'authSeq': $authSeq };
+	let param = { 
+		  'authSeq': $authSeq
+		, 'companyCd': $companyCd
+	 };
 
 	$Grid = gridUtil.loadGrid("listDataTableAuthuser", gridOptions, url, param);
 };

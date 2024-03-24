@@ -44,6 +44,22 @@ let init = function(){
     
     
     setTimeout(function() {
+		if(!ObjectUtil.isEmpty(localStorage.getItem("companyCd"))){
+			$('#searchForm').find('.d-companyCd').dropdown('set selected', localStorage.getItem("companyCd"));
+		}	
+		
+		if(!ObjectUtil.isEmpty(localStorage.getItem("title"))){
+			$('#searchForm').find('#title').val(localStorage.getItem("title"));
+		}	
+
+		if(!ObjectUtil.isEmpty(localStorage.getItem("regDtStart"))){
+			$('#searchForm').find('#regDtStart').val(localStorage.getItem("regDtStart"));
+		}
+		
+		if(!ObjectUtil.isEmpty(localStorage.getItem("regDtEnd"))){
+			$('#searchForm').find('#regDtEnd').val(localStorage.getItem("regDtEnd"));
+		}
+				
         loadGrid();
     }, 200);
 }
@@ -78,6 +94,11 @@ let loadGrid = function(){
     param.regDtStart = $('#searchForm').find('#regDtStart').val();
     param.regDtEnd = $('#searchForm').find('#regDtEnd').val();
 
+	localStorage.setItem("companyCd", $('#searchForm').find('#companyCd').val());
+	localStorage.setItem("title", $('#searchForm').find('#title').val());
+	localStorage.setItem("regDtStart", $('#searchForm').find('#regDtStart').val());
+	localStorage.setItem("regDtEnd", $('#searchForm').find('#regDtEnd').val());
+	
     $Grid = gridUtil.loadGrid("listDataTableBbs", gridOptions, url, param);
 };
 
@@ -85,6 +106,8 @@ let loadGrid = function(){
  * 등록/수정을 위한 고객등록화면 이동
  */
 let goAddBbs = function(){
+	localStorage.setItem("bbsSeq", 0);
+	localStorage.setItem("companyCd", $('#searchForm').find('#companyCd').val());
     goPage('/bbs/bbsdetail');
 }
 
@@ -97,9 +120,13 @@ let goDtlBbs =  function(){
         return;
     }
     localStorage.setItem("bbsSeq", $selectedRowData.bbsSeq);
+    localStorage.setItem("companyCd", $('#searchForm').find('#companyCd').val());
+	localStorage.setItem("title", $('#searchForm').find('#title').val());
+	localStorage.setItem("regDtStart", $('#searchForm').find('#regDtStart').val());
+	localStorage.setItem("regDtEnd", $('#searchForm').find('#regDtEnd').val());
+	
     localStorage.setItem("backPage", '/bbs/bbslist');
-    // 로그인 유저가 작성자인 경우 편집화면, 아닌 경우 조회용 화면 이동
-    if($SessionInfo.getUserSeq() == $selectedRowData.regUserNo) goPage('/bbs/bbsdetail');
-    else goPage('/bbs/bbsview');
+    
+    goPage('/bbs/bbsview');
 }
 

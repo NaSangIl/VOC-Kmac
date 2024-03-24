@@ -1,5 +1,6 @@
 let $bbsSeq;    //bbs key
 let $backPage;  //이전 페이지
+let $companyCd; 
 $(function () {
     // 초기 설정 및 수행
     init();
@@ -11,6 +12,7 @@ $(function () {
 let init = function(){
     $bbsSeq = localStorage.getItem("bbsSeq");
     $backPage = localStorage.getItem("backPage");
+    $companyCd = localStorage.getItem("companyCd");
 
     if($backPage  == '/main') { //메인화면에서 호출된 경우, 목록=>메인으로 버튼명 변경
         $('.btn-wrap .btn-go-list').text('메인');
@@ -18,6 +20,9 @@ let init = function(){
 
     // event 연결 ----------------
     $('.btn-wrap .btn-go-list').on('click', function(){ goList(); });               //목록
+    $('.btn-wrap .btn-save-bbs').on('click', function(){ goDetail(); });           //저장
+    $('.btn-wrap .btn-delt-bbs').on('click', function(){ deleteData(); });         //삭제
+        
     $('.btn-wrap .btn-add-comments').on('click', function(){ popAddComments(); });  //댓글저장용 팝업오픈
     $('.actions .btn-save-comments').on('click', function(){ saveComments(); });    //댓글저장
 
@@ -26,11 +31,17 @@ let init = function(){
     if ($SessionInfo.getUserAuth().indexOf('100') > -1 || $SessionInfo.getUserAuth().indexOf('000') > -1) {
 		$('#companyArea').removeClass('blind');
 		$('.btn-add').removeClass('blind');
+		$('.btn-save-bbs').removeClass('blind');
+		$('.btn-delt-bbs').removeClass('blind');
 		
 	//그외
 	}else{
+		
 		$('#companyArea').addClass('blind');
 		$('.btn-add').addClass('blind');
+		$('.btn-save-bbs').addClass('blind');
+		$('.btn-delt-bbs').addClass('blind');
+
 	}
 	
     setTimeout(function() {
@@ -84,7 +95,8 @@ let loadGrid = function(){
  * 목록화면 이동
  */
 let goList = function(){
-    goPage($backPage);
+	localStorage.setItem("companyCd", $companyCd);
+    goPage('/bbs/bbslist');
 }
 
 /**
@@ -116,11 +128,49 @@ let searchData =  function(key){
                     </li>`);
                 });
 
-                $('.btn-delt-bbs, .viewDiv').removeClass('blind');   //삭제버튼,이력 표시
+				//등록자인 경우 수정/삭제 버튼 노출
+				if($SessionInfo.getUserSeq() ==  d.regUserNo){
+					$('.btn-save-bbs').removeClass('blind');
+					$('.btn-delt-bbs').removeClass('blind');
+                	$('.btn-delt-bbs, .viewDiv').removeClass('blind');   //삭제버튼,이력 표시
+				}
+
             }
         }
     );
 }
+
+
+/**
+ * 데이터 저장
+ */
+let goDetail = function(){
+	localStorage.setItem("bbsSeq",$bbsSeq);
+	localStorage.setItem("backPage", '/bbs/bbslist');
+    goPage('/bbs/bbsdetail');
+}
+
+/**
+ * 데이터 삭제
+ */
+let deleteData = function(){
+
+    if(!confirm('공지사항 정보를 삭제하시겠습니까?')) return;
+
+    
+    let url = '/kmacvoc/v1/bbs/remove/'+$bbsSeq;
+
+    AjaxUtil.post(
+        url,
+        {},
+        function(result){
+            if(result && result.messageCode == '0000'){
+                goList();
+            }
+        }
+    );
+}
+
 
 /**
  * 댓글창 오픈

@@ -7,6 +7,7 @@ import kr.co.kmac.common.util.MessageUtil;
 import kr.co.kmac.coreframework.common.exception.ApiBusinessException;
 import kr.co.kmac.coreframework.service.BaseService;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.regexp.RESyntaxException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -92,7 +93,8 @@ public class BbsService extends BaseService
 
         res.setRtnCnt(mapper.insertBbs(param));
         param.setBbsSeq(param.getReturnKey());
-
+        res.setRtnKey(param.getReturnKey());
+        
         // 첨부파일정보 저장
         _insertAttachFile(param);
 
@@ -111,7 +113,8 @@ public class BbsService extends BaseService
         BbsDto.Response res = BbsDto.Response.builder().build();
 
         res.setRtnCnt(mapper.updateBbs(param));
-
+        res.setRtnKey(param.getBbsSeq());
+        
         // 첨부파일정보 저장
         _insertAttachFile(param);
 

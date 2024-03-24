@@ -44,10 +44,6 @@ public class AuthUserController extends BaseController {
 	@Operation(summary = "GET 권한 목록 조회", description = "권한 목록 조회")
 	@GetMapping("/list")
 	public ResponseObject<AuthUserDto.ListResponse> getAuthUserList(HttpServletRequest req, AuthUserDto.Request param) {
-		UserDto.LoginInfo loginInfo = LoginInfoUtil.getLoginUserInfo(req);
-		if (!LoginInfoUtil.isSystemAdmin(loginInfo) || StringUtils.isBlank(param.getCompanyCd())) {
-			param.setCompanyCd(loginInfo.getCompanyCd());
-		}
 		return ResponseUtil.getResponse(req, service.getAuthUserList(param));
 	}
 
