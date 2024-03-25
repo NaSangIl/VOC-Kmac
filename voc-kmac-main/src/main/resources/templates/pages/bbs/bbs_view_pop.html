@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!--라이브러리 참조 : Thymeleaf & Thymeleaf Layout -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popup}"
+      layout:fragment="Content"
+>
+
+<head>
+    <title th:text="공지사항"></title>
+    <script th:src="@{/js/bbs/bbs_view_pop.js}"></script>
+</head>
+
+<body>
+	<!-- [dev]_ 상세 조회 팝업은 내용이 많으므로 "fullscreen" 클래스 추가하여 사용 -->
+    <div class="ui test modal modal-bbs-detail fullscreen" style="width:1000px; height:100%">
+        <i class="close icon"></i>
+        <div class="header">
+          공지사항
+        </div>
+        <div class="content" style="height:800px; max-height: 700px;">
+	        <form name="viewForm" id="viewForm">
+	            <div class="ui accordion">
+	                <!-- 기본 정보 영역 -->
+					<div class="title-area">
+						<h3>공지사항 정보</h3>
+					</div>
+					<div class="detail-table-area">
+						<div class="ui form">
+							<table class="ui celled table dataTable">
+								<colgroup>
+									<col style="width:10%;">
+									<col style="width:23%;">
+									<col style="width:10%;">
+									<col style="width:23%;">
+									<col style="width:10%;">
+									<col style="width:auto;">
+								</colgroup>
+								<tbody>
+								<tr id="companyArea">
+									<th scope="row">
+										<label>회사</label>
+									</th>
+									<td colspan="5"><div class="" id="companyNm"></div></td>
+								</tr>
+								<tr>
+									<th scope="row">
+										<label>제목</label>
+									</th>
+									<td colspan="5">
+										<input type="hidden" name="bbsSeq" id="bbsSeq" value="0">
+										<input type="hidden" name="bbsTypeCd" id="bbsTypeCd">
+										<div class="" id="title"></div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row">
+										<label>내용</label>
+									</th>
+									<td colspan="5"><div class="" id="contents"></div></td>
+								</tr>
+								<tr>
+									<th scope="row">
+										<label>첨부파일</label>
+									</th>
+									<td colspan="5">
+										<div class="fields">
+											<ul id="preview" class="file-list bbsFilesDiv"></ul>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row">
+										<label>등록일시</label>
+									</th>
+									<td><div class="" id="regDt"></div></td>
+									<th scope="row">
+										<label>등록자</label>
+									</th>
+									<td><div class="" id="regUserNm"></div></td>
+									<th scope="row">
+										<label>조회수</label>
+									</th>
+									<td><div class="" id="hit"></div></td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+						
+						<!-- 상세 테이블 하단 버튼 영역 -->
+						<!-- [dev]_ 버튼이 우측에만 올 경우, "justify-right" 클래스 추가 / 좌측은 클래스 없음 -->
+						<div class="title title-area">
+							<h3>댓글</h3>
+						</div>
+						<div class="table-area">
+							<div class="ui form">
+								<table id="listDataTableComments" class="display stripe hover">
+									<colgroup>
+										<col style="width:10%">
+										<col style="width:auto">
+										<col style="width:10%">
+										<col style="width:13%">
+										<col style="width:13%">
+									</colgroup>
+									<thead>
+									<tr>
+										<th>No</th>
+										<th>댓글</th>
+										<th>등록자</th>
+										<th>등록일시</th>
+										<th></th>
+									</tr>
+									</thead>
+									<tbody>
+									<tr>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+	        </form>
+        </div>
+        <div class="actions">
+            <button class="ui button btn-darkgray btn-close">닫기</button>
+        </div>
+    </div>
+</body>
+<style>
+	.detail-table-area .ui.table tbody tr td {
+		border: 0;
+		border-bottom: 1px solid #ccc;
+		font-size: 16px;
+	}
+</style>
+</html>

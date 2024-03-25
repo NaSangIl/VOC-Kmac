@@ -130,5 +130,6 @@ let searchData = function() {
 let goBbsView = function(bbsSeq) {
     localStorage.setItem("bbsSeq", bbsSeq);
     localStorage.setItem("backPage", '/main');
-    goPage('/bbs/bbsview');
+    //goPage('/bbs/bbsview');
+    let win = window.open("/bbs/bbsviewpop?bbsSeq="+bbsSeq, "", "width=1600, height=950");
 }

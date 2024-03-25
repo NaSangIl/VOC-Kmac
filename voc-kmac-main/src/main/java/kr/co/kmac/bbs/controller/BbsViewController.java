@@ -35,4 +35,10 @@ public class BbsViewController {
     public String view(Model model) {
         return "pages/bbs/bbs_view";
     }
+    
+    // VOC상세화면 오픈
+    @GetMapping("/bbsviewpop")
+    public String bbsViewPop(Model model) {
+        return "pages/bbs/bbs_view_pop";
+    }
 }
