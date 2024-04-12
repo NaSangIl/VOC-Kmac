@@ -8,19 +8,49 @@
     <!-- 기간별 VOC 현황 조회 -->
     <select id="getVocStatusByPeriod" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
         WITH TT AS
-            (SELECT T1.periodType, COUNT(voc_seq) AS "totalCnt",
-                    SUM(T1.complaintCnt) AS complaintCnt, SUM(T1.complimentCnt) AS complimentCnt,
-                    SUM(T1.suggestionCnt) AS suggestionCnt, SUM(T1.inquiryCnt) AS inquiryCnt
+            (SELECT T1.periodType
+                  , COUNT(voc_seq) AS "totalCnt"
+                  , SUM(T1.complaintCnt) AS complaintCnt
+                  , SUM(T1.complimentCnt) AS complimentCnt
+                  , SUM(T1.suggestionCnt) AS suggestionCnt
+                  , SUM(T1.inquiryCnt) AS inquiryCnt
             FROM
-                (SELECT DATE_FORMAT(A.reg_dt, '%Y') AS "periodType", A.voc_seq,
+                (SELECT 
+                  <if test='"Y".equals(periodType)'>      
+                        DATE_FORMAT(A.reg_dt, '%Y') AS "periodType"
+				  </if>                        
+                  <if test='"M".equals(periodType)'>      
+                        DATE_FORMAT(A.reg_dt, '%Y년%m월') AS "periodType"
+				  </if>                        
+                  <if test='"D".equals(periodType)'>      
+                        DATE_FORMAT(A.reg_dt, '%Y-%m-%d') AS "periodType"
+				  </if>                        
+                      , A.voc_seq,
                     CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
                     CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
                     CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
                     CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
                 FROM tb_voc_mst A
                 WHERE 1=1
-                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -1 YEAR) </if>
-                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
+                
+                <!-- 년도별 -->
+                <if test='"Y".equals(periodType)'>
+					<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -2 YEAR) </if>
+                	<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>	
+				</if>
+                
+                <!-- 월별 -->
+                <if test='"M".equals(periodType)'>
+					<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -11 MONTH) </if>
+                	<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>	
+				</if>     
+				           
+                <!-- 일별 -->
+                <if test='"D".equals(periodType)'>
+					<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= ADDDATE(#{regDtStart},-1) </if>
+                	<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>	
+				</if>  				           
+				
                 <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
                 <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
                 <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
@@ -29,18 +59,59 @@
             ) T1
             GROUP BY T1.periodType
         )
-        SELECT *,
-            totalCnt - LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt",
-            complaintCnt - LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt",
-            complimentCnt - LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt",
-            suggestionCnt - LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt",
-            inquiryCnt - LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt",
-            round(complaintCnt/totalCnt,1)  AS "complaintRate",
-            round(complimentCnt/totalCnt,1)  AS "complimentRate",
-            round(suggestionCnt/totalCnt,1)  AS "suggestionRate",
-            round(inquiryCnt/totalCnt,1)  AS "inquiryRate"
-        FROM TT
-        WHERE TT.periodType != DATE_FORMAT(date_add(#{regDtStart}, interval -1 YEAR), '%Y')
+        
+         SELECT periodType
+	          , totalCnt
+	          , complaintCnt
+	          , complimentCnt
+	          , suggestionCnt
+	          , inquiryCnt
+              , totalCnt - LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt"
+              , complaintCnt - LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt"
+              , complimentCnt - LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt"
+              , suggestionCnt - LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt"
+              , inquiryCnt - LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt"
+              , round(complaintCnt/totalCnt,3)  AS "complaintRate"
+              , round(complimentCnt/totalCnt,3)  AS "complimentRate"
+              , round(suggestionCnt/totalCnt,3)  AS "suggestionRate"
+              , round(inquiryCnt/totalCnt,3)  AS "inquiryRate"
+           FROM TT
+<!--           
+	   union all
+		 select '합계' AS periodType
+		      , SUM(totalCnt)
+		      , SUM(complaintCnt)
+		      , SUM(complimentCnt)
+		      , SUM(suggestionCnt)
+		      , SUM(inquiryCnt)
+		      , SUM(totalYoyCnt)
+		      , SUM(complaintYoyCnt)
+		      , SUM(complimentYoyCnt)
+		      , SUM(suggestionYoyCnt)
+		      , SUM(inquiryYoyCnt)
+		      , ROUND(AVG(complaintRate),1)
+		      , ROUND(AVG(complimentRate),1)
+		      , ROUND(AVG(suggestionRate),1)
+		      , ROUND(AVG(inquiryRate),1)
+		  from (	  
+		 	 SELECT periodType
+			      , totalCnt
+			      , complaintCnt
+			      , complimentCnt
+			      , suggestionCnt
+			      , inquiryCnt
+			      , totalCnt - LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt"
+			      , complaintCnt - LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt"
+			      , complimentCnt - LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt"
+			      , suggestionCnt - LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt"
+			      , inquiryCnt - LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt"
+			      , round(complaintCnt/totalCnt,1)  AS "complaintRate"
+			      , round(complimentCnt/totalCnt,1)  AS "complimentRate"
+			      , round(suggestionCnt/totalCnt,1)  AS "suggestionRate"
+			      , round(inquiryCnt/totalCnt,1)  AS "inquiryRate"
+			   FROM TT
+			  ) A           
+-->           
     </select>
 
     <!-- 유형별 VOC 현황 조회 -->

@@ -15,6 +15,8 @@ let init = function(){
     DropdownUtil.makeCompList($('#searchForm').find('.d-companyCd'));   //회사코드
     DropdownUtil.makeCodeList('EMPLOYMENT_YN', $('#searchForm').find('.d-employmentYn'));  //재직여부
 
+	
+	
     // event 연결 ----------------
     $('.btn-search').on('click', function(){ loadGrid(); });
     $('.btn-wrap .btn-add').on('click', function(){ goAddUser(); });     // 등록
@@ -26,6 +28,7 @@ let init = function(){
     });
 
     setTimeout(function() {
+		$('#searchForm').find('.d-employmentYn').dropdown('set selected', 'Y');
         loadGrid();
     }, 200);
 }

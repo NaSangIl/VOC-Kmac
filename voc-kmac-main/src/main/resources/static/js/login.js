@@ -1,6 +1,12 @@
 $(function () {
     // event 연결 ----------------
     $('.btn-login').on('click', function(){ login(); });  //로그인
+    $('#pw').on('keydown', function(event){
+		// 엔터 키가 눌렸는지 확인
+	    if (event.key === "Enter") {
+			login(); 
+		} 
+	});  //로그인
 });
 
 let login = function() {
@@ -21,6 +27,8 @@ let login = function() {
         $frm.find('#pw').focus();
         return;
     }
+    
+    
     let param = $('#loginForm').form('get.values');
     let url = '/login';
 
