@@ -60,22 +60,79 @@
             GROUP BY T1.periodType
         )
         
-         SELECT periodType
-	          , totalCnt
-	          , complaintCnt
-	          , complimentCnt
-	          , suggestionCnt
-	          , inquiryCnt
-              , totalCnt - LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt"
-              , complaintCnt - LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt"
-              , complimentCnt - LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt"
-              , suggestionCnt - LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt"
-              , inquiryCnt - LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt"
-              , round(complaintCnt/totalCnt,3)  AS "complaintRate"
-              , round(complimentCnt/totalCnt,3)  AS "complimentRate"
-              , round(suggestionCnt/totalCnt,3)  AS "suggestionRate"
-              , round(inquiryCnt/totalCnt,3)  AS "inquiryRate"
-           FROM TT
+        SELECT periodType
+             , totalCnt
+			 , CASE WHEN totalYoyCnt > 0
+			        THEN ( ( totalCnt - totalYoyCnt ) / totalYoyCnt ) * 100
+			 		WHEN totalCnt > 0
+			 		THEN 100
+			 		ELSE 0
+			   END AS "totalYoyCnt"	              
+             , complaintCnt
+			 , CASE WHEN totalCnt > 0
+			        THEN (complaintCnt/totalCnt) * 100 
+			        ELSE 0
+			   END AS "complaintRate"
+			   
+			 , CASE WHEN complaintYoyCnt > 0
+			        THEN ( ( complaintCnt - complaintYoyCnt ) / complaintYoyCnt ) * 100
+			 		WHEN complaintCnt > 0
+			 		THEN 100
+			 		ELSE 0
+			   END AS "complaintYoyCnt"	 
+			                
+             , complimentCnt
+			 , CASE WHEN totalCnt > 0
+			        THEN (complimentCnt/totalCnt) * 100 
+			        ELSE 0
+			   END AS "complimentRate"
+			 , CASE WHEN complimentYoyCnt > 0
+			        THEN ( ( complimentCnt - complimentYoyCnt ) / complimentYoyCnt ) * 100
+			 		WHEN complimentCnt > 0
+			 		THEN 100
+			 		ELSE 0
+			   END AS "complimentYoyCnt"	 
+			                
+             , suggestionCnt
+			 , CASE WHEN totalCnt > 0
+			        THEN (suggestionCnt/totalCnt) * 100 
+			        ELSE 0
+			   END AS "suggestionRate"
+			 , CASE WHEN suggestionYoyCnt > 0
+			        THEN ( ( suggestionCnt - suggestionYoyCnt ) / suggestionYoyCnt ) * 100
+			 		WHEN suggestionCnt > 0
+			 		THEN 100
+			 		ELSE 0
+			   END AS "suggestionYoyCnt"	       
+			          
+             , inquiryCnt
+			 , CASE WHEN totalCnt > 0
+			        THEN (inquiryCnt/totalCnt) * 100 
+			        ELSE 0
+			   END AS "inquiryRate"
+			 , CASE WHEN inquiryYoyCnt > 0
+			        THEN ( ( inquiryCnt - inquiryYoyCnt ) / inquiryYoyCnt ) * 100
+			 		WHEN inquiryCnt > 0
+			 		THEN 100
+			 		ELSE 0
+			   END AS "inquiryYoyCnt"	                 
+             
+          FROM (
+          
+		         SELECT periodType
+			          , totalCnt
+			          , complaintCnt
+			          , complimentCnt
+			          , suggestionCnt
+			          , inquiryCnt
+		              , LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt"
+		              , LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt"
+		              , LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt"
+		              , LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt"
+		              , LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt"
+		           FROM TT
+		        ) A
+		    
 <!--           
 	   union all
 		 select '합계' AS periodType

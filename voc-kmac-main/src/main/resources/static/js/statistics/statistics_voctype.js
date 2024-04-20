@@ -236,7 +236,7 @@ let GRID_OPTIONS = {
             title: '유형별VOC현황 : '+ Util.getToday(),
         },
     ],
-	"drawCallback": 'Y'  
+	"drawCallback": 'vocType'  
 };
 
 

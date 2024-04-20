@@ -188,7 +188,7 @@ let gridUtil = {
         // [End] 옵션 구성 ---------------------
 
         //------
-        if(gridOptions.drawCallback == "Y"){
+        if(gridOptions.drawCallback == "vocType"){
 			gridOptions.drawCallback = function(){
 				drawCallback(this.api());         
         	}	
@@ -217,17 +217,19 @@ let gridUtil = {
 }
 
 let drawCallback = function(api) {
-   var rows = api.rows( {page:'current'} ).nodes(),
-       settings = {
+	var rows = api.rows( {page:'current'} ).nodes(),
+		settings = {
             "COLUMN_THEME0" : 0,
             "COLUMN_THEME1" : 1,
             "COLUMN_THEME2" : 2
-       };
+		};
 
-        //$("#myTable").find('td').show();
-        mergeCells(rows, settings.COLUMN_THEME0);
-        mergeCells(rows, settings.COLUMN_THEME1);
-        mergeCells(rows, settings.COLUMN_THEME2);
+	 	if(rows.length > 0){
+			 
+	        mergeCells(rows, settings.COLUMN_THEME0);
+	        mergeCells(rows, settings.COLUMN_THEME1);
+	        mergeCells(rows, settings.COLUMN_THEME2);
+		}	
 };
 
 let mergeCells = function(rows, rowIndex) {

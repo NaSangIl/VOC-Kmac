@@ -61,19 +61,19 @@ let GRID_OPTIONS = {
     columns     : [
         { data: 'periodType',       className: "text-center"   },
         { data: 'totalCnt',         className: "text-right"   ,render: numberRender},
-        { data: 'totalYoyCnt',      className: "text-right"   ,render: numberRender},
+        { data: 'totalYoyCnt',      className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
         { data: 'complimentCnt',    className: "text-right"   ,render: numberRender},
-        { data: 'complimentRate',   className: "text-right"   ,render:function (data, type, row, meta) {return (data * 100).toFixed(1) + '%'}},
-        { data: 'complimentYoyCnt', className: "text-right"   ,render: numberRender},
+        { data: 'complimentRate',   className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
+        { data: 'complimentYoyCnt', className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
         { data: 'complaintCnt',     className: "text-right"   ,render: numberRender},
-        { data: 'complaintRate',    className: "text-right"   ,render:function (data, type, row, meta) {return (data * 100).toFixed(1) + '%'}},
-        { data: 'complaintYoyCnt',  className: "text-right"   ,render: numberRender},
+        { data: 'complaintRate',    className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
+        { data: 'complaintYoyCnt',  className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
         { data: 'suggestionCnt',    className: "text-right"   ,render: numberRender},
-        { data: 'suggestionRate',   className: "text-right"   ,render:function (data, type, row, meta) {return (data * 100).toFixed(1) + '%'}},
-        { data: 'suggestionYoyCnt', className: "text-right"   ,render: numberRender},
+        { data: 'suggestionRate',   className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
+        { data: 'suggestionYoyCnt', className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
         { data: 'inquiryCnt',       className: "text-right"   ,render: numberRender},
-        { data: 'inquiryRate',      className: "text-right"   ,render:function (data, type, row, meta) {return (data * 100).toFixed(1) + '%'}},
-        { data: 'inquiryYoyCnt',    className: "text-right"   ,render: numberRender},
+        { data: 'inquiryRate',      className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
+        { data: 'inquiryYoyCnt',    className: "text-right"   ,render:function (data, type, row, meta) {return (data).toFixed(1) + '%'}},
     ],
     paging: false,
     dom: 'Bftrip',
@@ -109,94 +109,146 @@ let GRID_OPTIONS = {
         });
         $(api.column(1).footer()).html(totalCnt.toLocaleString());
         
-        //전체 전년대비 합계
-        api.column(2, {search:'applied'}).data().each(function(data,index){
-            totalYoyCnt += parseFloat(data);
-        });
+        if(data.length == 0){
+			totalYoyCnt = 0
+		}else{
+			//전체 전년대비 증감율 평균
+	        api.column(2, {search:'applied'}).data().each(function(data,index){
+	            totalYoyCnt += parseFloat(data);
+	        });
+	        totalYoyCnt = (totalYoyCnt / data.length).toFixed(1) + '%';
+		}    
         $(api.column(2).footer()).html(totalYoyCnt.toLocaleString());
-        
+                
         //칭찬 접수 합계
         api.column(3, {search:'applied'}).data().each(function(data,index){
             complimentCnt += parseFloat(data);
         });
         $(api.column(3).footer()).html(complimentCnt.toLocaleString());
-                
-        //칭찬 접수 합계
-        api.column(5, {search:'applied'}).data().each(function(data,index){
-            complimentYoyCnt += parseFloat(data);
-        });
-        $(api.column(5).footer()).html(complimentYoyCnt.toLocaleString());        
-        
-        //칭찬 비율 평균
-        if(totalCnt == 0){
+                        
+         //칭찬 비율 평균
+        if(data.length == 0){
 			complimentRate = 0
 		}else{
-	        complimentRate = (complimentCnt / totalCnt).toFixed(3) * 100;
+			//칭찬 비율 평균
+	        api.column(4, {search:'applied'}).data().each(function(data,index){
+	            complimentRate += parseFloat(data);
+	        });
+	        complimentRate = (complimentRate / data.length).toFixed(1) + '%';
 		}        
-        $(api.column(4).footer()).html(complimentRate+"%");
+        $(api.column(4).footer()).html(complimentRate.toLocaleString());
+        
+
+        //칭찬 전년대비 증감율 평균
+        if(data.length == 0){
+			complimentYoyCnt = 0
+		}else{
+	        //칭찬 전년대비 증감율 평균
+	        api.column(5, {search:'applied'}).data().each(function(data,index){
+	            complimentYoyCnt += parseFloat(data);
+	        });
+			
+	        complimentYoyCnt = (complimentYoyCnt / data.length).toFixed(1) + '%';
+		}        
+        $(api.column(5).footer()).html(complimentYoyCnt.toLocaleString());
         
         
+        //------------------- 불만 -------------------
         //불만 접수 합계
         api.column(6, {search:'applied'}).data().each(function(data,index){
             complaintCnt += parseFloat(data);
         });
         $(api.column(6).footer()).html(complaintCnt.toLocaleString());
                 
-        //불만 접수 합계
-        api.column(8, {search:'applied'}).data().each(function(data,index){
-            complaintYoyCnt += parseFloat(data);
-        });
-        $(api.column(8).footer()).html(complaintYoyCnt.toLocaleString());        
-        
+
         //불만 비율 평균
-        if(totalCnt == 0){
+        if(data.length == 0){
 			complaintRate = 0
 		}else{
-	        complaintRate = (complaintCnt / totalCnt).toFixed(3) * 100;
-		}
-        $(api.column(7).footer()).html(complaintRate+"%");
+	        //불만 비율 평균
+	        api.column(7, {search:'applied'}).data().each(function(data,index){
+	            complaintRate += parseFloat(data);
+	        });			
+	        complaintRate = (complaintRate / data.length).toFixed(1) + '%';
+		}        
+        $(api.column(7).footer()).html(complaintRate.toLocaleString());        
         
+        //불만 전년대비 증감율 평균
+        if(data.length == 0){
+			complaintYoyCnt = 0
+		}else{
+	        //불만 전년대비 증감율 평균
+	        api.column(8, {search:'applied'}).data().each(function(data,index){
+	            complaintYoyCnt += parseFloat(data);
+	        });			
+	        complaintYoyCnt = (complaintYoyCnt / data.length).toFixed(1) + '%';
+		}        
+        $(api.column(8).footer()).html(complaintYoyCnt.toLocaleString());        
         
+             
+        //------------------- 제안 -------------------        
         //제안 접수 합계
         api.column(9, {search:'applied'}).data().each(function(data,index){
             suggestionCnt += parseFloat(data);
         });
         $(api.column(9).footer()).html(suggestionCnt.toLocaleString());
                 
-        //제안 접수 합계
-        api.column(11, {search:'applied'}).data().each(function(data,index){
-            suggestionYoyCnt += parseFloat(data);
-        });
-        $(api.column(11).footer()).html(suggestionYoyCnt.toLocaleString());        
-        
         //제안 비율 평균
-        if(totalCnt == 0){
-			suggestionRate = 0;
+        if(data.length == 0){
+			suggestionRate = 0
 		}else{
-	        suggestionRate = (suggestionCnt / totalCnt).toFixed(3) * 100;
-		}
-        $(api.column(10).footer()).html(suggestionRate+"%");     
+	        //제안 비율 평균
+	        api.column(10, {search:'applied'}).data().each(function(data,index){
+	            suggestionRate += parseFloat(data);
+	        });			
+	        suggestionRate = (suggestionRate / data.length).toFixed(1) + '%';
+		}        
+        $(api.column(10).footer()).html(suggestionRate.toLocaleString());        
+        
+        //제안 전년대비 증감율 평균
+        if(data.length == 0){
+			suggestionYoyCnt = 0
+		}else{
+	        //제안 전년대비 증감율 평균
+	        api.column(11, {search:'applied'}).data().each(function(data,index){
+	            suggestionYoyCnt += parseFloat(data);
+	        });			
+	        suggestionYoyCnt = (suggestionYoyCnt / data.length).toFixed(1) + '%';
+		}        
+        $(api.column(11).footer()).html(suggestionYoyCnt.toLocaleString());          
         
         
+        //------------------- 문의 -------------------
         //문의 접수 합계
         api.column(12, {search:'applied'}).data().each(function(data,index){
             inquiryCnt += parseFloat(data);
         });
         $(api.column(12).footer()).html(inquiryCnt.toLocaleString());
-                
-        //문의 접수 합계
-        api.column(14, {search:'applied'}).data().each(function(data,index){
-            inquiryYoyCnt += parseFloat(data);
-        });
-        $(api.column(14).footer()).html(inquiryYoyCnt.toLocaleString());        
-        
+
+
         //문의 비율 평균
-        if(totalCnt == 0){
-			inquiryRate = 0;
+        if(data.length == 0){
+			inquiryRate = 0
 		}else{
-	        inquiryRate = (inquiryCnt / totalCnt).toFixed(3) * 100;
-		}
-        $(api.column(13).footer()).html(inquiryRate+"%");                          
+	        //문의 비율 평균
+	        api.column(13, {search:'applied'}).data().each(function(data,index){
+	            inquiryRate += parseFloat(data);
+	        });			
+	        inquiryRate = (inquiryRate / data.length).toFixed(1) + '%';
+		}        
+        $(api.column(13).footer()).html(inquiryRate.toLocaleString());        
+        
+        //문의 전년대비 증감율 평균
+        if(data.length == 0){
+			inquiryYoyCnt = 0
+		}else{
+	        //문의 전년대비 증감율 평균
+	        api.column(14, {search:'applied'}).data().each(function(data,index){
+	            inquiryYoyCnt += parseFloat(data);
+	        });			
+	        inquiryYoyCnt = (inquiryYoyCnt / data.length).toFixed(1) + '%';
+		}        
+        $(api.column(14).footer()).html(inquiryYoyCnt.toLocaleString());                  
 	},
     buttons: [
         {
