@@ -31,7 +31,8 @@
                     CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
                     CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
                 FROM tb_voc_mst A
-                WHERE 1=1
+               WHERE 1=1
+                 AND DEL_YN = 'N'
                 
                 <!-- 년도별 -->
                 <if test='"Y".equals(periodType)'>
@@ -388,6 +389,7 @@
 							            AND B.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
 					                    AND B.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
 					                    AND B.COMPANY_CD = #{companyCd}
+					                    AND B.DEL_YN = 'N'
 					                    <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
 					                    AND B.RCPT_CHNN_CD = #{rcptChnnCd}
 					                    </if>
@@ -403,6 +405,7 @@
 							            AND C.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(#{regDtStart}, interval -1 YEAR), -1)
 					                    AND C.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(#{regDtEnd}, interval -1 YEAR), 1)
 					                    AND C.COMPANY_CD = #{companyCd}
+					                    AND C.DEL_YN = 'N'
 					                    <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
 					                    AND C.RCPT_CHNN_CD = #{rcptChnnCd}
 					                    </if>            

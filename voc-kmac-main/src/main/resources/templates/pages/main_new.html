@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<!-- Default Layout Import-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/main}" layout:fragment="Content">
+
+<head>
+<title th:text="메인화면"></title>
+<script th:src="@{/js/main_new.js}"></script>
+<script th:src="@{/js/lib/highcharts.js}"></script>
+</head>
+<!--
+  [dev]
+  메인 화면 구분 클래스 : "main-page"
+  서브 화면 구분 클래스 : "sub-page"
+  서브 목록 화면 구분 클래스 : "sub-list"
+-->
+<body>
+  <div class="wrap main-page">
+    <div class="page-container">
+        <!-- 검색 영역 -->
+        <div class="search-area">
+            <h2 class="blind">VOC 검색</h2>
+            <div class="search-inner">
+                <div class="ui form">
+                    <div class="fields">
+                        <div class="field">
+                            <div class="inline">
+<!--  
+                                <div class="ui radio checkbox checked">
+                                    <input type="radio" name="monthOptRadio" checked="" class="hidden">
+                                    <label>월별</label>
+                                </div>
+                              
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="dayOptRadio" class="hidden">
+                                    <label>일별</label>
+                                </div>
+-->                                
+                                
+                            </div>
+                          </div>
+                        <div class="field">
+                            <div class="ui selection dropdown d-year">
+                                <input type="hidden" name="years" id="years">
+                                <div class="default text">년 선택</div>
+                                <i class="dropdown icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <span class="unit">년</span> 
+                          </div>
+                        <div class="field">
+                            <div class="ui selection dropdown d-month">
+                                <input type="hidden" name="months" id="months">
+                                <div class="default text">월 선택</div>
+                                <i class="dropdown icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <span class="unit">월</span> 
+                          </div>
+                        <div class="field">
+                            <span class="unit">~</span> 
+                          </div>
+                          <div class="field">
+                            <div class="ui selection dropdown d-year2">
+                                <input type="hidden" name="years2" id="years2">
+                                <div class="default text">년 선택</div>
+                                <i class="dropdown icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <span class="unit">년</span> 
+                          </div>
+                        <div class="field">
+                            <div class="ui selection dropdown d-month2">
+                                <input type="hidden" name="months2" id="months2">
+                                <div class="default text">월 선택</div>
+                                <i class="dropdown icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <span class="unit">월</span> 
+                          </div>
+
+                        <!-- [dev] 검색영역 내 조회 버튼은 "two wide field btn-search" 클래스 사용 -->
+                        <div class="two wide field btn-search">
+                            <div class="ui button">
+                                <i class="search icon"></i>
+                                조회
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- // 검색 영역 -->
+
+        <div class="flex-layout align-top">
+            <!-- VOC 현황 -->
+            <div class="voc-status-area">
+                <h2>VOC 현황</h2>
+                <ul>
+                    <li class="voc-total">
+                        <dl class="voc-count">
+                            <dt>
+                                <i class="icon"></i>
+                                전체
+                            </dt>
+                            <dd>
+                                <a href="javascript:;" class="num" id="allCntSum">0</a>
+                                <span class="unit">건</span>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="voc-complain">
+                        <dl class="voc-count">
+                            <dt>
+                                <i class="icon"></i>
+                                불만
+                            </dt>
+                            <dd>
+                                <a href="javascript:;" class="num" id="complaintCntSum">0</a>
+                                <span class="unit">건</span>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="voc-compliment">
+                        <dl class="voc-count">
+                            <dt>
+                                <i class="icon"></i>
+                                칭찬
+                            </dt>
+                            <dd>
+                                <a href="javascript:;" class="num" id="complimentCntSum">0</a>
+                                <span class="unit">건</span>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="voc-suggestion">
+                        <dl class="voc-count">
+                            <dt>
+                                <i class="icon"></i>
+                                제안
+                            </dt>
+                            <dd>
+                                <a href="javascript:;" class="num" id="suggestionCntSum">0</a>
+                                <span class="unit">건</span>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="voc-inquiry">
+                        <dl class="voc-count">
+                            <dt>
+                                <i class="icon"></i>
+                                문의
+                            </dt>
+                            <dd>
+                                <a href="javascript:;" class="num" id="inquiryCntSum">0</a>
+                                <span class="unit">건</span>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="voc-senstive">
+                        <dl class="voc-count">
+                            <dt>
+                                <i class="icon"></i>
+                                민감/특이
+                            </dt>
+                            <dd>
+                                <a href="javascript:;" class="num" id="sensSpecCntSum">0</a>
+                                <span class="unit">건</span>
+                            </dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+            <!-- // VOC 현황 -->
+            <!-- VOC 추이 -->
+            <div class="voc-trend">
+                <h2>VOC 추이</h2>
+                <div class="graph-area" id="mainLineChart"></div>
+            </div>
+            <!-- // VOC 추이 -->
+        </div>
+
+        <!-- VOC 처리현황 -->
+        <div class="voc-processing-area">
+            <h2>VOC 처리현황</h2>
+            <ul>
+                <li>
+                    <dl>
+                        <dt>평균처리 기일</dt>
+                        <dd>
+                            <strong class="num" id="actTime">0</strong>
+                            <span class="unit">일</span>
+                        </dd>
+                    </dl>
+                </li>
+                <li>
+                    <dl>
+                        <dt>
+                            처리지연
+                            <span class="guide-text">※등록 이후, 5일 이상 경과 건</span>
+                        </dt>
+                        <dd>
+                            <a href="javascript:;" class="num" id="nonActCnt">0</a>
+                            <span class="unit">건</span>
+                        </dd>
+                    </dl>
+                </li>
+                <li>
+                    <dl>
+                        <dt>처리율</dt>
+                        <dd>
+                            <strong class="num" id="actRate">0</strong>
+                            <span class="unit">%</span>
+                        </dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <!-- //VOC 처리현황 -->
+
+        <div class="voc-type-area">
+            <div class="ui top attached tabular menu">
+                <a class="item active" data-tab="first">VOC 유형별 현황</a>
+                <a class="item" data-tab="second">VOC 처리유형별 현황</a>
+              </div>
+              <div class="ui bottom attached tab segment active" data-tab="first">
+               <div class="voc-box-area">
+                <div class="voc-box">
+                    <div class="graph-area" id="mainBarChart1"></div>
+                </div>
+                <div class="voc-box">
+                    <h3 id="vocTypeNm1">접객서비스</h3>
+                    <div class="graph-area" id="mainBarChart2"></div>
+                </div>
+                <div class="voc-box">
+                    <h3 id="vocTypeNm2">결제</h3>
+                    <div class="graph-area" id="mainBarChart3"></div>
+                </div>
+               </div>
+              </div>
+              <div class="ui bottom attached tab segment" data-tab="second">
+                <div class="voc-box-area">
+                    <div class="voc-box">
+                        <div class="graph-area" id="mainBarChart4"></div>
+                    </div>
+                    <div class="voc-box">
+                        <h3 id="vocActTypeNm1">처리유형1</h3>
+                        <div class="graph-area" id="mainBarChart5"></div>
+                    </div>
+                   </div>
+              </div>
+        </div>
+
+         <!-- 공지사항 -->
+         <div class="notice-area">
+            <div class="flex-layout justify-sb">
+                <h2>공지사항</h2>
+                <a href="javascript:;" class="btn-more" id="noticeMoreBtn">MORE</a>
+            </div>
+            <ul id="noticeList">
+            </ul>
+        </div>
+        <!-- // 공지사항 -->
+    </div>
+    <footer class="page-footer">
+  <div class="footer-inner">
+    <p>서울시 중구 소공로 106   T. 02-771-0500</p>
+    <p class="copyright">© 2020 JOSUN HOTELS & RESORTS Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  </div>
+  <!-- [dev]_ 메인 화면 모달 클래스 "main-modal" -->
+  <div class="ui modal main-modal">
+    <i class="close icon"></i>
+    <div class="header">
+      공지사항
+    </div>
+    <div class="content detail-table-area">  
+        <div class="ui form">
+            <table class="ui celled table">
+                <colgroup>
+                    <col style="width:110px;">
+                    <col style="width:auto;">
+                    <col style="width:110px;">
+                    <col style="width:auto;">
+                    <col style="width:110px;">
+                    <col style="width:auto;">
+                </colgroup>
+                <tbody>    
+                <tr>
+                    <th scope="row">
+                        <label for="">제목</label>
+                    </th>
+                    <td colspan="5">
+                        <div class="fields">
+                            <div class="sixteen wide field">
+                                <input type="text" value="VOC처리자 대상 교육" readonly>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="">등록자</label>
+                    </th>
+                    <td>
+                        <div class="fields">
+                            <div class="sixteen wide field">
+                                <input type="text" value="김관리" readonly>
+                            </div>
+                        </div>
+                    </td>
+                    <th scope="row">
+                        <label for="">등록일시</label>
+                    </th>
+                    <td>
+                        <div class="fields">
+                            <div class="sixteen wide field">
+                                <input type="text" value="2023-10-19 17:25:02" readonly>
+                            </div>
+                        </div>
+                    </td>
+                    <th scope="row">
+                        <label for="">조회수</label>
+                    </th>
+                    <td>
+                        <div class="fields">
+                            <div class="sixteen wide field">
+                                <input type="text" value="20" readonly>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="">내용</label>
+                    </th>
+                    <td colspan="5">
+                        <div class="fields">
+                            <div class="sixteen wide field">
+                                <textarea rows="8" readonly>VOC 처리자 대상으로 시스템 교육이 있습니다.</textarea>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 package kr.co.kmac.voc.service;
 
+import kr.co.kmac.bbs.dto.BbsDto;
 import kr.co.kmac.common.constants.CommonConstants;
 import kr.co.kmac.common.dto.AttachFileDto;
 import kr.co.kmac.common.service.AttachFileService;
@@ -120,7 +121,87 @@ public class VocMstService extends BaseService
     public VocMstDto.StatusInfo getVocStates(VocMstDto.Request param) {
         return mapper.getVocStates(param);
     }
-
+    
+    /**
+     * 메인화면 VOC현황 및 추이 조회
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public List<VocMstDto.ProgressInfo> getVocProgress(VocMstDto.Request param) {
+    	return mapper.getVocProgress(param);
+    }
+    
+    /**
+     * 메인화면 VOC 처리현황 조회
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public VocMstDto.ActProgressInfo getVocActProgress(VocMstDto.Request param) {
+    	return mapper.getVocActProgress(param);
+    }
+    
+    /**
+     * 메인화면 VOC유형별 접수현황 조회(1Level)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public List<VocMstDto.VocTypeStatusInfo> getVocTypeStates1Lev(VocMstDto.Request param) {
+    	return mapper.getVocTypeStates1Lev(param);
+    }
+    
+    /**
+     * 메인화면 VOC유형별 접수현황 조회(2Level)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public List<VocMstDto.VocTypeStatusInfo> getVocTypeStates2Lev(VocMstDto.Request param) {
+    	return mapper.getVocTypeStates2Lev(param);
+    }
+    
+    /**
+     * 메인화면 VOC유형별 접수현황 조회(3Level)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public List<VocMstDto.VocTypeStatusInfo> getVocTypeStates3Lev(VocMstDto.Request param) {
+    	return mapper.getVocTypeStates3Lev(param);
+    }    
+    
+    /**
+     * 메인화면 VOC처리유형별 접수현황 조회(1Level)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public List<VocMstDto.VocActTypeStatusInfo> getVocActTypeStates1Lev(VocMstDto.Request param) {
+    	return mapper.getVocActTypeStates1Lev(param);
+    }
+    
+    /**
+     * 메인화면 VOC처리유형별 접수현황 조회(2Level)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public List<VocMstDto.VocActTypeStatusInfo> getVocActTypeStates2Lev(VocMstDto.Request param) {
+    	return mapper.getVocActTypeStates2Lev(param);
+    }    
+    
+    /**
+     * 메인화면 공지사항 조회
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    public List<BbsDto.MainNoticeListInfo> getMainNoticeList(BbsDto.Request param) {
+    	return mapper.getMainNoticeList(param);
+    }       
+    
     /**
      * VOC 접수(insert)
      *

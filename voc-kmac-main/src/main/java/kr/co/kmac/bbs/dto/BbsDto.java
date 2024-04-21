@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.kmac.common.dto.AttachFileDto;
 import kr.co.kmac.common.util.validation.PostMethod;
 import kr.co.kmac.coreframework.dto.BaseDto;
+import kr.co.kmac.voc.dto.VocMstDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.web.multipart.MultipartFile;
@@ -101,4 +102,25 @@ public class BbsDto {
     public static class ListResponse extends BaseDto.ListResult {
         List<Info> list;
     }
+    
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(callSuper= false)
+    @Schema(description = "메인공지사항조회", name="MainNoticeListInfo")
+    public static class MainNoticeListInfo extends BaseDto.Base {
+    	@Schema(description = "게시판순번")
+        private int bbsSeq;
+    	
+    	@Schema(description = "게시판타입")
+    	private String bbsTypeCd;
+    	
+    	@Schema(description = "회사코드")
+    	private String companyCd;
+        
+        @Schema(description = "제목")
+        private String title;
+        
+    }    
 }

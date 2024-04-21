@@ -308,4 +308,256 @@
         WHERE voc_seq = #{vocSeq}
     </update>
 
+	<!-- 메인화면 - 월별 VOC현황 및 추이 조회 -->
+    <select id="getVocProgress" resultType="kr.co.kmac.voc.dto.VocMstDto$ProgressInfo">
+        SELECT A.YM_TP		  AS ymTp	
+		     , SUM(A.ALL_CNT) AS allCnt
+		     , SUM(A.01_CNT)  AS complaintCnt
+		     , SUM(A.02_CNT)  AS complimentCnt
+		     , SUM(A.03_CNT)  AS suggestionCnt
+		     , SUM(A.04_CNT)  AS inquiryCnt
+		     , ( SELECT SUM(1)
+		           FROM TB_VOC_MST 
+		          WHERE REG_DT <![CDATA[ > ]]> ADDDATE(CONCAT(A.YM_TP,'-01'), -1) 
+		            AND REG_DT <![CDATA[ < ]]> ADDDATE(LAST_DAY(CONCAT(A.YM_TP,'-01')), 1)
+		            AND COMPANY_CD  = #{companyCd}
+		            AND DEL_YN  = 'N'
+		            AND SENS_SPEC_YN = 'Y'
+		       ) sensSpecCnt
+		  FROM (
+				SELECT DATE_FORMAT(A.reg_dt, '%Y.%m') AS "YM_TP"
+				     , VOC_CASE_CD
+				     , 1 AS ALL_CNT
+				     , CASE WHEN VOC_CASE_CD  = '01'
+				            THEN 1
+				            ELSE 0
+				       END "01_CNT"
+				     , CASE WHEN VOC_CASE_CD  = '02'
+				            THEN 1
+				            ELSE 0
+				       END "02_CNT"  
+				     , CASE WHEN VOC_CASE_CD  = '03'
+				            THEN 1
+				            ELSE 0
+				       END "03_CNT"
+				       
+				     , CASE WHEN VOC_CASE_CD  = '04'
+				            THEN 1
+				            ELSE 0
+				       END "04_CNT"
+				 FROM TB_VOC_MST A
+				WHERE 1=1
+				  AND A.COMPANY_CD = #{companyCd}
+				  AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+				  AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+				  AND A.DEL_YN  = 'N'
+			) A
+		GROUP BY A.YM_TP
+		ORDER BY A.YM_TP ASC
+    </select>
+    
+	<!-- 메인화면 - VOC 처리현황 조회 -->
+    <select id="getVocActProgress" resultType="kr.co.kmac.voc.dto.VocMstDto$ActProgressInfo">
+		
+		SELECT IFNULL(SUM(allCnt),0) AS allCnt
+		     , IFNULL(round(AVG(actTime),1),0) AS actTime
+		     , IFNULL(SUM(nonActCnt),0) AS nonActCnt
+		     , IFNULL(SUM(actCnt),0) AS actCnt
+		     , CASE WHEN IFNULL(SUM(allCnt),0) > 0
+		            THEN ROUND((SUM(actCnt)/SUM(allCnt)),1) * 100
+		            ELSE 0
+		       END actRate     
+		  FROM (        
+		            SELECT allCnt
+		                 , actTime
+		                 , actCnt
+		                 , CASE WHEN nonActTime <![CDATA[ >= ]]> 5
+		                        THEN 1
+		                        ELSE NULL
+		                   END nonActCnt     
+		              FROM (
+		                    SELECT 1 AS "allCnt"  
+		                         , CASE WHEN A.VOC_STATUS_CD = 'C0' 
+		                                THEN DATEDIFF(A.VOC_ACT_DT, A.REG_DT) 
+		                                ELSE NULL 
+		                           END AS "actTime"
+		                         , CASE WHEN A.VOC_STATUS_CD = 'C0' 
+		                                THEN 1
+		                                ELSE NULL 
+		                           END AS "actCnt"  
+		                         , CASE WHEN A.VOC_STATUS_CD != 'C0' 
+		                                THEN DATEDIFF(A.VOC_ACT_DT, A.REG_DT) 
+		                                ELSE NULL 
+		                           END AS "nonActTime"
+							 FROM TB_VOC_MST A
+							WHERE 1=1
+							  AND A.company_cd = #{companyCd}
+							  AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+							  AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+							  AND A.DEL_YN  = 'N'
+			              ) A
+                ) A
+    </select>
+    
+	<!-- 메인화면 - VOC유형별 접수현황 조회 -->
+    <select id="getVocTypeStates1Lev" resultType="kr.co.kmac.voc.dto.VocMstDto$VocTypeStatusInfo">
+		
+		   SELECT A.VOC_TYPE_CD1	AS vocTypeCd1
+		        , B.CUSTOM_NM 		AS vocTypeNm1
+		        , SUM(1) 			AS receiptCnt
+		     FROM TB_VOC_MST A
+		          INNER JOIN (
+		                         SELECT CD1.CUSTOM_CD
+		                              , CD1.CUSTOM_NM
+		                           FROM TB_COMPANY_CUSTOM_CODE CD1
+		                                INNER JOIN TB_COMPANY CD2
+		                                        ON CD1.COMPANY_SEQ = CD2.COMPANY_SEQ
+		                                       AND CD2.COMPANY_CD = #{companyCd}
+		                          WHERE CD1.CUSTOM_TYPE = 'VOC_TYPE'
+		                            AND CD1.USE_YN = 'Y'
+		                      ) B
+		                   ON A.VOC_TYPE_CD1 = B.CUSTOM_CD
+				WHERE 1=1
+				  AND A.company_cd = #{companyCd}
+				  AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+				  AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+				  AND A.DEL_YN  = 'N'
+				GROUP BY A.VOC_TYPE_CD1
+                       , B.CUSTOM_NM
+                ORDER BY SUM(1) DESC       
+    </select>
+    
+	<!-- 메인화면 - VOC유형별 접수현황 조회 -->
+    <select id="getVocTypeStates2Lev" resultType="kr.co.kmac.voc.dto.VocMstDto$VocTypeStatusInfo">
+		
+		   SELECT A.VOC_TYPE_CD2	AS vocTypeCd2
+		        , B.CUSTOM_NM 		AS vocTypeNm2
+		        , SUM(1) 			AS receiptCnt
+		     FROM TB_VOC_MST A
+		          INNER JOIN (
+		                         SELECT CD1.CUSTOM_CD
+		                              , CD1.CUSTOM_NM
+		                           FROM TB_COMPANY_CUSTOM_CODE CD1
+		                                INNER JOIN TB_COMPANY CD2
+		                                        ON CD1.COMPANY_SEQ = CD2.COMPANY_SEQ
+		                                       AND CD2.COMPANY_CD = #{companyCd}
+		                          WHERE CD1.CUSTOM_TYPE = 'VOC_TYPE'
+		                            AND CD1.USE_YN = 'Y'
+		                      ) B
+		                   ON A.VOC_TYPE_CD2 = B.CUSTOM_CD
+				WHERE 1=1
+				  AND A.VOC_TYPE_CD1 = #{vocTypeCd1}
+				  AND A.company_cd = #{companyCd}
+				  AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+				  AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+				  AND A.DEL_YN  = 'N'
+				GROUP BY A.VOC_TYPE_CD2
+                       , B.CUSTOM_NM
+                ORDER BY SUM(1) DESC       
+    </select>
+    
+	<!-- 메인화면 - VOC유형별 접수현황 조회 -->
+    <select id="getVocTypeStates3Lev" resultType="kr.co.kmac.voc.dto.VocMstDto$VocTypeStatusInfo">
+		
+		   SELECT A.VOC_TYPE_CD3	AS vocTypeCd3
+		        , B.CUSTOM_NM 		AS vocTypeNm3
+		        , SUM(1) 			AS receiptCnt
+		     FROM TB_VOC_MST A
+		          INNER JOIN (
+		                         SELECT CD1.CUSTOM_CD
+		                              , CD1.CUSTOM_NM
+		                           FROM TB_COMPANY_CUSTOM_CODE CD1
+		                                INNER JOIN TB_COMPANY CD2
+		                                        ON CD1.COMPANY_SEQ = CD2.COMPANY_SEQ
+		                                       AND CD2.COMPANY_CD = #{companyCd}
+		                          WHERE CD1.CUSTOM_TYPE = 'VOC_TYPE'
+		                            AND CD1.USE_YN = 'Y'
+		                      ) B
+		                   ON A.VOC_TYPE_CD3 = B.CUSTOM_CD
+				WHERE 1=1
+				  AND A.VOC_TYPE_CD2 = #{vocTypeCd2}
+				  AND A.COMPANY_CD = #{companyCd}
+				  AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+				  AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+				  AND A.DEL_YN  = 'N'
+				GROUP BY A.VOC_TYPE_CD3
+                       , B.CUSTOM_NM
+                ORDER BY SUM(1) DESC       
+    </select>
+    
+            	<!-- 메인화면 - VOC처리유형별 접수현황 조회 -->
+    <select id="getVocActTypeStates1Lev" resultType="kr.co.kmac.voc.dto.VocMstDto$VocActTypeStatusInfo">
+		
+		   SELECT A.VOC_ACT_TYPE_CD1	AS vocActTypeCd1
+		        , B.CUSTOM_NM 			AS vocActTypeNm1
+		        , SUM(1) 				AS receiptCnt
+		     FROM TB_VOC_MST A
+		          INNER JOIN (
+		                         SELECT CD1.CUSTOM_CD
+		                              , CD1.CUSTOM_NM
+		                           FROM TB_COMPANY_CUSTOM_CODE CD1
+		                                INNER JOIN TB_COMPANY CD2
+		                                        ON CD1.COMPANY_SEQ = CD2.COMPANY_SEQ
+		                                       AND CD2.COMPANY_CD = #{companyCd}
+		                          WHERE CD1.CUSTOM_TYPE = 'VOC_ACT_TYPE'
+		                            AND CD1.USE_YN = 'Y'
+		                      ) B
+		                   ON A.VOC_ACT_TYPE_CD1 = B.CUSTOM_CD
+				WHERE 1=1
+				  AND A.company_cd = #{companyCd}
+				  AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+				  AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+				  AND A.DEL_YN  = 'N'
+				GROUP BY A.VOC_ACT_TYPE_CD1
+                       , B.CUSTOM_NM
+                ORDER BY SUM(1) DESC       
+    </select>
+    
+	<!-- 메인화면 - VOC유형별 접수현황 조회 -->
+    <select id="getVocActTypeStates2Lev" resultType="kr.co.kmac.voc.dto.VocMstDto$VocActTypeStatusInfo">
+		
+		   SELECT A.VOC_ACT_TYPE_CD2	AS vocActTypeCd2
+		        , B.CUSTOM_NM 			AS vocActTypeNm2
+		        , SUM(1) 				AS receiptCnt
+		     FROM TB_VOC_MST A
+		          INNER JOIN (
+		                         SELECT CD1.CUSTOM_CD
+		                              , CD1.CUSTOM_NM
+		                           FROM TB_COMPANY_CUSTOM_CODE CD1
+		                                INNER JOIN TB_COMPANY CD2
+		                                        ON CD1.COMPANY_SEQ = CD2.COMPANY_SEQ
+		                                       AND CD2.COMPANY_CD = #{companyCd}
+		                          WHERE CD1.CUSTOM_TYPE = 'VOC_ACT_TYPE'
+		                            AND CD1.USE_YN = 'Y'
+		                      ) B
+		                   ON A.VOC_ACT_TYPE_CD2 = B.CUSTOM_CD
+				WHERE 1=1
+				  AND A.VOC_ACT_TYPE_CD1 = #{vocActTypeCd1}
+				  AND A.company_cd = #{companyCd}
+				  AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+				  AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+				  AND A.DEL_YN  = 'N'
+				GROUP BY A.VOC_ACT_TYPE_CD2
+                       , B.CUSTOM_NM
+                ORDER BY SUM(1) DESC       
+    </select>
+    
+    	<!-- 메인화면 - VOC유형별 접수현황 조회 -->
+    <select id="getMainNoticeList" resultType="kr.co.kmac.bbs.dto.BbsDto$MainNoticeListInfo">
+		SELECT A.BBS_SEQ       AS bbsSeq		
+		     , A.BBS_TYPE_CD   AS bbsTypeCd
+		     , A.COMPANY_CD    AS companyCd
+		     , A.TITLE         AS title
+		     , A.REG_USER_NO   AS regUserNo
+		     , FN_GETUSERNM(A.REG_USER_NO) AS "regUserNm"
+		     , DATE_FORMAT(A.REG_DT, '%Y-%m-%d %H:%i:%s') AS "regDt"
+		  FROM TB_BBS A
+		 WHERE A.COMPANY_CD = #{companyCd}
+		   AND A.BBS_TYPE_CD = 'NOTICE'
+		   AND A.USE_YN = 'Y'
+		ORDER BY A.REG_DT DESC
+		LIMIT 5
+    </select>
+    
+    
 </mapper>

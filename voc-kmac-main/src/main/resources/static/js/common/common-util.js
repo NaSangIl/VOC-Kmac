@@ -260,6 +260,7 @@ let UIUtil = {
 }
 
 let goMain = function() {
+	cacheUt.clear();
     $(location).attr('href', '/main');
 }
 
@@ -449,4 +450,17 @@ let $SessionInfo = {
     getUserAuth: function() {
         return $('.header-info').find('#loginUserAuth').val();
     }
+}
+
+/**
+ *  캐쉬정보
+ */
+let cacheUt = {
+	clear:function(){
+		for (let i = localStorage.length - 1; i >= 0; i--) {
+			let key = localStorage.key(i);
+			localStorage.removeItem(key);
+		}
+	}
+	
 }

@@ -260,6 +260,7 @@ let UIUtil = {
 }
 
 let goMain = function() {
+	cacheUT.clear();
     $(location).attr('href', '/main');
 }
 

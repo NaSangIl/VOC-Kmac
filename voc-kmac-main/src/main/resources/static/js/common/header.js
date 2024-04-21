@@ -10,7 +10,6 @@ let menuDepth2BoxMaxHeight = 0;
 let subMenuBox = document.querySelector('.sub-depth-area');
 let boxValues = [];
 
-//메뉴 활성화 시 적용 스타일
 
 function acitveMenu() {
 	menuDepth2Box.forEach((box) => {
@@ -81,12 +80,20 @@ $(document).ready(function() {
 				location.href = "/logout";
 			}
 		}
+		
+		//메뉴선택시 캐쉬 초기화
+		$('a[id=subMenu]').on('click', function() { 
+			var url = $(this).attr('url');
+			cacheUt.clear(); 
+			location.href = url;
+		});
 	};
 	httpRequest.open('GET', '/main/menu');
 	httpRequest.send();
 
 	// logout
 	$('.btn-logout').on('click', function() { logout(); });
+
 });
 
 let logout = function() {

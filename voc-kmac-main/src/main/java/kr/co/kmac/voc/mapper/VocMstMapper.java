@@ -1,5 +1,6 @@
 package kr.co.kmac.voc.mapper;
 
+import kr.co.kmac.bbs.dto.BbsDto;
 import kr.co.kmac.voc.dto.VocMstDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -49,7 +50,73 @@ public interface VocMstMapper
      * @return VOC마스터 객체
      */
     VocMstDto.StatusInfo getVocStates(VocMstDto.Request param);
+    
+    /**
+     * 메인화면 VOC현황 및 추이 조회
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    List<VocMstDto.ProgressInfo> getVocProgress(VocMstDto.Request param);
+    
+    /**
+     * 메인화면 VOC처리현황 조회
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    VocMstDto.ActProgressInfo getVocActProgress(VocMstDto.Request param);
+    
+    /**
+     * 메인화면 VOC유형별 접수현황 조회(1Lev)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    List<VocMstDto.VocTypeStatusInfo> getVocTypeStates1Lev(VocMstDto.Request param);
 
+    /**
+     * 메인화면 VOC유형별 접수현황 조회(3Lev)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    List<VocMstDto.VocTypeStatusInfo> getVocTypeStates2Lev(VocMstDto.Request param);
+
+    
+    /**
+     * 메인화면 VOC유형별 접수현황 조회(3Lev)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    List<VocMstDto.VocTypeStatusInfo> getVocTypeStates3Lev(VocMstDto.Request param);
+    
+
+    /**
+     * 메인화면 VOC처리유형별 접수현황 조회(1Lev)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    List<VocMstDto.VocActTypeStatusInfo> getVocActTypeStates1Lev(VocMstDto.Request param);
+
+    /**
+     * 메인화면 VOC처리유형별 접수현황 조회(3Lev)
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    List<VocMstDto.VocActTypeStatusInfo> getVocActTypeStates2Lev(VocMstDto.Request param);
+    
+    /**
+     * 메인화면 공지사항 조회
+     *
+     * @param param VOC마스터 객체
+     * @return VOC마스터 객체
+     */
+    List<BbsDto.MainNoticeListInfo> getMainNoticeList(BbsDto.Request param);
+    
     /**
      * VOC마스터 입력(insert)
      * 

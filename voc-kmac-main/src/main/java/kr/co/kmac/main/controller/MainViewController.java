@@ -30,7 +30,7 @@ public class MainViewController {
     // 헤더화면 오픈
     @GetMapping("/main")
     public String view(Model model) {
-        return "pages/main";
+        return "pages/main_new";
     }
 
     @RequestMapping("/common/authError")

@@ -6,7 +6,7 @@
         <div class="header-top-area" th:if="${session.loginUserInfo}">
             <h1 class="header-logo">
                 <a href="javascript:goMain();">
-                    <img src="../../images/common/logo.svg" alt="HI VOC">
+                    <img src="../../images/common/logo_new.svg" alt="VOC_LAB">
 		            <!-- [dev] 회사 로고 적용을 위한 img 태그 추가 -->
 		            <img th:if="${session.loginUserInfo['logoImgPath'] != '/upload'}" th:src="${session.loginUserInfo['logoImgPath']}" alt="logo">
                 </a>
@@ -31,7 +31,7 @@
                     <li th:each="menu : ${menuList}">
                         <a href="javascript:;" th:text="${menu.menuNm}"></a>
                         <div class="menu-depth2">
-                            <div th:each="subMenu : ${menu.subMenulist}"><a th:href="${subMenu.menuUrl}" th:text="${subMenu.menuNm}"></a></div>
+                            <div th:each="subMenu : ${menu.subMenulist}"><a id="subMenu" th:url="${subMenu.menuUrl}" th:text="${subMenu.menuNm}"></a></div>
                         </div>
                     </li>
                 </ul>

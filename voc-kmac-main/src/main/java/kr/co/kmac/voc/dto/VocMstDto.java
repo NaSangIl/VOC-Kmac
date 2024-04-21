@@ -255,7 +255,91 @@ public class VocMstDto {
         @Schema(description = "평균처리기간")
         public float actPeriodAvg;
     }
+    
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(callSuper= false)
+    @Schema(description = "VOC현황및추이객제", name="ProgressInfo")
+    public static class ProgressInfo {
+    	@Schema(description = "기준년월")
+    	private String ymTp;
+        @Schema(description = "전체건수")
+        private int allCnt;
+        @Schema(description = "불만접수건수")
+        private int complaintCnt;
+        @Schema(description = "칭찬접수건수")
+        private int complimentCnt;
+        @Schema(description = "제안접수건수")
+        private int suggestionCnt;
+        @Schema(description = "문의접수건수")
+        private int inquiryCnt;
+        @Schema(description = "민감/특이건수")
+        public float sensSpecCnt;
+    }
+    
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(callSuper= false)
+    @Schema(description = "VOC처리현황객체", name="ActProgressInfo")
+    public static class ActProgressInfo {
+    	@Schema(description = "전체건수")
+    	private int allCnt;
+    	@Schema(description = "평균처리일수")
+    	private int actTime;
+    	@Schema(description = "처리지연건수")
+    	private int nonActCnt;
+    	@Schema(description = "완료건수")
+    	private int actCnt;
+    	@Schema(description = "처리율")
+    	private int actRate;
+    }    
 
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(callSuper= false)
+    @Schema(description = "VOC유형별접수현황", name="VocTypeStatusInfo")
+    public static class VocTypeStatusInfo {
+    	@Schema(description = "VOC유형코드1")
+    	private String vocTypeCd1;
+    	@Schema(description = "VOC유형명1")
+    	private String vocTypeNm1;
+    	@Schema(description = "VOC유형코드2")
+    	private String vocTypeCd2;
+    	@Schema(description = "VOC유형명2")
+    	private String vocTypeNm2;
+    	@Schema(description = "VOC유형코드3")
+    	private int vocTypeCd3;
+    	@Schema(description = "VOC유형명3")
+    	private String vocTypeNm3;
+    	@Schema(description = "접수건수")
+    	private int receiptCnt;
+    }  
+    
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(callSuper= false)
+    @Schema(description = "VOC처리유형별접수현황", name="VocActTypeStatusInfo")
+    public static class VocActTypeStatusInfo {
+    	@Schema(description = "VOC유형코드1")
+    	private String vocActTypeCd1;
+    	@Schema(description = "VOC유형명1")
+    	private String vocActTypeNm1;
+    	@Schema(description = "VOC유형코드2")
+    	private String vocActTypeCd2;
+    	@Schema(description = "VOC유형명2")
+    	private String vocActTypeNm2;
+    	@Schema(description = "접수건수")
+    	private int receiptCnt;
+    }    
+    
     @Data
     @SuperBuilder
     @NoArgsConstructor
