@@ -52,11 +52,17 @@ let init = function(){
 	    $('#inquiryCntSum').on('click', function(){fnVocMove('04')});
 	    $('#sensSpecCntSum').on('click', function(){fnVocMove('sens')});
 	    
+	    
     }, 200);
 }
 
 
 function fnVocMove(callTp){
+	
+	//일반사용자인 경우 페이지 이동 제한.
+    if($SessionInfo.getUserAuth().indexOf('900') > -1 && $SessionInfo.getUserAuth().length == 3){
+		return false;
+	}
 	
 	let stYy = $('#years').val();
     let stMm = $('#months').val();
@@ -146,6 +152,7 @@ let searchData = function() {
 				$('#suggestionCntSum').text(Util.numberFormat(suggestionCntSum));
 				$('#inquiryCntSum').text(Util.numberFormat(inquiryCntSum));
 				$('#sensSpecCntSum').text(Util.numberFormat(sensSpecCntSum));
+				
                 
             }
         }
@@ -161,6 +168,10 @@ let searchData = function() {
                 $('#actTime').text(dataList.actTime);
                 $('#nonActCnt').text(dataList.nonActCnt);
                 $('#actRate').text(dataList.actRate);
+                
+               	$('#nonActCnt').on('click', function(){
+					fnVocMove('sens');
+				});
             }
         }
     );	
