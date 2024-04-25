@@ -424,54 +424,148 @@
 
     <!-- 접수채널별 VOC 현황 조회 -->
     <select id="getVocStatusByChannel" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
-        WITH T AS
-        (SELECT T1.periodType,
-                T1.rcpt_chnn_cd, T1.rcpt_chnn_nm,
-                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN 1 ELSE 0 END AS "cnt1",
-                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt1",
-                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt1",
-                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt1",
-                CASE T1.periodType WHEN SUBSTR(date_add(#{regDtStart}, interval -1 YEAR),1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt1",
-                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN 1 ELSE 0 END AS "cnt",
-                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complaintCnt ELSE 0 END AS "complaintCnt",
-                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN complimentCnt ELSE 0 END AS "complimentCnt",
-                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN suggestionCnt ELSE 0 END AS "suggestionCnt",
-                CASE T1.periodType WHEN SUBSTR(#{regDtStart},1,4) THEN inquiryCnt ELSE 0 END AS "inquiryCnt"
-        FROM
-        ( SELECT DATE_FORMAT(A.reg_dt, '%Y') AS "periodType",
-                A.rcpt_chnn_cd, fn_getCodeNm('RCPT_CHNN_CD', A.rcpt_chnn_cd) AS rcpt_chnn_nm,
-                A.voc_seq,
-                CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
-                CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
-                CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
-                CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
-        FROM tb_voc_mst A
-        WHERE 1=1
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -1 YEAR) </if>
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>
-        ) T1
-        ORDER BY rcpt_chnn_cd, periodType
-        )
-        SELECT *,
-            round(TT.complaintCnt/TT.totalCnt,1)  AS "complaintRate",
-            round(TT.complimentCnt/TT.totalCnt,1)  AS "complimentRate",
-            round(TT.suggestionCnt/TT.totalCnt,1)  AS "suggestionRate",
-            round(TT.inquiryCnt/TT.totalCnt,1)  AS "inquiryRate"
-        FROM(
-            SELECT rcpt_chnn_cd, rcpt_chnn_nm,
-                SUM(cnt) AS totalCnt, SUM(complaintCnt) AS complaintCnt, SUM(complimentCnt) AS complimentCnt,
-                SUM(suggestionCnt) AS suggestionCnt,  SUM(inquiryCnt) AS inquiryCnt,
-                SUM(cnt-cnt1) AS totalYoyCnt, SUM(complaintCnt-complaintCnt1) AS complaintYoyCnt,
-                SUM(complimentCnt-complimentCnt) AS complimentYoyCnt, SUM(suggestionCnt-suggestionCnt) AS suggestionYoyCnt,
-                SUM(inquiryCnt-inquiryCnt) AS inquiryYoyCnt
-            FROM T
-            GROUP BY rcpt_chnn_cd, rcpt_chnn_nm
-        ) TT
+		SELECT A.rcptChnnNm
+		     , SUM(A.NOW_ALL_CNT)   AS "totalCnt"
+		     , SUM(A.BF_ALL_CNT)
+		     , CASE WHEN SUM(A.BF_ALL_CNT) > 0
+		            THEN ( ( SUM(A.NOW_ALL_CNT) - SUM(A.BF_ALL_CNT) ) / SUM(A.BF_ALL_CNT) ) * 100
+		            WHEN SUM(A.NOW_ALL_CNT) > 0
+		            THEN 100
+		            ELSE 0
+		       END AS "totalYoyCnt"
+		       /* 불만 */  
+		     , SUM(A.NOW_01_CNT) AS "complaintCnt"
+		     , CASE WHEN SUM(NOW_ALL_CNT) > 0
+		            THEN (SUM(NOW_01_CNT)/SUM(NOW_ALL_CNT)) * 100 
+		            ELSE 0
+		       END AS "complaintRate"
+		     , CASE WHEN SUM(BF_01_CNT) > 0
+		            THEN ( ( SUM(NOW_01_CNT) - SUM(BF_01_CNT) ) / SUM(BF_01_CNT) ) * 100
+		            WHEN SUM(NOW_01_CNT) > 0
+		            THEN 100
+		            ELSE 0
+		       END AS "complaintYoyCnt" 
+		       /* 칭찬 */
+		     , SUM(A.NOW_02_CNT) AS "complimentCnt"
+		     , CASE WHEN SUM(NOW_ALL_CNT) > 0
+		            THEN (SUM(NOW_02_CNT)/SUM(NOW_ALL_CNT)) * 100 
+		            ELSE 0
+		       END AS "complimentRate"
+		     , CASE WHEN SUM(BF_02_CNT) > 0
+		            THEN ( ( SUM(NOW_02_CNT) - SUM(BF_02_CNT) ) / SUM(BF_02_CNT) ) * 100
+		            WHEN SUM(NOW_02_CNT) > 0
+		            THEN 100
+		            ELSE 0
+		       END AS "complimentYoyCnt"       
+		       /* 제안 */                
+		     , SUM(A.NOW_03_CNT) AS "suggestionCnt"   
+		     , CASE WHEN SUM(NOW_ALL_CNT) > 0
+		            THEN (SUM(NOW_03_CNT)/SUM(NOW_ALL_CNT)) * 100 
+		            ELSE 0
+		       END AS "suggestionRate"
+		     , CASE WHEN SUM(BF_03_CNT) > 0
+		            THEN ( ( SUM(NOW_03_CNT) - SUM(BF_03_CNT) ) / SUM(BF_03_CNT) ) * 100
+		            WHEN SUM(NOW_03_CNT) > 0
+		            THEN 100
+		            ELSE 0
+		       END AS "suggestionYoyCnt"       
+		       /* 문의 */
+		     , SUM(A.NOW_04_CNT) AS "inquiryCnt"  
+		     , CASE WHEN SUM(NOW_ALL_CNT) > 0
+		            THEN (SUM(NOW_04_CNT)/SUM(NOW_ALL_CNT)) * 100 
+		            ELSE 0
+		       END AS "inquiryRate"
+		     , CASE WHEN SUM(BF_04_CNT) > 0
+		            THEN ( ( SUM(NOW_04_CNT) - SUM(BF_04_CNT) ) / SUM(BF_04_CNT) ) * 100
+		            WHEN SUM(NOW_04_CNT) > 0
+		            THEN 100
+		            ELSE 0
+		       END AS "inquiryYoyCnt"   
+		  FROM (        
+		           SELECT A.RCPT_CHNN_CD    AS rcptChnnCd
+		                , CD.CODE_NM        AS rcptChnnNm
+		                , 1                 AS NOW_ALL_CNT
+		                , (
+		                    SELECT 1
+		                      FROM TB_VOC_MST SUB
+		                     WHERE DATEDIFF(SUB.REG_DT, ADDDATE(A.REG_DT,  interval -1 YEAR)) = 0 /* 작년 동월 동일 */
+		                       AND SUB.RCPT_CHNN_CD = A.RCPT_CHNN_CD
+		                       AND SUB.COMPANY_CD = #{companyCd}
+		                       AND SUB.DEL_YN  = 'N'
+		                  ) AS BF_ALL_CNT
+		                , CASE WHEN A.VOC_CASE_CD = '01' 
+		                       THEN 1
+		                       ELSE 0 
+		                  END AS NOW_01_CNT  
+		                , (
+		                    SELECT 1
+		                      FROM TB_VOC_MST SUB
+		                     WHERE DATEDIFF(SUB.REG_DT, ADDDATE(A.REG_DT,  interval -1 YEAR)) = 0 /* 작년 동월 동일 */
+		                       AND SUB.RCPT_CHNN_CD = A.RCPT_CHNN_CD
+		                       AND SUB.VOC_CASE_CD = '01'
+		                       AND SUB.COMPANY_CD = #{companyCd}
+		                       AND SUB.DEL_YN  = 'N'
+		                  ) AS BF_01_CNT                  
+		                , CASE WHEN A.VOC_CASE_CD = '02' 
+		                       THEN 1
+		                       ELSE 0 
+		                  END AS NOW_02_CNT  
+		                , (
+		                    SELECT 1
+		                      FROM TB_VOC_MST SUB
+		                     WHERE DATEDIFF(SUB.REG_DT, ADDDATE(A.REG_DT,  interval -1 YEAR)) = 0 /* 작년 동월 동일 */
+		                       AND SUB.RCPT_CHNN_CD = A.RCPT_CHNN_CD
+		                       AND SUB.VOC_CASE_CD = '02'
+		                       AND SUB.COMPANY_CD = #{companyCd}
+		                       AND SUB.DEL_YN  = 'N'
+		                  ) AS BF_02_CNT                  
+		                , CASE WHEN A.VOC_CASE_CD = '03' 
+		                       THEN 1
+		                       ELSE 0 
+		                  END AS NOW_03_CNT  
+		                , (
+		                    SELECT 1
+		                      FROM TB_VOC_MST SUB
+		                     WHERE DATEDIFF(SUB.REG_DT, ADDDATE(A.REG_DT,  interval -1 YEAR)) = 0 /* 작년 동월 동일 */
+		                       AND SUB.RCPT_CHNN_CD = A.RCPT_CHNN_CD
+		                       AND SUB.VOC_CASE_CD = '03'
+		                       AND SUB.COMPANY_CD = #{companyCd}
+		                       AND SUB.DEL_YN  = 'N'
+		                  ) AS BF_03_CNT                  
+		                , CASE WHEN A.VOC_CASE_CD = '04' 
+		                       THEN 1
+		                       ELSE 0 
+		                  END AS NOW_04_CNT  
+		                , (
+		                    SELECT 1
+		                      FROM TB_VOC_MST SUB
+		                     WHERE DATEDIFF(SUB.REG_DT, ADDDATE(A.REG_DT,  interval -1 YEAR)) = 0 /* 작년 동월 동일 */
+		                       AND SUB.RCPT_CHNN_CD = A.RCPT_CHNN_CD
+		                       AND SUB.VOC_CASE_CD = '04'
+		                       AND SUB.COMPANY_CD = #{companyCd}
+		                       AND SUB.DEL_YN  = 'N'
+		                  ) AS BF_04_CNT                  
+		             FROM TB_VOC_MST A
+		                  LEFT OUTER JOIN TB_SYS_CODE CD
+		                               ON A.RCPT_CHNN_CD = CD.CODE
+		                              AND CD.CODE_TYPE = 'RCPT_CHNN_CD'
+		                              AND CD.USE_YN = 'Y'
+		            WHERE 1=1
+		              AND A.DEL_YN  = 'N'
+		              AND A.COMPANY_CD = #{companyCd}
+		              <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">
+		              AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+		              </if>
+		              <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">
+		              AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+		              </if>
+		              <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
+				      <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
+				      <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
+				      <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>     
+		                 
+		    ) A                
+		GROUP BY A.rcptChnnNm        
     </select>
 
     <!-- 처리유형별 VOC 현황 조회 -->
