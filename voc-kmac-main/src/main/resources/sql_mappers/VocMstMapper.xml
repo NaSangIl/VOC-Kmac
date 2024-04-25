@@ -316,14 +316,14 @@
 		     , SUM(A.02_CNT)  AS complimentCnt
 		     , SUM(A.03_CNT)  AS suggestionCnt
 		     , SUM(A.04_CNT)  AS inquiryCnt
-		     , ( SELECT SUM(1)
+		     , IFNULL(( SELECT SUM(1)
 		           FROM TB_VOC_MST 
 		          WHERE REG_DT <![CDATA[ > ]]> ADDDATE(CONCAT(A.YM_TP,'-01'), -1) 
 		            AND REG_DT <![CDATA[ < ]]> ADDDATE(LAST_DAY(CONCAT(A.YM_TP,'-01')), 1)
 		            AND COMPANY_CD  = #{companyCd}
 		            AND DEL_YN  = 'N'
 		            AND SENS_SPEC_YN = 'Y'
-		       ) sensSpecCnt
+		       ),0) sensSpecCnt
 		  FROM (
 				SELECT DATE_FORMAT(A.reg_dt, '%Y.%m') AS "YM_TP"
 				     , VOC_CASE_CD

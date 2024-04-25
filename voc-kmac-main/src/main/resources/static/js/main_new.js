@@ -70,10 +70,11 @@ function fnVocMove(callTp){
     let edMm = $('#months2').val();
     let companyCd = $SessionInfo.getCompanyCd();
     
-    var regDtStart = stYy+ '-' +stMm + "-01"; 
-    var regDtEnd = edYy+ '-' +edMm + "-01"; 
+    var regDtStart = stYy+ '-' + stMm + "-01"; 
+    var regDtEnd = edYy+ '-' + edMm + "- 01"; 
     
-    regDtEnd = edYy+ '-' +edMm +"-"+Util.getLastday(regDtEnd);
+    regDtEnd = edYy + '-' +edMm + "-" + Util.getLastday(regDtEnd);
+    
 	
 	localStorage.setItem("regDtStart", regDtStart);
 	localStorage.setItem("regDtEnd", regDtEnd);
@@ -112,7 +113,8 @@ let searchData = function() {
     let regDtStart = stYy + '-' + (ObjectUtil.isEmpty(stMm) ? '01' : stMm) + '-' + '01';
     
     let regDtEnd = edYy + '-' + (ObjectUtil.isEmpty(edMm) ? '12' : edMm) + '-' + '01';
-
+    regDtEnd = edYy + '-' + (ObjectUtil.isEmpty(edMm) ? '12' : edMm) + '-' + Util.getLastday(regDtEnd);
+    
     let param = {'companyCd':companyCd, 'regDtStart':regDtStart, 'regDtEnd':regDtEnd};
     
     localStorage.setItem("queryString", JSON.stringify({'stYy':stYy, 'stMm':stMm, 'edYy':edYy, 'edMm':edMm}));
