@@ -190,8 +190,13 @@ let gridUtil = {
         //------
         if(gridOptions.drawCallback == "vocType"){
 			gridOptions.drawCallback = function(){
-				drawCallback(this.api());         
+				drawVocType(this.api());         
+        	}
+        }else if(gridOptions.drawCallback == "vocActType"){
+			gridOptions.drawCallback = function(){
+				drawVocActType(this.api());         
         	}	
+	
 		}else{
 			gridOptions.drawCallback = function(){}
 		}
@@ -216,7 +221,8 @@ let gridUtil = {
     }
 }
 
-let drawCallback = function(api) {
+/* 통계 > VOC 유형별 현황 셀머지 */
+let drawVocType = function(api) {
 	var rows = api.rows( {page:'current'} ).nodes(),
 		settings = {
             "COLUMN_THEME0" : 0,
@@ -229,6 +235,20 @@ let drawCallback = function(api) {
 	        mergeCells(rows, settings.COLUMN_THEME0);
 	        mergeCells(rows, settings.COLUMN_THEME1);
 	        mergeCells(rows, settings.COLUMN_THEME2);
+		}	
+};
+/* 통계 > VOC 처리유형별 현황 셀머지 */
+let drawVocActType = function(api) {
+	var rows = api.rows( {page:'current'} ).nodes(),
+		settings = {
+            "COLUMN_THEME0" : 0,
+            "COLUMN_THEME1" : 1,
+		};
+
+	 	if(rows.length > 0){
+			 
+	        mergeCells(rows, settings.COLUMN_THEME0);
+	        mergeCells(rows, settings.COLUMN_THEME1);
 		}	
 };
 
