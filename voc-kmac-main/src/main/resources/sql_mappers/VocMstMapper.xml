@@ -310,6 +310,7 @@
 
 	<!-- 메인화면 - 월별 VOC현황 및 추이 조회 -->
     <select id="getVocProgress" resultType="kr.co.kmac.voc.dto.VocMstDto$ProgressInfo">
+<!--		
         SELECT A.YM_TP		  AS ymTp	
 		     , SUM(A.ALL_CNT) AS allCnt
 		     , SUM(A.01_CNT)  AS complaintCnt
@@ -354,6 +355,63 @@
 			) A
 		GROUP BY A.YM_TP
 		ORDER BY A.YM_TP ASC
+-->
+
+		WITH RECURSIVE T AS (
+		    SELECT #{regDtStart} AS DD
+		    UNION ALL
+		    SELECT ADDDATE(DD, 1)
+		      FROM T 
+		     WHERE DD <![CDATA[ < ]]> #{regDtEnd}
+		)
+		SELECT T.YM_TP        AS ymTp   
+		     , IFNULL(SUM(A.ALL_CNT),0) AS allCnt
+		     , IFNULL(SUM(A.01_CNT),0)  AS complaintCnt
+		     , IFNULL(SUM(A.02_CNT),0)  AS complimentCnt
+		     , IFNULL(SUM(A.03_CNT),0)  AS suggestionCnt
+		     , IFNULL(SUM(A.04_CNT),0)  AS inquiryCnt
+		     , IFNULL(( SELECT SUM(1)
+		           FROM TB_VOC_MST 
+		          WHERE REG_DT  <![CDATA[ > ]]>  ADDDATE(CONCAT(T.YM_TP,'-01'), -1) 
+		            AND REG_DT  <![CDATA[ < ]]>  ADDDATE(LAST_DAY(CONCAT(T.YM_TP,'-01')), 1)
+		            AND COMPANY_CD  = #{companyCd}
+		            AND DEL_YN  = 'N'
+		            AND SENS_SPEC_YN = 'Y'
+		       ),0) sensSpecCnt
+		  FROM (
+		        SELECT DISTINCT DATE_FORMAT(T.DD, '%Y.%m') YM_TP 
+		          FROM T
+		        ) T
+		        LEFT OUTER JOIN (
+		                            SELECT DATE_FORMAT(A.reg_dt, '%Y.%m') AS "YM_TP"
+		                                 , VOC_CASE_CD
+		                                 , 1 AS ALL_CNT
+		                                 , CASE WHEN VOC_CASE_CD  = '01'
+		                                        THEN 1
+		                                        ELSE 0
+		                                   END "01_CNT"
+		                                 , CASE WHEN VOC_CASE_CD  = '02'
+		                                        THEN 1
+		                                        ELSE 0
+		                                   END "02_CNT"  
+		                                 , CASE WHEN VOC_CASE_CD  = '03'
+		                                        THEN 1
+		                                        ELSE 0
+		                                   END "03_CNT"
+		                                 , CASE WHEN VOC_CASE_CD  = '04'
+		                                        THEN 1
+		                                        ELSE 0
+		                                   END "04_CNT"
+		                             FROM TB_VOC_MST A
+		                            WHERE 1=1
+		                             AND A.COMPANY_CD = #{companyCd} 
+								     AND A.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+									 AND A.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+		                             AND A.DEL_YN  = 'N'
+		                         ) A
+		                        ON T.YM_TP = A.YM_TP
+		GROUP BY T.YM_TP
+		ORDER BY T.YM_TP ASC		
     </select>
     
 	<!-- 메인화면 - VOC 처리현황 조회 -->

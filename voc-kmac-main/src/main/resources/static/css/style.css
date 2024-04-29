@@ -3059,3 +3059,6 @@ table.dataTable tbody tr.selected > * {
 .ui-comment-list{
 	white-space: pre-wrap;	
 }
+.table-area tbody tr{
+	cursor: pointer;
+}

@@ -12,13 +12,21 @@ let init = function(){
 	let $frm = $('.search-area');
 	
 	// dropbox data setting ----------------
+	DropdownUtil.makeCompList($frm.find('.d-companyCd'));   // 회사코드
     DropdownUtil.makeYearList($frm.find('.d-year'));        // 년도
     DropdownUtil.makeMonthList($frm.find('.d-month'));      // 월
     DropdownUtil.makeYearList($frm.find('.d-year2'));       // 년도
     DropdownUtil.makeMonthList($frm.find('.d-month2'));     // 월
     
+    // button 연결 ----------------
+    $('.btn-search').on('click', function(){ searchData(); });
     //공지사항 더보기
     $('#noticeMoreBtn').on('click', function(){ goPage('/bbs/bbslist') });
+    
+    if($SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('000') < 0) {
+		$frm.find('.d-companyCd').hide();	
+	}
+    
     
     setTimeout(function() {
 		
@@ -68,7 +76,18 @@ function fnVocMove(callTp){
     let stMm = $('#months').val();
     let edYy = $('#years2').val();
     let edMm = $('#months2').val();
-    let companyCd = $SessionInfo.getCompanyCd();
+    let $frm = $('.search-area');
+	let companyCd = $frm.find('#companyCd').val();
+	
+    if(ObjectUtil.isEmpty(stYy) || ObjectUtil.isEmpty(stMm)
+    || ObjectUtil.isEmpty(edYy) || ObjectUtil.isEmpty(edMm)){
+        alert('기간을 선택해 주세요.');
+        return;
+    }
+    if(ObjectUtil.isEmpty(companyCd)) {
+        alert('회사를 선택해 주세요.'); 
+        return;
+    }
     
     var regDtStart = stYy+ '-' + stMm + "-01"; 
     var regDtEnd = edYy+ '-' + edMm + "- 01"; 
@@ -94,11 +113,8 @@ function fnVocMove(callTp){
 }
 
 let searchData = function() {
-		
-	// button 연결 ----------------
-    $('.btn-search').on('click', function(){ searchData(); });
-    
-	let companyCd = $SessionInfo.getCompanyCd();
+	let $frm = $('.search-area');
+	let companyCd = $frm.find('#companyCd').val();
     let stYy = $('#years').val();
     let stMm = $('#months').val();
     let edYy = $('#years2').val();
@@ -109,6 +125,11 @@ let searchData = function() {
         alert('기간을 선택해 주세요.');
         return;
     }
+    if(ObjectUtil.isEmpty(companyCd)) {
+        alert('회사를 선택해 주세요.'); 
+        return;
+    }
+    
     
     let regDtStart = stYy + '-' + (ObjectUtil.isEmpty(stMm) ? '01' : stMm) + '-' + '01';
     
@@ -167,13 +188,15 @@ let searchData = function() {
         function(result){
             if(result && result.data){
                 let dataList = result.data;
-                $('#actTime').text(dataList.actTime);
-                $('#nonActCnt').text(dataList.nonActCnt);
-                $('#actRate').text(dataList.actRate);
-                
-               	$('#nonActCnt').on('click', function(){
-					fnVocMove('sens');
-				});
+                if(!ObjectUtil.isEmpty(dataList)){
+	                $('#actTime').text(dataList.actTime.toFixed(1));
+	                $('#nonActCnt').text(dataList.nonActCnt);
+	                $('#actRate').text(dataList.actRate.toFixed(1));
+				}else{
+					$('#actTime').text("0.0");
+	                $('#nonActCnt').text("0");
+	                $('#actRate').text("0.0");
+				}
             }
         }
     );	
@@ -189,9 +212,18 @@ let searchData = function() {
                 //VOC유형별 접수현황 조회 (대분류)-차트생성
     			mainBarChartFn1(dataList, regDtStart, regDtEnd);
     			
-    			$('#vocTypeNm1').text(dataList[0].vocTypeNm1);
-    			//VOC유형별 접수현황 조회 (중분류)
-    			mainBarChartFn2(dataList[0].vocTypeCd1, regDtStart, regDtEnd);
+    			if(dataList.length > 0){
+	    			$('#vocTypeNm1').text(dataList[0].vocTypeNm1);
+	    			//VOC유형별 접수현황 조회 (중분류)
+	    			mainBarChartFn2(dataList[0].vocTypeCd1, regDtStart, regDtEnd);
+	    			
+				}else{
+					
+					//초기화
+					$('#vocTypeNm1').text('');
+	    			//없는코드로 조회
+	    			mainBarChartFn2('9999999999', regDtStart, regDtEnd);
+				}
             }
         }
     );	    
@@ -206,8 +238,14 @@ let searchData = function() {
                 let dataList = result.data;
     			mainBarChartFn4(dataList, regDtStart, regDtEnd);
     			
-    			$('#vocActTypeNm1').text(dataList[0].vocActTypeNm1);
-    			mainBarChartFn5(dataList[0].vocActTypeCd1, regDtStart, regDtEnd);
+    			if(dataList.length > 0){
+	    			$('#vocActTypeNm1').text(dataList[0].vocActTypeNm1);
+	    			mainBarChartFn5(dataList[0].vocActTypeCd1, regDtStart, regDtEnd);
+	    		}else{
+					
+					$('#vocActTypeNm1').text('');
+	    			mainBarChartFn5('9999999999', regDtStart, regDtEnd);
+				}
             }
         }
     );	 	
@@ -323,7 +361,6 @@ function mainLineChart(dataList) {
                  },
             },
             min: 0,
-            max: 40,
             tickInterval:5,
             lineWidth: 1,
             lineColor: '#e0e0e0',
@@ -472,7 +509,7 @@ function mainBarChartFn1(dataList, regDtStart, regDtEnd) {
                     enabled: false
                 },
                 lineWidth: 3
-            }
+            },
         },
         tooltip: {
             format: '<span style="color:#333; font-size:13px; font-weight:bold; margin-bottom:10px;">{key}</span><br><br>'+
@@ -493,6 +530,7 @@ function mainBarChartFn1(dataList, regDtStart, regDtEnd) {
                     fontWeight:'500',
                 }
             },
+            cursor: 'pointer',
             events:{  // 이벤트
 				click: function ( event ){ // 클릭이벤트 
 				
@@ -507,7 +545,9 @@ function mainBarChartFn1(dataList, regDtStart, regDtEnd) {
 
 function mainBarChartFn2(vocTypeCd1, regDtStart, regDtEnd) {
 	
-	let companyCd = $SessionInfo.getCompanyCd();
+	let $frm = $('.search-area');
+	let companyCd = $frm.find('#companyCd').val();
+	
     let param = {'companyCd':companyCd, 'regDtStart':regDtStart, 'regDtEnd':regDtEnd, 'vocTypeCd1':vocTypeCd1};
     
 	//VOC처리현황 조회
@@ -626,6 +666,7 @@ function mainBarChartFn2(vocTypeCd1, regDtStart, regDtEnd) {
 			                    textOutline: false 
 			                }
 			            },
+			            cursor: 'pointer',
 			            events:{  // 이벤트
 							click: function ( event ){ // 클릭이벤트 
 							
@@ -642,6 +683,10 @@ function mainBarChartFn2(vocTypeCd1, regDtStart, regDtEnd) {
 					//소분류 VOC유형별 접수현황 조회
 					$('#vocTypeNm2').text(vocTypeNm2[0]);
 					mainBarChartFn3(vocTypeCd2[0], regDtStart, regDtEnd);	
+				}else{
+					//초기화
+					$('#vocTypeNm2').text('');
+					mainBarChartFn3('9999999999', regDtStart, regDtEnd);
 				}
             }
         }
@@ -651,7 +696,8 @@ function mainBarChartFn2(vocTypeCd1, regDtStart, regDtEnd) {
 
 function mainBarChartFn3(vocTypeCd2, regDtStart, regDtEnd) {
 	
-	let companyCd = $SessionInfo.getCompanyCd();
+	let $frm = $('.search-area');
+	let companyCd = $frm.find('#companyCd').val();
     let param = {'companyCd':companyCd, 'regDtStart':regDtStart, 'regDtEnd':regDtEnd, 'vocTypeCd2':vocTypeCd2};
     
 	//VOC처리현황 조회
@@ -888,6 +934,7 @@ function mainBarChartFn4(dataList, regDtStart, regDtEnd) {
                     fontWeight:'500',
                 }
             },
+            cursor: 'pointer',
             events:{  // 이벤트
 				click: function ( event ){ // 클릭이벤트 
 				
@@ -902,7 +949,8 @@ function mainBarChartFn4(dataList, regDtStart, regDtEnd) {
 }
 function mainBarChartFn5(vocActTypeCd1, regDtStart, regDtEnd) {
 
-	let companyCd = $SessionInfo.getCompanyCd();
+	let $frm = $('.search-area');
+	let companyCd = $frm.find('#companyCd').val();
     let param = {'companyCd':companyCd, 'regDtStart':regDtStart, 'regDtEnd':regDtEnd, 'vocActTypeCd1':vocActTypeCd1};
     
 	//VOC처리현황 조회

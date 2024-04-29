@@ -25,20 +25,11 @@
                 <div class="ui form">
                     <div class="fields">
                         <div class="field">
-                            <div class="inline">
-<!--  
-                                <div class="ui radio checkbox checked">
-                                    <input type="radio" name="monthOptRadio" checked="" class="hidden">
-                                    <label>월별</label>
-                                </div>
-                              
-                                <div class="ui radio checkbox">
-                                    <input type="radio" name="dayOptRadio" class="hidden">
-                                    <label>일별</label>
-                                </div>
--->                                
-                                
-                            </div>
+                            <div class="ui selection dropdown d-companyCd">
+								<input type="hidden" name="companyCd" id="companyCd">
+								<div class="default text">선택</div>
+								<i class="dropdown icon"></i>
+							</div>
                           </div>
                         <div class="field">
                             <div class="ui selection dropdown d-year">
@@ -205,7 +196,7 @@
                             <span class="guide-text">※등록 이후, 5일 이상 경과 건</span>
                         </dt>
                         <dd>
-                            <a href="javascript:;" class="num" id="nonActCnt">0</a>
+                            <strong class="num" id="nonActCnt">0</strong>
                             <span class="unit">건</span>
                         </dd>
                     </dl>

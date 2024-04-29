@@ -36,6 +36,23 @@ let init = function() {
 	makeCodeVocType($('#searchForm'), $SessionInfo.getCompanyCd());      //VOC유형코드
 	makeCodeVocActType($('#searchForm'), $SessionInfo.getCompanyCd());   //처리유형코드
 
+	let stYy,stMm,edYy,edMm;
+	let date = new Date();
+    var delimiter = "-";
+	
+    date.setMonth(date.getMonth() -6);
+    let bfday = date.getFullYear() + delimiter + ("0" + (date.getMonth()+1)).slice(-2) + delimiter + ("0" + date.getDate()).slice(-2);
+	
+	$('#searchForm').find('#regDtStart').val(bfday);
+	
+	let today = Util.getToday();
+	
+	edYy = today.substring(0,4);
+    edMm = today.substring(4,6);
+    edDd = today.substring(6,8);
+        
+	$('#searchForm').find('#regDtEnd').val(edYy+"-"+edMm+"-"+edDd);
+	
 	setTimeout(function() {
 		
 		if(!ObjectUtil.isEmpty(localStorage.getItem("companyCd"))){
