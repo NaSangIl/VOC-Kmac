@@ -7,169 +7,154 @@
 
     <!-- 기간별 VOC 현황 조회 -->
     <select id="getVocStatusByPeriod" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
-        WITH TT AS
-            (SELECT T1.periodType
-                  , COUNT(voc_seq) AS "totalCnt"
-                  , SUM(T1.complaintCnt) AS complaintCnt
-                  , SUM(T1.complimentCnt) AS complimentCnt
-                  , SUM(T1.suggestionCnt) AS suggestionCnt
-                  , SUM(T1.inquiryCnt) AS inquiryCnt
-            FROM
-                (SELECT 
-                  <if test='"Y".equals(periodType)'>      
-                        DATE_FORMAT(A.reg_dt, '%Y') AS "periodType"
-				  </if>                        
-                  <if test='"M".equals(periodType)'>      
-                        DATE_FORMAT(A.reg_dt, '%Y년%m월') AS "periodType"
-				  </if>                        
-                  <if test='"D".equals(periodType)'>      
-                        DATE_FORMAT(A.reg_dt, '%Y-%m-%d') AS "periodType"
-				  </if>                        
-                      , A.voc_seq,
-                    CASE A.voc_case_cd WHEN '01' THEN 1 ELSE 0 END AS "complaintCnt",
-                    CASE A.voc_case_cd WHEN '02' THEN 1 ELSE 0 END AS "complimentCnt",
-                    CASE A.voc_case_cd WHEN '03' THEN 1 ELSE 0 END AS "suggestionCnt",
-                    CASE A.voc_case_cd WHEN '04' THEN 1 ELSE 0 END AS "inquiryCnt"
-                FROM tb_voc_mst A
-               WHERE 1=1
-                 AND DEL_YN = 'N'
-                
-                <!-- 년도별 -->
-                <if test='"Y".equals(periodType)'>
-					<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -2 YEAR) </if>
-                	<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>	
-				</if>
-                
-                <!-- 월별 -->
-                <if test='"M".equals(periodType)'>
-					<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= date_add(#{regDtStart}, interval -11 MONTH) </if>
-                	<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>	
-				</if>     
-				           
-                <!-- 일별 -->
-                <if test='"D".equals(periodType)'>
-					<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND A.reg_dt &gt;= ADDDATE(#{regDtStart},-1) </if>
-                	<if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND A.reg_dt &lt; ADDDATE(#{regDtEnd},1) </if>	
-				</if>  				           
-				
-                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)">AND A.company_cd = #{companyCd} </if>
-                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND A.voc_type_cd1 = #{vocTypeCd1} </if>
-                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND A.voc_type_cd2 = #{vocTypeCd2} </if>
-                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND A.voc_type_cd3 = #{vocTypeCd3} </if>
-                <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>
-            ) T1
-            GROUP BY T1.periodType
-        )
-        
-        SELECT periodType
-             , totalCnt
-			 , CASE WHEN totalYoyCnt > 0
-			        THEN ( ( totalCnt - totalYoyCnt ) / totalYoyCnt ) * 100
-			 		WHEN totalCnt > 0
-			 		THEN 100
-			 		ELSE 0
-			   END AS "totalYoyCnt"	              
-             , complaintCnt
-			 , CASE WHEN totalCnt > 0
-			        THEN (complaintCnt/totalCnt) * 100 
-			        ELSE 0
-			   END AS "complaintRate"
-			   
-			 , CASE WHEN complaintYoyCnt > 0
-			        THEN ( ( complaintCnt - complaintYoyCnt ) / complaintYoyCnt ) * 100
-			 		WHEN complaintCnt > 0
-			 		THEN 100
-			 		ELSE 0
-			   END AS "complaintYoyCnt"	 
-			                
-             , complimentCnt
-			 , CASE WHEN totalCnt > 0
-			        THEN (complimentCnt/totalCnt) * 100 
-			        ELSE 0
-			   END AS "complimentRate"
-			 , CASE WHEN complimentYoyCnt > 0
-			        THEN ( ( complimentCnt - complimentYoyCnt ) / complimentYoyCnt ) * 100
-			 		WHEN complimentCnt > 0
-			 		THEN 100
-			 		ELSE 0
-			   END AS "complimentYoyCnt"	 
-			                
-             , suggestionCnt
-			 , CASE WHEN totalCnt > 0
-			        THEN (suggestionCnt/totalCnt) * 100 
-			        ELSE 0
-			   END AS "suggestionRate"
-			 , CASE WHEN suggestionYoyCnt > 0
-			        THEN ( ( suggestionCnt - suggestionYoyCnt ) / suggestionYoyCnt ) * 100
-			 		WHEN suggestionCnt > 0
-			 		THEN 100
-			 		ELSE 0
-			   END AS "suggestionYoyCnt"	       
-			          
-             , inquiryCnt
-			 , CASE WHEN totalCnt > 0
-			        THEN (inquiryCnt/totalCnt) * 100 
-			        ELSE 0
-			   END AS "inquiryRate"
-			 , CASE WHEN inquiryYoyCnt > 0
-			        THEN ( ( inquiryCnt - inquiryYoyCnt ) / inquiryYoyCnt ) * 100
-			 		WHEN inquiryCnt > 0
-			 		THEN 100
-			 		ELSE 0
-			   END AS "inquiryYoyCnt"	                 
-             
-          FROM (
-          
-		         SELECT periodType
-			          , totalCnt
-			          , complaintCnt
-			          , complimentCnt
-			          , suggestionCnt
-			          , inquiryCnt
-		              , LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt"
-		              , LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt"
-		              , LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt"
-		              , LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt"
-		              , LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt"
-		           FROM TT
-		        ) A
-		    
-<!--           
-	   union all
-		 select '합계' AS periodType
-		      , SUM(totalCnt)
-		      , SUM(complaintCnt)
-		      , SUM(complimentCnt)
-		      , SUM(suggestionCnt)
-		      , SUM(inquiryCnt)
-		      , SUM(totalYoyCnt)
-		      , SUM(complaintYoyCnt)
-		      , SUM(complimentYoyCnt)
-		      , SUM(suggestionYoyCnt)
-		      , SUM(inquiryYoyCnt)
-		      , ROUND(AVG(complaintRate),1)
-		      , ROUND(AVG(complimentRate),1)
-		      , ROUND(AVG(suggestionRate),1)
-		      , ROUND(AVG(inquiryRate),1)
-		  from (	  
-		 	 SELECT periodType
-			      , totalCnt
-			      , complaintCnt
-			      , complimentCnt
-			      , suggestionCnt
-			      , inquiryCnt
-			      , totalCnt - LAG(totalCnt,1) OVER(ORDER BY periodType) AS "totalYoyCnt"
-			      , complaintCnt - LAG(complaintCnt,1) OVER(ORDER BY periodType) AS "complaintYoyCnt"
-			      , complimentCnt - LAG(complimentCnt,1) OVER(ORDER BY periodType) AS "complimentYoyCnt"
-			      , suggestionCnt - LAG(suggestionCnt,1) OVER(ORDER BY periodType) AS "suggestionYoyCnt"
-			      , inquiryCnt - LAG(inquiryCnt,1) OVER(ORDER BY periodType) AS "inquiryYoyCnt"
-			      , round(complaintCnt/totalCnt,1)  AS "complaintRate"
-			      , round(complimentCnt/totalCnt,1)  AS "complimentRate"
-			      , round(suggestionCnt/totalCnt,1)  AS "suggestionRate"
-			      , round(inquiryCnt/totalCnt,1)  AS "inquiryRate"
-			   FROM TT
-			  ) A           
--->           
+            SELECT A.periodType    AS "periodType"
+                 , A.NOW_ALL_CNT   AS "totalCnt"
+                 , CASE WHEN A.BF_ALL_CNT > 0
+                        THEN ( ( A.NOW_ALL_CNT - A.BF_ALL_CNT ) / A.BF_ALL_CNT ) * 100
+                        WHEN A.NOW_ALL_CNT > 0
+                        THEN 100
+                        ELSE 0
+                   END AS "totalYoyCnt"
+                   <!-- 불만 -->  
+                 , A.NOW_01_CNT AS "complaintCnt"
+                 , CASE WHEN NOW_ALL_CNT > 0
+                        THEN (NOW_01_CNT/NOW_ALL_CNT) * 100 
+                        ELSE 0
+                   END AS "complaintRate"
+                 , CASE WHEN BF_01_CNT > 0
+                        THEN ( ( NOW_01_CNT - BF_01_CNT ) / BF_01_CNT ) * 100
+                        WHEN NOW_01_CNT > 0
+                        THEN 100
+                        ELSE 0
+                   END AS "complaintYoyCnt" 
+                   <!-- 칭찬 -->
+                 , A.NOW_02_CNT AS "complimentCnt"
+                 , CASE WHEN NOW_ALL_CNT > 0
+                        THEN (NOW_02_CNT/NOW_ALL_CNT) * 100 
+                        ELSE 0
+                   END AS "complimentRate"
+                 , CASE WHEN BF_02_CNT > 0
+                        THEN ( ( NOW_02_CNT - BF_02_CNT ) / BF_02_CNT ) * 100
+                        WHEN NOW_02_CNT > 0
+                        THEN 100
+                        ELSE 0
+                   END AS "complimentYoyCnt"       
+                   <!-- 제안 -->                
+                 , A.NOW_03_CNT AS "suggestionCnt"   
+                 , CASE WHEN NOW_ALL_CNT > 0
+                        THEN (NOW_03_CNT/NOW_ALL_CNT) * 100 
+                        ELSE 0
+                   END AS "suggestionRate"
+                 , CASE WHEN BF_03_CNT > 0
+                        THEN ( ( NOW_03_CNT - BF_03_CNT ) / BF_03_CNT ) * 100
+                        WHEN NOW_03_CNT > 0
+                        THEN 100
+                        ELSE 0
+                   END AS "suggestionYoyCnt"       
+                   <!-- 문의 -->
+                 , A.NOW_04_CNT AS "inquiryCnt"  
+                 , CASE WHEN NOW_ALL_CNT > 0
+                        THEN (NOW_04_CNT/NOW_ALL_CNT) * 100 
+                        ELSE 0
+                   END AS "inquiryRate"
+                 , CASE WHEN BF_04_CNT > 0
+                        THEN ( ( NOW_04_CNT - BF_04_CNT ) / BF_04_CNT ) * 100
+                        WHEN NOW_04_CNT > 0
+                        THEN 100
+                        ELSE 0
+                   END AS "inquiryYoyCnt"          
+              FROM (
+                        SELECT A.periodType
+                             , SUM(A.NOW_ALL_CNT) AS NOW_ALL_CNT
+                             , SUM(A.BF_ALL_CNT) AS BF_ALL_CNT       
+                             , SUM(A.NOW_01_CNT) AS NOW_01_CNT
+                             , SUM(A.BF_01_CNT) AS BF_01_CNT
+                             , SUM(A.NOW_02_CNT) AS NOW_02_CNT
+                             , SUM(A.BF_02_CNT) AS BF_02_CNT
+                             , SUM(A.NOW_03_CNT) AS NOW_03_CNT
+                             , SUM(A.BF_03_CNT) AS BF_03_CNT
+                             , SUM(A.NOW_04_CNT) AS NOW_04_CNT
+                             , SUM(A.BF_04_CNT) AS BF_04_CNT
+                          FROM (
+                                    SELECT 
+                                          <if test='"Y".equals(periodType)'>      
+                                                DATE_FORMAT(B.REG_DT, '%Y') AS "periodType"
+                                          </if>                        
+                                          <if test='"M".equals(periodType)'>      
+                                                DATE_FORMAT(B.REG_DT, '%Y년%m월') AS "periodType"
+                                          </if>                        
+                                          <if test='"D".equals(periodType)'>      
+                                                DATE_FORMAT(B.REG_DT, '%Y-%m-%d') AS "periodType"
+                                          </if>                                            
+                                         , 1 AS NOW_ALL_CNT
+                                         , IFNULL((SELECT COUNT(1) 
+                                                     FROM TB_VOC_MST SUB
+                                                    WHERE SUB.DEL_YN = 'N'
+                                                      AND SUB.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), -1)
+                                                      AND SUB.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), 1) 
+                                                      AND SUB.COMPANY_CD = B.COMPANY_CD
+                                           ),0) AS BF_ALL_CNT 
+                                         , CASE WHEN B.VOC_CASE_CD = '01' 
+                                                THEN 1 
+                                                ELSE 0 
+                                           END AS NOW_01_CNT
+                                         , IFNULL((SELECT COUNT(1) 
+                                                     FROM TB_VOC_MST SUB
+                                                    WHERE SUB.DEL_YN = 'N'
+                                                      AND SUB.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), -1)
+                                                      AND SUB.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), 1)  
+                                                      AND SUB.COMPANY_CD = B.COMPANY_CD
+                                                      AND SUB.VOC_CASE_CD = '01'
+                                           ),0) AS BF_01_CNT      
+                                         , CASE WHEN B.VOC_CASE_CD = '02' 
+                                                THEN 1 
+                                                ELSE 0 
+                                           END AS NOW_02_CNT
+                                         , IFNULL((SELECT COUNT(1) 
+                                                     FROM TB_VOC_MST SUB
+                                                    WHERE SUB.DEL_YN = 'N'
+                                                      AND SUB.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), -1)
+                                                      AND SUB.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), 1) 
+                                                      AND SUB.COMPANY_CD = B.COMPANY_CD
+                                                      AND SUB.VOC_CASE_CD = '02'
+                                           ),0) AS BF_02_CNT      
+                                         , CASE WHEN B.VOC_CASE_CD = '03' 
+                                                THEN 1 
+                                                ELSE 0 
+                                           END AS NOW_03_CNT
+                                         , IFNULL((SELECT COUNT(1) 
+                                                     FROM TB_VOC_MST SUB
+                                                    WHERE SUB.DEL_YN = 'N'
+                                                      AND SUB.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), -1)
+                                                      AND SUB.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), 1) 
+                                                      AND SUB.COMPANY_CD = B.COMPANY_CD
+                                                      AND SUB.VOC_CASE_CD = '03'
+                                           ),0) AS BF_03_CNT    
+                                         , CASE WHEN B.VOC_CASE_CD = '04' 
+                                                THEN 1 
+                                                ELSE 0 
+                                           END AS NOW_04_CNT
+                                         , IFNULL((SELECT COUNT(1)
+                                                     FROM TB_VOC_MST SUB
+                                                    WHERE SUB.DEL_YN = 'N'
+                                                      AND SUB.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), -1)
+                                                      AND SUB.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(DATE_FORMAT(B.REG_DT, '%Y-%m-%d'), interval -1 YEAR), 1)                  
+                                                      AND SUB.COMPANY_CD = B.COMPANY_CD
+                                                      AND SUB.VOC_CASE_CD = '04'
+                                           ),0) AS BF_04_CNT    
+                                      FROM TB_VOC_MST B
+                                     WHERE 1=1
+                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND B.reg_dt <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1) </if>
+                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND B.reg_dt <![CDATA[ < ]]> ADDDATE(#{regDtEnd},1) </if>   
+                                        
+                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(companyCd)"> AND B.company_cd = #{companyCd} </if>
+                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">AND B.voc_type_cd1 = #{vocTypeCd1} </if>
+                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">AND B.voc_type_cd2 = #{vocTypeCd2} </if>
+                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">AND B.voc_type_cd3 = #{vocTypeCd3} </if>
+                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND B.rcpt_chnn_cd = #{rcptChnnCd} </if>                                     
+                            ) A
+                        GROUP BY A.periodType
+        ) A
     </select>
 
     <!-- 유형별 VOC 현황 조회 -->

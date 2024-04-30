@@ -18,8 +18,20 @@ let init = function(){
     DropdownUtil.makeCompList($frm.find('.d-companyCd'));   // 회사코드
     makeCodeVocType($('#searchForm'));  //VOC유형코드
 
+    if($SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('000') < 0) {
+		$frm.find('#companyArea').hide();	
+	}
+
+
     setTimeout(function() {
-        $('#searchForm').find('#regDtStart').val(Util.getToday('-'));
+		
+		let date = new Date();
+        date.setMonth(date.getMonth() -12);
+        
+        var delimiter = "-";
+        let bfday = date.getFullYear() + delimiter + ("0" + (date.getMonth()+1)).slice(-2) + delimiter + ("0" + date.getDate()).slice(-2);
+        
+        $('#searchForm').find('#regDtStart').val(bfday);
         $('#searchForm').find('#regDtEnd').val(Util.getToday('-'));
         loadGrid();
     }, 200);

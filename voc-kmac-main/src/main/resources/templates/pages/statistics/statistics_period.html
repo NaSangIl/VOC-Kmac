@@ -30,7 +30,7 @@
 			<div class="search-inner">
 				<div class="ui form">
 					<div class="fields">
-						<div class="three wide field">
+						<div class="three wide field" id="companyArea">
 							<label>회사</label>
 							<div class="ui selection dropdown d-companyCd">
 								<input type="hidden" name="companyCd" id="companyCd">
@@ -55,21 +55,53 @@
 								</div>
 							</div>
 						</div>
-						<div class="two wide field yearDiv">
-							<label>등록년도</label>
-							<div class="ui selection dropdown d-year">
-								<input type="hidden" name="year" id="year">
-								<div class="default text">선택</div>
-								<i class="dropdown icon"></i>
-							</div>
+						<div class="four wide field yearDiv">
+							<!-- [dev] 캘린더 영역 wrapper는 "calendar-area" 클래스 사용 -->
+							<div class="calendar-area">
+								<div class="field">
+									<label>등록년도</label>
+									<div class="ui big calendar" id="yearPickerStart">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="regYyStart" id="regYyStart" placeholder="등록년도" >
+										</div>
+									</div>
+								</div>
+								<div class="field">
+									<!-- [dev] 종료일 텍스트 없이 빈 label를 위치 -->
+									<label></label>
+									<div class="ui big calendar" id="yearPickerEnd">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="regYyEnd" id="regYyEnd" placeholder="등록년도" >
+										</div>
+									</div>
+								</div>
+							</div>	
 						</div>
-						<div class="two wide field monthDiv blind">
-							<label>등록월</label>
-							<div class="ui selection dropdown d-month">
-								<input type="hidden" name="month" id="month">
-								<div class="default text">선택</div>
-								<i class="dropdown icon"></i>
-							</div>
+						<div class="four wide field monthDiv blind">
+							<!-- [dev] 캘린더 영역 wrapper는 "calendar-area" 클래스 사용 -->
+							<div class="calendar-area">
+								<div class="field">
+									<label>등록월</label>
+									<div class="ui big calendar" id="monthPickerStart">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="regYmStart" id="regYmStart" placeholder="등록월" >
+										</div>
+									</div>
+								</div>
+								<div class="field">
+									<!-- [dev] 종료일 텍스트 없이 빈 label를 위치 -->
+									<label></label>
+									<div class="ui big calendar" id="monthPickerEnd">
+										<div class="ui input right icon">
+											<i class="calendar icon"></i>
+											<input type="text" name="regYmEnd" id="regYmEnd" placeholder="등록월" >
+										</div>
+									</div>
+								</div>
+							</div>							
 						</div>
 						<div class="four wide field dayDiv blind">
 							<!-- [dev] 캘린더 영역 wrapper는 "calendar-area" 클래스 사용 -->

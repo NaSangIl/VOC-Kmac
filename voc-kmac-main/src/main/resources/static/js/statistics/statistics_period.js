@@ -16,43 +16,121 @@ let init = function(){
 
     // 조회 일자 조건 컨트롤
     $('.ui.radio').on('click', function(){
-        $frm.find('.d-year').dropdown('clear');
-        $frm.find('.d-month').dropdown('clear');
-        $frm.find('#regDtStart').val('');
-        $frm.find('#regDtEnd').val('');
-
         if($frm.find('.chk-year').hasClass('checked')) {
             $frm.find('.yearDiv').removeClass('blind');
             $frm.find('.monthDiv').addClass('blind');
             $frm.find('.dayDiv').addClass('blind');
             $('th[id=txtTitle]').html('전년대비');
         } else if($frm.find('.chk-month').hasClass('checked')) {
-            $frm.find('.yearDiv').removeClass('blind');
+            $frm.find('.yearDiv').addClass('blind');
             $frm.find('.monthDiv').removeClass('blind');
             $frm.find('.dayDiv').addClass('blind');
-            $('th[id=txtTitle]').html('전월대비');
+            $('th[id=txtTitle]').html('전년대비');
         } else if($frm.find('.chk-day').hasClass('checked')) {
             $frm.find('.yearDiv').addClass('blind');
             $frm.find('.monthDiv').addClass('blind');
             $frm.find('.dayDiv').removeClass('blind');
-            $('th[id=txtTitle]').html('전일대비');
+            $('th[id=txtTitle]').html('전년대비');
         }
     });
 
     // dropbox data setting ----------------
     DropdownUtil.makeCodeList('RCPT_CHNN_CD', $frm.find('.d-rcptChnnCd'));     //접수채널코드
-    DropdownUtil.makeYearList($frm.find('.d-year'));        // 년도
-    DropdownUtil.makeMonthList($frm.find('.d-month'));      // 월
     DropdownUtil.makeCompList($frm.find('.d-companyCd'));   // 회사코드
     makeCodeVocType($('#searchForm'));  //VOC유형코드
 
+    if($SessionInfo.getUserAuth().indexOf('100') < 0 && $SessionInfo.getUserAuth().indexOf('000') < 0) {
+		$frm.find('#companyArea').hide();	
+	}
+	
+	//달력설정
+	initCalendar();
+	
+	
     setTimeout(function() {
-        let y = Util.getToday().substring(0,4);
-        $('.d-year').dropdown('set selected', y);
+    	//년도 셋팅   
+        let yearDate = new Date();
+        yearDate.setFullYear(yearDate.getFullYear() -3);	//년도별 기본값 3년전
+    
+        $frm.find('#regYyStart').val(yearDate.getFullYear());
+	    $frm.find('#regYyEnd').val(Util.getToday().substring(0,4));
+    
+    	//월별 셋팅
+    	let monthDate = new Date();
+        monthDate.setMonth(monthDate.getMonth() -12);
+        
+        var delimiter = "-";
+        let bfMonth = monthDate.getFullYear() + delimiter + ("0" + (monthDate.getMonth()+1)).slice(-2);
+        
+        $frm.find('#regYmStart').val(bfMonth);
+	    $frm.find('#regYmEnd').val(Util.getToday().substring(0,4) + "-" + Util.getToday().substring(4,6));
+	    
+
+    	//일별 셋팅
+    	let dayDate = new Date();
+        dayDate.setDate(dayDate.getDate() - 30);
+        
+        var delimiter = "-";
+        let bfDay = dayDate.getFullYear() + delimiter + ("0" + (dayDate.getMonth()+1)).slice(-2) + delimiter + ("0" + dayDate.getDate()).slice(-2);
+        
+        $frm.find('#regDtStart').val(bfDay);
+	    $frm.find('#regDtEnd').val(Util.getToday().substring(0,4) + "-" + Util.getToday().substring(4,6) + "-" + Util.getToday().substring(6,8));	    	
+	    
         loadGrid();
     }, 200);
 }
 
+let initCalendar = function(){
+	
+	//년도별 달력(시작)
+	$('#yearPickerStart').calendar({
+        type: 'year',
+	    formatter: {
+	        year: 'YYYY' 
+	    },
+        startCalendar: $('#yearPickerEnd')
+        
+    });
+    
+    //년도별 달력(종료)
+	$('#yearPickerEnd').calendar({
+        type: 'year',
+	    formatter: {
+	        year: 'YYYY' 
+	    },
+        startCalendar: $('#yearPickerStart')
+        
+    });
+    
+	
+	//월별 달력(시작)
+	$('#monthPickerStart').calendar({
+        type: 'month',
+	    formatter: {
+	        month: 'YYYY-MM' 
+	    },
+        startCalendar: $('#monthPickerEnd'),
+        text: {
+            months: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+            monthsShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+        }
+        
+    });
+    
+    //월별 달력(종료)
+	$('#monthPickerEnd').calendar({
+        type: 'month',
+	    formatter: {
+	        month: 'YYYY-MM'
+	    },
+        startCalendar: $('#monthPickerStart'),
+        text: {
+            months: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+            monthsShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+        }
+        
+    });    
+}
 /**
  * 그리드 옵션
  */
@@ -275,25 +353,28 @@ let loadGrid = function(){
 
     //조회일자조건 셋팅
     let regDtStart, regDtEnd;
-    let year = $frm.find('#year').val();
-    let month = $frm.find('#month').val();
+    let regYyStart = $frm.find('#regYyStart').val();
+    let regYyEnd = $frm.find('#regYyEnd').val();
+    
+    let regYmStart = $frm.find('#regYmStart').val();
+    let regYmEnd = $frm.find('#regYmEnd').val();
+    
     if($frm.find('.chk-year').hasClass('checked')) {
-        if(ObjectUtil.isEmpty(year)) {
+        if(ObjectUtil.isEmpty(regYyStart) || ObjectUtil.isEmpty(regYyEnd)) {
             alert('등록년도를 입력해 주세요.'); return;
         }
-        regDtStart = year + '-01-01';
-        regDtEnd = year + '-12-31';
+        regDtStart = regYyStart + '-01-01';
+        regDtEnd = regYyEnd + '-12-31';
+        
+        
     } else if($frm.find('.chk-month').hasClass('checked')) {
-        if(ObjectUtil.isEmpty(year)) {
-            alert('등록년도를 입력해 주세요.'); return;
-        }
-        if(ObjectUtil.isEmpty(month)) {
+        if(ObjectUtil.isEmpty(regYmStart) || ObjectUtil.isEmpty(regYmEnd)) {
             alert('등록월을 입력해 주세요.'); return;
         }
-        regDtStart = year + '-' + month + '-01';
-        let last = new Date(year, month, 0);
-        let day = last.getDate();
-        regDtEnd = year + '-' + month + '-' + day;
+        regDtStart = regYmStart + '-01';
+        regDtEnd = regYmEnd + "-" + Util.getLastday(regYmEnd);
+        
+        
     } else if($frm.find('.chk-day').hasClass('checked')) {
         regDtStart = $frm.find('#regDtStart').val();
         regDtEnd = $frm.find('#regDtEnd').val();
