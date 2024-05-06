@@ -70,6 +70,31 @@ let GRID_OPTIONS = {
     columns     : columns,
     paging: false,
     dom: 'Bftrip',
+    createdRow: function (row, data, dataIndex, full) {
+		$(row).attr('vocTypeCd1', data.vocTypeCd1);
+		$(row).attr('vocTypeCd2', data.vocTypeCd2);
+		$(row).attr('vocTypeCd3', data.vocTypeCd3);
+		
+        $(row).children('td:nth-child(4)').attr('cellId', 'totalCnt');
+        $(row).children('td:nth-child(4)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(4)').css('color', 'blue');
+        
+        $(row).children('td:nth-child(6)').attr('cellId', 'complimentCnt');
+        $(row).children('td:nth-child(6)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(6)').css('color', 'blue');
+        
+        $(row).children('td:nth-child(9)').attr('cellId', 'complaintCnt');
+        $(row).children('td:nth-child(9)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(9)').css('color', 'blue');
+        
+        $(row).children('td:nth-child(12)').attr('cellId', 'suggestionCnt');
+        $(row).children('td:nth-child(12)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(12)').css('color', 'blue');        
+        
+        $(row).children('td:nth-child(15)').attr('cellId', 'inquiryCnt');
+        $(row).children('td:nth-child(15)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(15)').css('color', 'blue');
+ 	},
 	footerCallback: function (row, data, start, end, display ) {
 		var api = this.api(), data;
         var totalCnt = 0;
@@ -237,7 +262,33 @@ let GRID_OPTIONS = {
 		}        
         $(api.column(16).footer()).html(inquiryYoyCnt.toLocaleString());          
         
-	},    
+	},  
+	initComplete: function(){
+		//전체건수 클릭
+		$('[cellId="totalCnt"]').on('click', function(idx) {
+			fnVocMove('', $(this).parent().attr('vocTypeCd1'), $(this).parent().attr('vocTypeCd2'), $(this).parent().attr('vocTypeCd3'));
+		});
+		
+		//칭찬접수 클릭
+		$('[cellId="complimentCnt"]').on('click', function() {
+			fnVocMove('02', $(this).parent().attr('vocTypeCd1'), $(this).parent().attr('vocTypeCd2'), $(this).parent().attr('vocTypeCd3'));
+		});
+				
+		//불만접수 클릭
+		$('[cellId="complaintCnt"]').on('click', function() {
+			fnVocMove('01', $(this).parent().attr('vocTypeCd1'), $(this).parent().attr('vocTypeCd2'), $(this).parent().attr('vocTypeCd3'));
+		});
+		
+		//제안접수 클릭
+		$('[cellId="suggestionCnt"]').on('click', function() {
+			fnVocMove('03', $(this).parent().attr('vocTypeCd1'), $(this).parent().attr('vocTypeCd2'), $(this).parent().attr('vocTypeCd3'));
+		});
+								
+		//문의접수 클릭
+		$('[cellId="inquiryCnt"]').on('click', function() {
+			fnVocMove('04', $(this).parent().attr('vocTypeCd1'), $(this).parent().attr('vocTypeCd2'), $(this).parent().attr('vocTypeCd3'));
+		});						
+	},
     buttons: [
         {
             extend: 'excel',
@@ -274,33 +325,6 @@ let loadGrid = function(){
 		}	
 	}
 	
-    // 그리드 컬럼 변경
-    /*
-    $('#vocTypeTr').html('');
-    for(let i=0; i<15; i++) {
-        $('#vocTypeTr').append('<td></td>');
-    }*/
-
-    /*
-    GRID_OPTIONS.columns = $.extend(columns1, columns);
-        console.log(GRID_OPTIONS);
-
-    $('.vocTypeDiv').attr('colspan', 1);
-
-    if($('.chk-vocTypeCd2').hasClass('checked')) {
-        GRID_OPTIONS.columns = $.merge(columns2, columns);
-        $('.vocTypeDiv').attr('colspan', 2);
-        $('#vocTypeTr').append('<td></td>');
-    }
-    if($('.chk-vocTypeCd3').hasClass('checked')) {
-        GRID_OPTIONS.columns = $.merge(columns3, columns);
-        $('.vocTypeDiv').attr('colspan', 3);
-        let len = $('#vocTypeTr').children('td').length;
-        for(let i=0; i<18-len; i++) {
-            $('#vocTypeTr').append('<td></td>');
-        }
-    }
-*/
     let gridOptions = $.extend(true, {}, GRID_OPTIONS);
     let url = '/kmacvoc/v1/statistics/list/voctype';
     let param = $('#searchForm').form('get.values');
@@ -328,3 +352,43 @@ let setVocType = function(id){
     }
 }
 
+function fnVocMove(vocCaseCd, vocTypeCd1, vocTypeCd2, vocTypeCd3){
+	let $frm = $('#searchForm');
+	
+    //조회일자조건 셋팅
+    let regDtStart = $frm.find('#regDtStart').val();;
+    let regDtEnd = $frm.find('#regDtEnd').val();
+    
+    //등록일자
+	localStorage.setItem("regDtStart", regDtStart);
+	localStorage.setItem("regDtEnd", regDtEnd);
+	
+	//회사코드
+	localStorage.setItem("companyCd", $frm.find('#companyCd').val());
+	
+	//voc구분
+	if(!ObjectUtil.isEmpty(vocCaseCd)) {
+		localStorage.setItem("vocCaseCd", vocCaseCd);
+	}
+	
+	//voc유형1
+	if(!ObjectUtil.isEmpty(vocTypeCd1)) {
+		localStorage.setItem("vocTypeCd1", vocTypeCd1);
+	}
+	//voc유형2
+	if(!ObjectUtil.isEmpty(vocTypeCd2)) {
+		localStorage.setItem("vocTypeCd2", vocTypeCd2);
+	}
+	//voc유형3
+	if(!ObjectUtil.isEmpty(vocTypeCd3)) {
+		localStorage.setItem("vocTypeCd3", vocTypeCd3);
+	}
+	
+	//접수채널
+	if(!ObjectUtil.isEmpty(rcptChnnCd)) {
+		localStorage.setItem("rcptChnnCd", $frm.find('#rcptChnnCd').val());
+	}	
+		
+	goPage('/voc/voclist');
+	
+}

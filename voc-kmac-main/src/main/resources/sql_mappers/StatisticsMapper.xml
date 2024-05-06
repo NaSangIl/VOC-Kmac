@@ -81,7 +81,7 @@
                                                 DATE_FORMAT(B.REG_DT, '%Y') AS "periodType"
                                           </if>                        
                                           <if test='"M".equals(periodType)'>      
-                                                DATE_FORMAT(B.REG_DT, '%Y년%m월') AS "periodType"
+                                                DATE_FORMAT(B.REG_DT, '%Y-%m') AS "periodType"
                                           </if>                        
                                           <if test='"D".equals(periodType)'>      
                                                 DATE_FORMAT(B.REG_DT, '%Y-%m-%d') AS "periodType"
@@ -144,6 +144,7 @@
                                            ),0) AS BF_04_CNT    
                                       FROM TB_VOC_MST B
                                      WHERE 1=1
+                                       AND B.DEL_YN  = 'N'
                                         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtStart)">AND B.reg_dt <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1) </if>
                                         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(regDtEnd)">AND B.reg_dt <![CDATA[ < ]]> ADDDATE(#{regDtEnd},1) </if>   
                                         
@@ -229,15 +230,15 @@
 					SELECT A.LEV1_CUSTOM_CD
 						 , A.LEV1_CUSTOM_NM
 					     <if test="@org.apache.commons.lang3.ObjectUtils@isEmpty(vocTypeCd2Yn) and @org.apache.commons.lang3.ObjectUtils@isEmpty(vocTypeCd3Yn)">
-						 , COUNT(B.VOC_TYPE_CD1) AS NOW_ALL_CNT
-						 , COUNT(C.VOC_TYPE_CD1) AS BF_ALL_CNT		 
+						 , SUM(B.NOW_ALL_CNT) AS NOW_ALL_CNT
+				 		 , SUM(C.BF_ALL_CNT) AS BF_ALL_CNT 
 						 </if>
 						 <if test='"Y".equals(vocTypeCd2Yn)'>
 						     <if test="@org.apache.commons.lang3.ObjectUtils@isEmpty(vocTypeCd3Yn)">
 								 , A.LEV2_CUSTOM_CD
 								 , A.LEV2_CUSTOM_NM
-								 , COUNT(B.VOC_TYPE_CD2) AS NOW_ALL_CNT
-						 		 , COUNT(C.VOC_TYPE_CD2) AS BF_ALL_CNT
+								 , SUM(B.NOW_ALL_CNT) AS NOW_ALL_CNT
+						 		 , SUM(C.BF_ALL_CNT) AS BF_ALL_CNT
 							 </if>
 						 
 						 	 <if test='"Y".equals(vocTypeCd3Yn)'>
@@ -245,42 +246,18 @@
 								 , A.LEV2_CUSTOM_NM
 								 , A.LEV3_CUSTOM_CD
 								 , A.LEV3_CUSTOM_NM
-								 , COUNT(B.VOC_TYPE_CD3) AS NOW_ALL_CNT
-						 		 , COUNT(C.VOC_TYPE_CD3) AS BF_ALL_CNT
+								 , SUM(B.NOW_ALL_CNT) AS NOW_ALL_CNT
+						 		 , SUM(C.BF_ALL_CNT) AS BF_ALL_CNT
 							 </if>
 						 </if>
-						 , CASE WHEN B.VOC_CASE_CD = '01' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS NOW_01_CNT
-						 , CASE WHEN C.VOC_CASE_CD = '01' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS BF_01_CNT
-						 , CASE WHEN B.VOC_CASE_CD = '02' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS NOW_02_CNT
-						 , CASE WHEN C.VOC_CASE_CD = '02' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS BF_02_CNT
-						 , CASE WHEN B.VOC_CASE_CD = '03' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS NOW_03_CNT
-						 , CASE WHEN C.VOC_CASE_CD = '03' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS BF_03_CNT
-						 , CASE WHEN B.VOC_CASE_CD = '04' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS NOW_04_CNT
-						 , CASE WHEN C.VOC_CASE_CD = '04' 
-						        THEN SUM(1) 
-						        ELSE 0 
-						   END AS BF_04_CNT
+						 , SUM(NOW_01_CNT) AS NOW_01_CNT
+						 , SUM(BF_01_CNT) AS BF_01_CNT 
+						 , SUM(NOW_02_CNT) AS NOW_02_CNT
+						 , SUM(BF_02_CNT) AS BF_02_CNT 
+						 , SUM(NOW_03_CNT) AS NOW_03_CNT
+						 , SUM(BF_03_CNT) AS BF_03_CNT 
+						 , SUM(NOW_04_CNT) AS NOW_04_CNT
+						 , SUM(BF_04_CNT) AS BF_04_CNT 
 					  FROM (
 							SELECT LEV1.CUSTOM_CD AS "LEV1_CUSTOM_CD"
 							     , LEV1.CUSTOM_NM AS "LEV1_CUSTOM_NM"
@@ -363,23 +340,87 @@
 							       , LEV3.DISP_ORDER ASC
 							       </if>
 							) A	
-							LEFT OUTER JOIN TB_VOC_MST B
-						                 ON A.LEV1_CUSTOM_CD = B.VOC_TYPE_CD1
-									<if test='"Y".equals(vocTypeCd2Yn)'>      						                 
-								        AND A.LEV2_CUSTOM_CD = B.VOC_TYPE_CD2
-								    </if>
-								    <if test='"Y".equals(vocTypeCd3Yn)'>    
-						                AND A.LEV3_CUSTOM_CD = B.VOC_TYPE_CD3
-                                    </if>						                
-							            AND B.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
-					                    AND B.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
-					                    AND B.COMPANY_CD = #{companyCd}
-					                    AND B.DEL_YN = 'N'
-					                    <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
-					                    AND B.RCPT_CHNN_CD = #{rcptChnnCd}
-					                    </if>
+							LEFT OUTER JOIN (
+							                      SELECT VOC_TYPE_CD1
+							                           , VOC_TYPE_CD2
+							                           , VOC_TYPE_CD3
+							                           , VOC_CASE_CD
+							                           , COUNT(1) AS NOW_ALL_CNT
+							                           , CASE WHEN B.VOC_CASE_CD = '01' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS NOW_01_CNT
+							                           , CASE WHEN B.VOC_CASE_CD = '02' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS NOW_02_CNT
+							                           , CASE WHEN B.VOC_CASE_CD = '03' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS NOW_03_CNT
+							                           , CASE WHEN B.VOC_CASE_CD = '04' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS NOW_04_CNT
+							                        FROM TB_VOC_MST B
+							                       WHERE 1=1
+										             AND B.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+								                     AND B.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+								                     AND B.COMPANY_CD = #{companyCd}
+								                     AND B.DEL_YN = 'N'
+								                    <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
+								                     AND B.RCPT_CHNN_CD = #{rcptChnnCd}
+								                    </if>
+								                   GROUP BY VOC_TYPE_CD1
+								                          , VOC_TYPE_CD2
+								                          , VOC_TYPE_CD3
+								                          , VOC_CASE_CD 
+						                   ) B 
+									      ON A.LEV1_CUSTOM_CD = B.VOC_TYPE_CD1
+								     <if test='"Y".equals(vocTypeCd2Yn)'>      						                 
+								         AND A.LEV2_CUSTOM_CD = B.VOC_TYPE_CD2
+								     </if>
+								     <if test='"Y".equals(vocTypeCd3Yn)'>    
+						                 AND A.LEV3_CUSTOM_CD = B.VOC_TYPE_CD3
+                                     </if>									
+
 					                    
-							LEFT OUTER JOIN TB_VOC_MST C
+							LEFT OUTER JOIN (
+												  SELECT VOC_TYPE_CD1
+							                           , VOC_TYPE_CD2
+							                           , VOC_TYPE_CD3
+							                           , VOC_CASE_CD
+							                           , COUNT(1) AS BF_ALL_CNT
+							                           , CASE WHEN C.VOC_CASE_CD = '01' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS BF_01_CNT
+							                           , CASE WHEN C.VOC_CASE_CD = '02' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS BF_02_CNT
+							                           , CASE WHEN C.VOC_CASE_CD = '03' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS BF_03_CNT
+							                           , CASE WHEN C.VOC_CASE_CD = '04' 
+							                                  THEN SUM(1)
+							                                  ELSE 0
+							                             END AS BF_04_CNT
+							                        FROM TB_VOC_MST C
+							                       WHERE 1=1
+											         AND C.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(#{regDtStart}, interval -1 YEAR), -1)
+									                 AND C.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(#{regDtEnd}, interval -1 YEAR), 1)
+									                 AND C.COMPANY_CD = #{companyCd}
+									                 AND C.DEL_YN = 'N'
+									             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
+									                 AND C.RCPT_CHNN_CD = #{rcptChnnCd}
+									             </if>          
+								                   GROUP BY VOC_TYPE_CD1
+								                          , VOC_TYPE_CD2
+								                          , VOC_TYPE_CD3
+								                          , VOC_CASE_CD									               
+										  ) C
 							             ON A.LEV1_CUSTOM_CD = C.VOC_TYPE_CD1
 							        <if test='"Y".equals(vocTypeCd2Yn)'>     
 								        AND A.LEV2_CUSTOM_CD = C.VOC_TYPE_CD2
@@ -387,13 +428,7 @@
 								    <if test='"Y".equals(vocTypeCd3Yn)'>  
 						                AND A.LEV3_CUSTOM_CD = C.VOC_TYPE_CD3
 						            </if>    
-							            AND C.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(#{regDtStart}, interval -1 YEAR), -1)
-					                    AND C.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(#{regDtEnd}, interval -1 YEAR), 1)
-					                    AND C.COMPANY_CD = #{companyCd}
-					                    AND C.DEL_YN = 'N'
-					                    <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
-					                    AND C.RCPT_CHNN_CD = #{rcptChnnCd}
-					                    </if>            
+
 						GROUP BY A.LEV1_CUSTOM_CD
 						       , A.LEV1_CUSTOM_NM
 						     <if test='"Y".equals(vocTypeCd2Yn)'>       
@@ -409,7 +444,8 @@
 
     <!-- 접수채널별 VOC 현황 조회 -->
     <select id="getVocStatusByChannel" resultType="kr.co.kmac.statistics.dto.StatisticsDto$Info">
-		SELECT A.rcptChnnNm
+		SELECT A.rcptChnnCd
+		     , A.rcptChnnNm
 		     , SUM(A.NOW_ALL_CNT)   AS "totalCnt"
 		     , SUM(A.BF_ALL_CNT)
 		     , CASE WHEN SUM(A.BF_ALL_CNT) > 0
@@ -550,7 +586,8 @@
 				      <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">AND A.rcpt_chnn_cd = #{rcptChnnCd} </if>     
 		                 
 		    ) A                
-		GROUP BY A.rcptChnnNm        
+		GROUP BY A.rcptChnnCd
+		       , A.rcptChnnNm        
     </select>
 
     <!-- 처리유형별 VOC 현황 조회 -->
@@ -620,47 +657,23 @@
                     SELECT A.LEV1_CUSTOM_CD
                          , A.LEV1_CUSTOM_NM
                          <if test="@org.apache.commons.lang3.ObjectUtils@isEmpty(vocActTypeCd2Yn)">
-                         , COUNT(B.VOC_ACT_TYPE_CD1) AS NOW_ALL_CNT
-                         , COUNT(C.VOC_ACT_TYPE_CD1) AS BF_ALL_CNT       
+                         , SUM(B.NOW_ALL_CNT) AS NOW_ALL_CNT
+                         , SUM(C.BF_ALL_CNT) AS BF_ALL_CNT
                          </if>
                          <if test='"Y".equals(vocActTypeCd2Yn)'>
                          , A.LEV2_CUSTOM_CD
                          , A.LEV2_CUSTOM_NM
-                         , COUNT(B.VOC_ACT_TYPE_CD2) AS NOW_ALL_CNT
-                         , COUNT(C.VOC_ACT_TYPE_CD2) AS BF_ALL_CNT
+                         , SUM(B.NOW_ALL_CNT) AS NOW_ALL_CNT
+                         , SUM(C.BF_ALL_CNT) AS BF_ALL_CNT
                          </if>
-                         , CASE WHEN B.VOC_CASE_CD = '01' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS NOW_01_CNT
-                         , CASE WHEN C.VOC_CASE_CD = '01' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS BF_01_CNT
-                         , CASE WHEN B.VOC_CASE_CD = '02' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS NOW_02_CNT
-                         , CASE WHEN C.VOC_CASE_CD = '02' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS BF_02_CNT
-                         , CASE WHEN B.VOC_CASE_CD = '03' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS NOW_03_CNT
-                         , CASE WHEN C.VOC_CASE_CD = '03' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS BF_03_CNT
-                         , CASE WHEN B.VOC_CASE_CD = '04' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS NOW_04_CNT
-                         , CASE WHEN C.VOC_CASE_CD = '04' 
-                                THEN SUM(1) 
-                                ELSE 0 
-                           END AS BF_04_CNT
+                         , SUM(NOW_01_CNT) AS NOW_01_CNT
+                         , SUM(BF_01_CNT) AS BF_01_CNT 
+                         , SUM(NOW_02_CNT) AS NOW_02_CNT
+                         , SUM(BF_02_CNT) AS BF_02_CNT 
+                         , SUM(NOW_03_CNT) AS NOW_03_CNT
+                         , SUM(BF_03_CNT) AS BF_03_CNT 
+                         , SUM(NOW_04_CNT) AS NOW_04_CNT
+                         , SUM(BF_04_CNT) AS BF_04_CNT 
                       FROM (
                             SELECT LEV1.CUSTOM_CD AS "LEV1_CUSTOM_CD"
                                  , LEV1.CUSTOM_NM AS "LEV1_CUSTOM_NM"
@@ -715,48 +728,101 @@
                                    , LEV2.DISP_ORDER ASC
                                    </if>
                             ) A 
-                            LEFT OUTER JOIN TB_VOC_MST B
+                            LEFT OUTER JOIN (
+                                                  SELECT VOC_ACT_TYPE_CD1
+                                                       , VOC_ACT_TYPE_CD2
+                                                       , VOC_CASE_CD
+                                                       , COUNT(1) AS NOW_ALL_CNT
+                                                       , CASE WHEN B.VOC_CASE_CD = '01' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS NOW_01_CNT
+                                                       , CASE WHEN B.VOC_CASE_CD = '02' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS NOW_02_CNT
+                                                       , CASE WHEN B.VOC_CASE_CD = '03' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS NOW_03_CNT
+                                                       , CASE WHEN B.VOC_CASE_CD = '04' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS NOW_04_CNT
+                                                    FROM TB_VOC_MST B
+                                                   WHERE 1=1
+			                                         AND B.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
+			                                         AND B.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
+			                                         AND B.COMPANY_CD = #{companyCd}
+			                                         AND B.DEL_YN = 'N'
+			                                         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
+			                                             AND B.RCPT_CHNN_CD = #{rcptChnnCd}
+			                                         </if>
+			                                         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">
+			                                             AND B.VOC_TYPE_CD1 = #{vocTypeCd1}
+			                                         </if>
+			                                         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">
+			                                             AND B.VOC_TYPE_CD2 = #{vocTypeCd2}
+			                                         </if>
+			                                         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">
+			                                             AND B.VOC_TYPE_CD3 = #{vocTypeCd3}
+			                                         </if>
+                                                   GROUP BY VOC_ACT_TYPE_CD1
+                                                          , VOC_ACT_TYPE_CD2
+                                                          , VOC_CASE_CD 
+                                           ) B 
                                          ON A.LEV1_CUSTOM_CD = B.VOC_ACT_TYPE_CD1
                                     <if test='"Y".equals(vocActTypeCd2Yn)'>                                             
                                         AND A.LEV2_CUSTOM_CD = B.VOC_ACT_TYPE_CD2
                                     </if>
-                                        AND B.REG_DT <![CDATA[ > ]]> ADDDATE(#{regDtStart}, -1)
-                                        AND B.REG_DT <![CDATA[ < ]]> ADDDATE(#{regDtEnd}, 1)
-                                        AND B.COMPANY_CD = #{companyCd}
-                                        AND B.DEL_YN = 'N'
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
-                                            AND B.RCPT_CHNN_CD = #{rcptChnnCd}
-                                        </if>
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">
-                                            AND B.VOC_TYPE_CD1 = #{vocTypeCd1}
-                                        </if>
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">
-                                            AND B.VOC_TYPE_CD2 = #{vocTypeCd2}
-                                        </if>
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">
-                                            AND B.VOC_TYPE_CD3 = #{vocTypeCd3}
-                                        </if>
-                            LEFT OUTER JOIN TB_VOC_MST C
+                            LEFT OUTER JOIN (
+                                                  SELECT VOC_ACT_TYPE_CD1
+                                                       , VOC_ACT_TYPE_CD2
+                                                       , VOC_CASE_CD
+                                                       , COUNT(1) AS BF_ALL_CNT
+                                                       , CASE WHEN C.VOC_CASE_CD = '01' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS BF_01_CNT
+                                                       , CASE WHEN C.VOC_CASE_CD = '02' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS BF_02_CNT
+                                                       , CASE WHEN C.VOC_CASE_CD = '03' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS BF_03_CNT
+                                                       , CASE WHEN C.VOC_CASE_CD = '04' 
+                                                              THEN SUM(1)
+                                                              ELSE 0
+                                                         END AS BF_04_CNT
+                                                    FROM TB_VOC_MST C
+                                                   WHERE 1=1
+			                                        AND C.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(#{regDtStart}, interval -1 YEAR), -1)
+			                                        AND C.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(#{regDtEnd}, interval -1 YEAR), 1)
+			                                        AND C.COMPANY_CD = #{companyCd}
+			                                        AND C.DEL_YN = 'N'
+			                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
+			                                            AND C.RCPT_CHNN_CD = #{rcptChnnCd}
+			                                        </if>            
+			                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">
+			                                            AND C.VOC_TYPE_CD1 = #{vocTypeCd1}
+			                                        </if>
+			                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">
+			                                            AND C.VOC_TYPE_CD2 = #{vocTypeCd2}
+			                                        </if>
+			                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">
+			                                            AND C.VOC_TYPE_CD3 = #{vocTypeCd3}
+			                                        </if>                                   
+                                                   GROUP BY VOC_ACT_TYPE_CD1
+                                                          , VOC_ACT_TYPE_CD2
+                                                          , VOC_CASE_CD                                                
+                                          ) C
                                          ON A.LEV1_CUSTOM_CD = C.VOC_ACT_TYPE_CD1
                                         <if test='"Y".equals(vocActTypeCd2Yn)'>     
                                             AND A.LEV2_CUSTOM_CD = C.VOC_ACT_TYPE_CD2
                                         </if>    
-                                        AND C.REG_DT <![CDATA[ > ]]> ADDDATE(date_add(#{regDtStart}, interval -1 YEAR), -1)
-                                        AND C.REG_DT <![CDATA[ < ]]> ADDDATE(date_add(#{regDtEnd}, interval -1 YEAR), 1)
-                                        AND C.COMPANY_CD = #{companyCd}
-                                        AND C.DEL_YN = 'N'
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(rcptChnnCd)">
-                                            AND C.RCPT_CHNN_CD = #{rcptChnnCd}
-                                        </if>            
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd1)">
-                                            AND C.VOC_TYPE_CD1 = #{vocTypeCd1}
-                                        </if>
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd2)">
-                                            AND C.VOC_TYPE_CD2 = #{vocTypeCd2}
-                                        </if>
-                                        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(vocTypeCd3)">
-                                            AND C.VOC_TYPE_CD3 = #{vocTypeCd3}
-                                        </if>                                        
+         
                         GROUP BY A.LEV1_CUSTOM_CD
                                , A.LEV1_CUSTOM_NM
                              <if test='"Y".equals(vocActTypeCd2Yn)'>       

@@ -155,14 +155,38 @@ let GRID_OPTIONS = {
     ],
     paging: false,
     dom: 'Bftrip',
-/*    
-    // footer에 합계와 평균 내용을 추가하기 위한 custom option 항목
-    footerCalculation :{
-        targetSumColIndexs : [1,2,3,5,6,8,9,11,12,14],
-        targetAvgColIndexs : [4,7,10,13],
-        isNumberFormat  : true,
-    },
-*/    
+    createdRow: function (row, data, dataIndex, full) {
+		$(row).attr('stdDt', $(row).children('td:nth-child(1)').text());
+		
+        $(row).children('td:nth-child(2)').attr('cellId', 'totalCnt');
+        $(row).children('td:nth-child(2)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(2)').css('color', 'blue');
+        //$(row).children('td:nth-child(3)').attr('cellId', 'totalYoyCnt');
+        
+        $(row).children('td:nth-child(4)').attr('cellId', 'complimentCnt');
+        $(row).children('td:nth-child(4)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(4)').css('color', 'blue');
+        //$(row).children('td:nth-child(5)').attr('cellId', 'complimentRate');
+        //$(row).children('td:nth-child(6)').attr('cellId', 'complimentYoyCnt');
+        
+        $(row).children('td:nth-child(7)').attr('cellId', 'complaintCnt');
+        $(row).children('td:nth-child(7)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(7)').css('color', 'blue');
+        //$(row).children('td:nth-child(8)').attr('cellId', 'complaintRate');
+        //$(row).children('td:nth-child(9)').attr('cellId', 'complaintYoyCnt');
+        
+        $(row).children('td:nth-child(10)').attr('cellId', 'suggestionCnt');
+        $(row).children('td:nth-child(10)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(10)').css('color', 'blue');        
+        //$(row).children('td:nth-child(11)').attr('cellId', 'suggestionRate');
+        //$(row).children('td:nth-child(12)').attr('cellId', 'suggestionYoyCnt');
+        
+        $(row).children('td:nth-child(13)').attr('cellId', 'inquiryCnt');
+        $(row).children('td:nth-child(13)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(13)').css('color', 'blue');
+        //$(row).children('td:nth-child(14)').attr('cellId', 'inquiryRate');
+        //$(row).children('td:nth-child(15)').attr('cellId', 'inquiryYoyCnt');
+ 	},
     footerCallback: function (row, data, start, end, display ) {
 		var api = this.api(), data;
         var totalCnt = 0;
@@ -328,6 +352,32 @@ let GRID_OPTIONS = {
 		}        
         $(api.column(14).footer()).html(inquiryYoyCnt.toLocaleString());                  
 	},
+	initComplete: function(){
+		//전체건수 클릭
+		$('[cellId="totalCnt"]').on('click', function(idx) {
+			fnVocMove('', $(this).parent().attr('stdDt'));
+		});
+		
+		//칭찬접수 클릭
+		$('[cellId="complimentCnt"]').on('click', function() {
+			fnVocMove('02', $(this).parent().attr('stdDt'));
+		});
+				
+		//불만접수 클릭
+		$('[cellId="complaintCnt"]').on('click', function() {
+			fnVocMove('01', $(this).parent().attr('stdDt'));
+		});
+		
+		//제안접수 클릭
+		$('[cellId="suggestionCnt"]').on('click', function() {
+			fnVocMove('03', $(this).parent().attr('stdDt'));
+		});
+								
+		//문의접수 클릭
+		$('[cellId="inquiryCnt"]').on('click', function() {
+			fnVocMove('04', $(this).parent().attr('stdDt'));
+		});						
+	},
     buttons: [
         {
             extend: 'excel',
@@ -400,3 +450,62 @@ let loadGrid = function(){
     $Grid = gridUtil.loadGrid("listDataTablePeriod", gridOptions, url, param);
 };
 
+function fnVocMove(vocCaseCd, stdDt){
+	let $frm = $('#searchForm');
+	
+    //조회일자조건 셋팅
+    let regDtStart = "";
+    let regDtEnd = "";
+    
+    if($frm.find('.chk-year').hasClass('checked')) {
+		let regYyStart = stdDt;
+    	let regYyEnd = stdDt;
+    
+        regDtStart = regYyStart + '-01-01';
+        regDtEnd = regYyEnd + '-12-31';
+        
+    } else if($frm.find('.chk-month').hasClass('checked')) {
+		let regYmStart = stdDt;
+    	let regYmEnd = stdDt;
+    	
+        regDtStart = regYmStart + '-01';
+        regDtEnd = regYmEnd + "-" + Util.getLastday(regYmEnd);
+        
+    } else if($frm.find('.chk-day').hasClass('checked')) {
+        regDtStart = stdDt;
+        regDtEnd = stdDt;
+    }
+    
+    //등록일자
+	localStorage.setItem("regDtStart", regDtStart);
+	localStorage.setItem("regDtEnd", regDtEnd);
+	
+	//회사코드
+	localStorage.setItem("companyCd", $frm.find('#companyCd').val());
+	
+	//voc구분
+	if(!ObjectUtil.isEmpty(vocCaseCd)) {
+		localStorage.setItem("vocCaseCd", vocCaseCd);
+	}
+	
+	//voc유형1
+	if(!ObjectUtil.isEmpty(vocTypeCd1)) {
+		localStorage.setItem("vocTypeCd1", $frm.find('#vocTypeCd1').val());
+	}
+	//voc유형2
+	if(!ObjectUtil.isEmpty(vocTypeCd2)) {
+		localStorage.setItem("vocTypeCd2", $frm.find('#vocTypeCd2').val());
+	}
+	//voc유형3
+	if(!ObjectUtil.isEmpty(vocTypeCd3)) {
+		localStorage.setItem("vocTypeCd3", $frm.find('#vocTypeCd3').val());
+	}	
+	
+	//접수채널
+	if(!ObjectUtil.isEmpty(rcptChnnCd)) {
+		localStorage.setItem("rcptChnnCd", $frm.find('#rcptChnnCd').val());
+	}	
+		
+	goPage('/voc/voclist');
+	
+}

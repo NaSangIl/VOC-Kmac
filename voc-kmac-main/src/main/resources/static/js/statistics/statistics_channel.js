@@ -63,6 +63,38 @@ let GRID_OPTIONS = {
     columns     : columns,
     paging: false,
     dom: 'Bftrip',
+    createdRow: function (row, data, dataIndex, full) {
+		$(row).attr('rcptChnnCd', data.rcptChnnCd);
+		
+        $(row).children('td:nth-child(2)').attr('cellId', 'totalCnt');
+        $(row).children('td:nth-child(2)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(2)').css('color', 'blue');
+        //$(row).children('td:nth-child(3)').attr('cellId', 'totalYoyCnt');
+        
+        $(row).children('td:nth-child(4)').attr('cellId', 'complimentCnt');
+        $(row).children('td:nth-child(4)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(4)').css('color', 'blue');
+        //$(row).children('td:nth-child(5)').attr('cellId', 'complimentRate');
+        //$(row).children('td:nth-child(6)').attr('cellId', 'complimentYoyCnt');
+        
+        $(row).children('td:nth-child(7)').attr('cellId', 'complaintCnt');
+        $(row).children('td:nth-child(7)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(7)').css('color', 'blue');
+        //$(row).children('td:nth-child(8)').attr('cellId', 'complaintRate');
+        //$(row).children('td:nth-child(9)').attr('cellId', 'complaintYoyCnt');
+        
+        $(row).children('td:nth-child(10)').attr('cellId', 'suggestionCnt');
+        $(row).children('td:nth-child(10)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(10)').css('color', 'blue');        
+        //$(row).children('td:nth-child(11)').attr('cellId', 'suggestionRate');
+        //$(row).children('td:nth-child(12)').attr('cellId', 'suggestionYoyCnt');
+        
+        $(row).children('td:nth-child(13)').attr('cellId', 'inquiryCnt');
+        $(row).children('td:nth-child(13)').css('text-decoration', 'underline');
+        $(row).children('td:nth-child(13)').css('color', 'blue');
+        //$(row).children('td:nth-child(14)').attr('cellId', 'inquiryRate');
+        //$(row).children('td:nth-child(15)').attr('cellId', 'inquiryYoyCnt');
+ 	},
 	footerCallback: function (row, data, start, end, display ) {
 		var api = this.api(), data;
         var totalCnt = 0;
@@ -231,6 +263,32 @@ let GRID_OPTIONS = {
         $(api.column(14).footer()).html(inquiryYoyCnt.toLocaleString());          
         
 	},    
+	initComplete: function(){
+		//전체건수 클릭
+		$('[cellId="totalCnt"]').on('click', function(idx) {
+			fnVocMove('', $(this).parent().attr('rcptChnnCd'));
+		});
+		
+		//칭찬접수 클릭
+		$('[cellId="complimentCnt"]').on('click', function() {
+			fnVocMove('02', $(this).parent().attr('rcptChnnCd'));
+		});
+				
+		//불만접수 클릭
+		$('[cellId="complaintCnt"]').on('click', function() {
+			fnVocMove('01', $(this).parent().attr('rcptChnnCd'));
+		});
+		
+		//제안접수 클릭
+		$('[cellId="suggestionCnt"]').on('click', function() {
+			fnVocMove('03', $(this).parent().attr('rcptChnnCd'));
+		});
+								
+		//문의접수 클릭
+		$('[cellId="inquiryCnt"]').on('click', function() {
+			fnVocMove('04', $(this).parent().attr('rcptChnnCd'));
+		});						
+	},
     buttons: [
         {
             extend: 'excel',
@@ -267,3 +325,43 @@ let loadGrid = function(){
     $Grid = gridUtil.loadGrid("listDataTableChannel", gridOptions, url, param);
 };
 
+function fnVocMove(vocCaseCd, rcptChnnCd){
+	let $frm = $('#searchForm');
+	
+    //조회일자조건 셋팅
+    let regDtStart = $frm.find('#regDtStart').val();;
+    let regDtEnd = $frm.find('#regDtEnd').val();
+    
+    //등록일자
+	localStorage.setItem("regDtStart", regDtStart);
+	localStorage.setItem("regDtEnd", regDtEnd);
+	
+	//회사코드
+	localStorage.setItem("companyCd", $frm.find('#companyCd').val());
+	
+	//voc구분
+	if(!ObjectUtil.isEmpty(vocCaseCd)) {
+		localStorage.setItem("vocCaseCd", vocCaseCd);
+	}
+	
+	//접수채널
+	if(!ObjectUtil.isEmpty(rcptChnnCd)) {
+		localStorage.setItem("rcptChnnCd", rcptChnnCd);
+	}	
+	
+	//voc유형1
+	if(!ObjectUtil.isEmpty(vocTypeCd1)) {
+		localStorage.setItem("vocTypeCd1", $frm.find('#vocTypeCd1').val());
+	}
+	//voc유형2
+	if(!ObjectUtil.isEmpty(vocTypeCd2)) {
+		localStorage.setItem("vocTypeCd2", $frm.find('#vocTypeCd2').val());
+	}
+	//voc유형3
+	if(!ObjectUtil.isEmpty(vocTypeCd3)) {
+		localStorage.setItem("vocTypeCd3", $frm.find('#vocTypeCd3').val());
+	}
+	
+	goPage('/voc/voclist');
+	
+}

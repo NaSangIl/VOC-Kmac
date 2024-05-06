@@ -64,20 +64,33 @@ public class StatisticsDto {
 
         @Schema(description = "기간구분:년도/년월/일자")
         private String periodType;
+        
         @Schema(description = "VOC유형코드_대")
         public String vocTypeNm1;
+        @Schema(description = "VOC유형코드_대코드")
+        public String vocTypeCd1;
         @Schema(description = "VOC유형코드_중")
         public String vocTypeNm2;
+        @Schema(description = "VOC유형코드_중코드")
+        public String vocTypeCd2;
         @Schema(description = "VOC유형코드_소")
         public String vocTypeNm3;
+        @Schema(description = "VOC유형코드_소코드")
+        public String vocTypeCd3;
 
         @Schema(description = "접수채널명")
         public String rcptChnnNm;
+        @Schema(description = "접수채널코드")
+        public String rcptChnnCd;
 
         @Schema(description = "처리유형명1")
         public String vocActTypeNm1;
+        @Schema(description = "처리유형코드1")
+        public String vocActTypeCd1;
         @Schema(description = "처리유형명2")
         public String vocActTypeNm2;
+        @Schema(description = "처리유형코드2")
+        public String vocActTypeCd2;
 
         @Schema(description = "처리기간")
         public String actPeriod;
