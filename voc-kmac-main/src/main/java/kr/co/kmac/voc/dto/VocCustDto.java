@@ -53,6 +53,9 @@ public class VocCustDto {
 
         @Schema(description = "익명고객여부")
         private String anonymCustYn;
+        
+        @Schema(description = "VOC건수정렬여부")
+        private String vocCntSortYn;     
     }
 
     @Data
@@ -101,7 +104,7 @@ public class VocCustDto {
 
         @Schema(description = "민감VOC건수")
         private int sensVocCnt;
-
+   
     }
 
     @Data

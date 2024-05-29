@@ -53,7 +53,8 @@ let loadGrid = function(){
     //날짜포맷 변경되어 별도 셋팅
     param.regDtStart = $('#searchForm').find('#regDtStart').val();
     param.regDtEnd = $('#searchForm').find('#regDtEnd').val();
-
+    param.vocCntSortYn = param.vocCntSortYn == false ? '' : "Y";
+    
     $Grid = gridUtil.loadGrid("listDataTableCust", gridOptions, url, param);
 };
 
