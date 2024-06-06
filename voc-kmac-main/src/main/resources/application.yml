@@ -117,7 +117,8 @@ system:
 server:
   port: 8090
   #domain: http://api.vocservice.co.kr
-  domain: http://hvoc.co.kr:8090
+  #domain: http://hvoc.co.kr:8090
+  domain: http://voclab.co.kr:8090
 
 logging:
   pattern:
