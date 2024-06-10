@@ -1,5 +1,7 @@
 package kr.co.kmac.voc.controller;
 
+import java.security.NoSuchAlgorithmException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.co.kmac.common.util.AesEncryptUtil;
 import kr.co.kmac.common.util.LoginInfoUtil;
 import kr.co.kmac.common.util.ResponseUtil;
 import kr.co.kmac.common.util.validation.PostMethod;
@@ -79,6 +82,18 @@ public class VocCustController extends BaseController {
 		if (!LoginInfoUtil.isSystemAdmin(loginInfo)) {
 			param.setCompanyCd(loginInfo.getCompanyCd());
 		}
+		
+		String encTelNo = param.getTelNo();
+		String encEmailAdr = param.getEmailAddr();
+		
+		try {
+			encTelNo = AesEncryptUtil.encrypt(encTelNo);
+			param.setTelNo(encTelNo);
+			
+			encEmailAdr = AesEncryptUtil.encrypt(encEmailAdr);
+			param.setEmailAddr(encEmailAdr);
+		}catch(Exception e) {}
+		
 		return ResponseUtil.getResponse(req, service.insertVocCust(param));
 	}
 
@@ -95,6 +110,16 @@ public class VocCustController extends BaseController {
 		if (!LoginInfoUtil.isSystemAdmin(loginInfo)) {
 			param.setCompanyCd(loginInfo.getCompanyCd());
 		}
+		String encTelNo = param.getTelNo();
+		String encEmailAdr = param.getEmailAddr();
+		
+		try {
+			encTelNo = AesEncryptUtil.encrypt(encTelNo);
+			param.setTelNo(encTelNo);
+			
+			encEmailAdr = AesEncryptUtil.encrypt(encEmailAdr);
+			param.setEmailAddr(encEmailAdr);
+		}catch(Exception e) {}
 		return ResponseUtil.getResponse(req, service.updateVocCust(param));
 	}
 

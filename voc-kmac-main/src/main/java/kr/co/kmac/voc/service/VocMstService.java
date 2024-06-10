@@ -4,6 +4,7 @@ import kr.co.kmac.bbs.dto.BbsDto;
 import kr.co.kmac.common.constants.CommonConstants;
 import kr.co.kmac.common.dto.AttachFileDto;
 import kr.co.kmac.common.service.AttachFileService;
+import kr.co.kmac.common.util.AesEncryptUtil;
 import kr.co.kmac.common.util.MessageUtil;
 import kr.co.kmac.coreframework.common.exception.ApiBusinessException;
 import kr.co.kmac.coreframework.service.BaseService;
@@ -97,8 +98,16 @@ public class VocMstService extends BaseService
         VocCustDto.Info vocCust = custMapper.getVocCust(res.getCustSeq());
         res.setCustNm(vocCust.getCustNm());
         res.setCustNo(vocCust.getCustNo());
-        res.setTelNo(vocCust.getTelNo());
-        res.setEmailAddr(vocCust.getEmailAddr());
+        
+        String decTelNo = vocCust.getTelNo();
+        String decEmailAdr = vocCust.getEmailAddr();
+        try {
+			decTelNo = AesEncryptUtil.decrypt(decTelNo);
+			decEmailAdr = AesEncryptUtil.decrypt(decEmailAdr);
+		}catch(Exception e) {}
+        res.setTelNo(decTelNo);
+        res.setEmailAddr(decEmailAdr);
+        
         res.setVocCustInfo(vocCust);
 
         // 파일정보

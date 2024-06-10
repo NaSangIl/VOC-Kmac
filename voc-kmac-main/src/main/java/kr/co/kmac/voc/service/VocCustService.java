@@ -1,13 +1,18 @@
 package kr.co.kmac.voc.service;
 
-import kr.co.kmac.common.util.MessageUtil;
-import kr.co.kmac.coreframework.service.BaseService;
-import kr.co.kmac.voc.dto.VocCustDto;
-import kr.co.kmac.voc.mapper.VocCustMapper;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import kr.co.kmac.common.util.AesEncryptUtil;
+import kr.co.kmac.common.util.MessageUtil;
+import kr.co.kmac.coreframework.service.BaseService;
+import kr.co.kmac.voc.dto.VocCustDto;
+import kr.co.kmac.voc.mapper.VocCustMapper;
 
 /**
  * VOC고객 서비스 클래스
@@ -47,12 +52,32 @@ public class VocCustService extends BaseService
     public VocCustDto.ListResponse getVocCustList(VocCustDto.Request param)
     {
 
+    	List<VocCustDto.Info> dataList = mapper.getVocCustList(param);
 
+    	//복호화 처리
+    	List<VocCustDto.Info> newDataList = new ArrayList<VocCustDto.Info>();
+    	for(int i=0; i<dataList.size(); i++) {
+    		
+    		VocCustDto.Info rows = dataList.get(i);
+    		
+    		String decTelNo = rows.getTelNo();
+    		String decEmailAdr = rows.getEmailAddr();
+    		
+    		try {
+    			decTelNo = AesEncryptUtil.decrypt(decTelNo);
+    			rows.setTelNo(decTelNo);
+    			decEmailAdr = AesEncryptUtil.decrypt(decEmailAdr);
+    			rows.setEmailAddr(decEmailAdr);
+    		}catch(Exception e) {}
+    		
+    		newDataList.add(rows);
+    	};
+		
         long total = mapper.getVocCustListCount(param);
         return VocCustDto.ListResponse
                 .<VocCustDto.Info>builder()
                 .totalCount(total)
-                .list(mapper.getVocCustList(param))
+                .list(dataList)
                 .build();
 	}
 
@@ -64,7 +89,20 @@ public class VocCustService extends BaseService
      */
     public VocCustDto.Info getVocCust(int custSeq)
     {
-        return mapper.getVocCust(custSeq);
+    	
+    	VocCustDto.Info custInfo = mapper.getVocCust(custSeq);
+    	String decTelNo = custInfo.getTelNo();
+		String decEmailAdr = custInfo.getEmailAddr();
+		
+		try {
+			decTelNo = AesEncryptUtil.decrypt(decTelNo);
+			custInfo.setTelNo(decTelNo);
+			decEmailAdr = AesEncryptUtil.decrypt(decEmailAdr);
+			custInfo.setEmailAddr(decEmailAdr);
+		}catch(Exception e) {}
+		
+		
+        return custInfo;
     }
 
     /**
