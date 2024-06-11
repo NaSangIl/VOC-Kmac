@@ -68,9 +68,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .maxAge(3600);
+				.allowedOriginPatterns("http://www.voclab.co.kr", "http://api.voclab.co.kr", "http://localhost:9000")
+				.allowedMethods("POST", "GET", "PUT", "OPTIONS", "DELETE", "HEAD")
+				.allowedHeaders("*")
+				.exposedHeaders("Set-Cookie")
+				.allowCredentials(true);
 	}
 }
